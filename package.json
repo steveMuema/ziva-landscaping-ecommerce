@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "prisma generate && prisma migrate deploy && next build",
+    "postinstall": "prisma generate",
+    "seed": "tsx prisma/seed.ts",
     "start": "next start",
     "lint": "next lint",
     "prisma:seed": "tsx prisma/seed.ts",

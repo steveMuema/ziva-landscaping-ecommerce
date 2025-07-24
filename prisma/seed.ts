@@ -1,25 +1,23 @@
-import { PrismaClient } from "@prisma/client";
-import { hash } from "bcryptjs"; 
+import { PrismaClient } from '@prisma/client';
+import bcryptjs from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // Seed admin user
-  const adminEmail = "admin@zivalandscaping.co.ke";
-  const adminPassword = "securepassword123"; // Plain text for demo; hash in production
-  const hashedPassword = await hash(adminPassword, 10);
+  const adminEmail = 'admin@zivalandscaping.co.ke';
+  const adminPassword = await bcryptjs.hash('securepassword123', 10);
 
-  const adminUser = await prisma.user.upsert({
+  const admin = await prisma.user.upsert({
     where: { email: adminEmail },
-    update: {},
+    update: { role: 'admin' },
     create: {
       email: adminEmail,
-      password: hashedPassword, 
-      role: "admin",
+      password: adminPassword,
+      role: 'admin',
     },
   });
 
-  console.log("Seeded admin user:", adminUser);
+  console.log('Admin user created:', admin);
 }
 
 main()

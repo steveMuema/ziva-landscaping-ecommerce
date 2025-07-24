@@ -2,7 +2,7 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
-import bcrypt from "bcrypt";
+import bcryptjs from "bcryptjs";
 
 const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -14,27 +14,23 @@ const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // Explicitly type credentials
         const { email, password } = credentials as {
           email?: string;
           password?: string;
         };
 
-        // Check if email and password are provided
         if (!email || !password) {
           return null;
         }
 
-        // Find user by email (handle optional email with fallback)
         const user = await prisma.user.findUnique({
-          where: { email: email || undefined }, // Use undefined if email is null
+          where: { email: email || undefined },
         });
 
-        // Verify user and password
         if (
           user &&
           user.password &&
-          (await bcrypt.compare(password, user.password))
+          (await bcryptjs.compare(password, user.password))
         ) {
           return {
             id: user.id,

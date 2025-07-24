@@ -1,0 +1,25 @@
+import NavigationBar from "@/components/navbar";
+import Breadcrumb from "@/components/Breadcrumb";
+import { Suspense } from "react";
+import { getCategories } from "@/lib/api";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
+import { CategoryGrid } from "@/components/CategoryGrid";
+
+export default async function ShopPage() {
+  const categories = await getCategories();
+  console.log("Categories fetched:", categories); // Debug log
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <NavigationBar />
+      <div className="container mx-auto py-4 px-2 sm:px-4 md:px-6 lg:px-8 min-h-[400px]">
+        <Breadcrumb path={[{ name: "Home", href: "/" }, { name: "Shop", href: "/shop" }]} />
+        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-900">
+          Shop Our Collections
+        </h1>
+        <Suspense fallback={<LoadingSkeleton count={4} />}>
+          <CategoryGrid categories={categories} />
+        </Suspense>
+      </div>
+    </div>
+  );
+}

@@ -10,7 +10,7 @@ datasource db {
 model Category {
   id          Int           @id @default(autoincrement())
   name        String        @unique
-  imageUrl    String?      
+  imageUrl    String      
   subCategories SubCategory[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -20,7 +20,7 @@ model SubCategory {
   id          Int           @id @default(autoincrement())
   name        String
   categoryId  Int
-  imageUrl    String?       
+  imageUrl    String       
   category    Category      @relation(fields: [categoryId], references: [id])
   products    Product[]
   createdAt   DateTime      @default(now())
@@ -32,7 +32,7 @@ model Product {
   name        String
   description String?
   price       Float
-  imageUrl    String?       
+  imageUrl    String       
   stock       Int
   subCategoryId Int
   subCategory SubCategory   @relation(fields: [subCategoryId], references: [id])

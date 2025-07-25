@@ -36,7 +36,7 @@ const authOptions: NextAuthOptions = {
             id: user.id,
             name: user.name,
             email: user.email,
-            role: user.role,
+            role: user.role, // Include role from Prisma User
           };
         }
         return null;
@@ -53,14 +53,14 @@ const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role;
+        token.role = user.role; // Safely access role due to type extension
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role as string;
+        session.user.role = token.role as string; // Safely access role
       }
       return session;
     },

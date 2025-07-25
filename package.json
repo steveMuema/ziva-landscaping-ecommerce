@@ -6,7 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "prisma migrate deploy && prisma db seed && next build",
     "postinstall": "prisma generate",
-    "seed": "tsx prisma/seed.ts",
+    "seed": "ts-node prisma/seed.ts",
     "start": "next start",
     "lint": "next lint",
     "prisma:seed": "tsx prisma/seed.ts",
@@ -43,6 +43,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.4.1",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   }

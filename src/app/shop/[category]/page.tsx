@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import {SubCategoryGrid} from "@/components/SubCategoryGrid";
 import NavigationBar from "@/components/navbar";
+import { Category, SubCategory } from "@/types";
 
 export default async function CategoryPage({
   params,
@@ -41,7 +42,7 @@ export default async function CategoryPage({
           {category.name} Subcategories
         </h1>
         <Suspense fallback={<LoadingSkeleton count={category.subCategories.length || 4} />}>
-          <SubCategoryGrid subCategories={category.subCategories} categoryName={category.name} />
+          <SubCategoryGrid subCategories={category.subCategories as SubCategory[]} categoryName={category.name} />
         </Suspense>
       </div>
     </div>

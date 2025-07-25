@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { getCategories } from "@/lib/api";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { CategoryGrid } from "@/components/CategoryGrid";
+import { Category } from "@/types";
 
 export default async function ShopPage() {
   const categories = await getCategories();
@@ -17,7 +18,7 @@ export default async function ShopPage() {
           Shop Our Collections
         </h1>
         <Suspense fallback={<LoadingSkeleton count={4} />}>
-          <CategoryGrid categories={categories} />
+          <CategoryGrid categories={categories as Category[]} />
         </Suspense>
       </div>
     </div>

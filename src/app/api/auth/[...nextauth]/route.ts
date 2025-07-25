@@ -50,6 +50,12 @@ const authOptions: NextAuthOptions = {
     signIn: "/auth/signin",
   },
   callbacks: {
+    async signIn({ user }) {
+      if (user.role === "admin") {
+        return "/admin"; // Redirect to /admin on success
+      }
+      return true; // Default behavior
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;

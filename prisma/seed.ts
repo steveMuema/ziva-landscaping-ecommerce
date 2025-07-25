@@ -4,6 +4,7 @@ import bcryptjs from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
+  console.log("Starting seeding process with DATABASE_URL:");
   const adminEmail = 'admin@zivalandscaping.co.ke';
   const adminPassword = await bcryptjs.hash('securepassword123', 10);
 

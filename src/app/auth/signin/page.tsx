@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -8,17 +8,32 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
+  useEffect(() => {
+      const checkSession = async () => {
+        const session = await fetch("/api/auth/session").then((res) => res.json());
+        if (session) router.push("/admin");
+      };
+      checkSession();
+    }, [router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = await signIn("credentials", {
-      redirect: false,
       email,
       password,
     });
+
+    
+
+    console.log("Sign-in result:", result); // Debug output
     if (result?.error) {
       alert("Invalid credentials");
+    } else if (result?.ok) {
+      // Check for success and use result.url if provided
+      const redirectUrl = result.url || "/admin";
+      router.push(redirectUrl);
     } else {
-      router.push("/admin");
+      alert("Unexpected error during sign-in");
     }
   };
 

@@ -1,1 +1,0 @@
-INSERT INTO "User" (id, name, email, emailVerified, password, role, createdAt, updatedAt) VALUES ('cmdi88wrq0000vlu4irhof6s3', 'admin@zivalandscaping.co.ke', 'Admin', null, '$2b$10$/BE3zS6FJLzQKSee6BoLZuytYGm2pKYry0vhZj6.oqB0gAdEZpKhO', 'admin');

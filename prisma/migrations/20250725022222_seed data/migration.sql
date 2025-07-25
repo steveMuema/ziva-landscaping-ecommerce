@@ -1,0 +1,1 @@
+INSERT INTO "User" (email, password) VALUES ('admin@zivalandscaping.co.ke', '$2b$10$/BE3zS6FJLzQKSee6BoLZuytYGm2pKYry0vhZj6.oqB0gAdEZpKhO');

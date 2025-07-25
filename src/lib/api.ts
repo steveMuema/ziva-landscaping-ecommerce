@@ -31,7 +31,7 @@ export async function getSubCategoryByNames(categoryName: string, subCategoryNam
       categoryId: category.id,
       name: { equals: subCategoryName, mode: "insensitive" },
     },
-    include: { products: true, category: true },
+    include: { products: {include: { subCategory: true, carts: true, wishlists: true },}, category: true },
   });
 
   return subCategory || null;

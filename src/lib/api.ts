@@ -15,7 +15,6 @@ export async function getCategories() {
   }
 
 export async function getSubCategoryByNames(categoryName: string, subCategoryName: string) {
-  // if (!categoryName || !subCategoryName) return null;
   console.log("Searching for - categoryName:", categoryName, "subCategoryName:", subCategoryName); // Debug search terms
 
   // Find the category first
@@ -31,7 +30,21 @@ export async function getSubCategoryByNames(categoryName: string, subCategoryNam
       categoryId: category.id,
       name: { equals: subCategoryName, mode: "insensitive" },
     },
-    include: { products: {include: { subCategory: true, carts: true, wishlists: true },}, category: true },
+    include: {
+      products: {
+        include: {
+          subCategory: {
+            include: {
+              category: true, // Include the full category relation
+              products: true, // Include the products relation (self-reference)
+            },
+          },
+          carts: true,
+          wishlists: true,
+        },
+      },
+      category: true, // Ensure the top-level category is included
+    },
   });
 
   return subCategory || null;

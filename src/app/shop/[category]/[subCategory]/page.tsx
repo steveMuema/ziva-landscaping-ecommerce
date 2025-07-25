@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import {ProductGridWithProviders} from "@/components/ProductGrid";
 import NavigationBar from "@/components/navbar";
+import { Product } from "@/types";
 
 // Function to capitalize first letter of each word
 const capitalizeWords = (str: string) => {
@@ -55,7 +56,7 @@ export default async function SubCategoryPage({
           {subCategory.name} Products
         </h1>
         <Suspense fallback={<LoadingSkeleton count={subCategory.products.length || 4} />}>
-          <ProductGridWithProviders products={subCategory.products} />
+          <ProductGridWithProviders products={subCategory.products as Product[]} />
         </Suspense>
       </div>
     </div>

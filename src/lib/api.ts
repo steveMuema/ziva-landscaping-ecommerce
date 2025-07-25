@@ -17,9 +17,22 @@ export async function getCategories() {
 export async function getSubCategoryByNames(categoryName: string, subCategoryName: string) {
   console.log("Searching for - categoryName:", categoryName, "subCategoryName:", subCategoryName); // Debug search terms
 
-  // Find the category first
+  // Find the category first with limited relations
   const category = await prisma.category.findFirst({
     where: { name: { equals: categoryName, mode: "insensitive" } },
+    include: {
+      subCategories: {
+        include: {
+          products: {
+            include: {
+              subCategory: true,
+              carts: true,
+              wishlists: true,
+            },
+          },
+        },
+      },
+    },
   });
 
   if (!category) return null;
@@ -35,21 +48,33 @@ export async function getSubCategoryByNames(categoryName: string, subCategoryNam
         include: {
           subCategory: {
             include: {
-              category: true, // Include the full category relation
-              products: true, // Include the products relation (self-reference)
+              category: true, // Include basic category, avoid deep nesting
             },
           },
           carts: true,
           wishlists: true,
         },
       },
-      category: true, // Ensure the top-level category is included
+      category: {
+        include: {
+          subCategories: {
+            include: {
+              products: {
+                include: {
+                  subCategory: true,
+                  carts: true,
+                  wishlists: true, // Ensure nested products have full relations
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 
   return subCategory || null;
 }
-
 
 export async function getProductsBySubCategory(subCategoryId: string) {
   return prisma.product.findMany({

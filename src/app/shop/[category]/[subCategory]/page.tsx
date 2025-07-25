@@ -14,6 +14,8 @@ const capitalizeWords = (str: string) => {
     .join(' ');
 };
 
+export const revalidate = 10;
+
 export default async function SubCategoryPage({
   params,
 }: {

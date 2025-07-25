@@ -6,6 +6,8 @@ import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { CategoryGrid } from "@/components/CategoryGrid";
 import { Category } from "@/types";
 
+export const revalidate = 10;
+
 export default async function ShopPage() {
   const categories = await getCategories();
   console.log("Categories fetched:", categories); // Debug log

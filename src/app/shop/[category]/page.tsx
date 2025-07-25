@@ -4,7 +4,9 @@ import { Suspense } from "react";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import {SubCategoryGrid} from "@/components/SubCategoryGrid";
 import NavigationBar from "@/components/navbar";
-import { Category, SubCategory } from "@/types";
+import {  SubCategory } from "@/types";
+
+export const revalidate = 10;
 
 export default async function CategoryPage({
   params,

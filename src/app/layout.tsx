@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ziva Landscaping Co. ",
+  title: "Ziva Landscaping CO. ",
   description: "We Specialize In Landscaping, Landscape Supplies, Lawn Care & Lawn Services",
 };
 
@@ -29,6 +29,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <Analytics/>
       </body>
     </html>
   );

@@ -63,7 +63,8 @@ export default async function ProductsPage() {
           type="file"
           name="image"
           accept="image/*"
-          className="p-2 border rounded w-full"
+          className="p-2 border rounded w-full text-gray-800"
+          required  
         />
         <select name="subCategoryId" className="p-2 border rounded w-full text-gray-800" required>
           <option value="">Select Subcategory</option>
@@ -77,7 +78,7 @@ export default async function ProductsPage() {
       </form>
       <ul>
         {products.map((prod) => (
-          <li key={prod.id} className="mb-2">
+          <li key={prod.id} className="mb-2 text-gray-800">
             {prod.name} (Subcategory: {prod.subCategory.name}, Category: {prod.subCategory.category.name})
           </li>
         ))}

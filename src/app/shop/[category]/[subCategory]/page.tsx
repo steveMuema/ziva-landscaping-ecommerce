@@ -46,8 +46,8 @@ export default async function SubCategoryPage({
   const breadcrumbPath = [
     { name: "Home", href: "/" },
     { name: "Shop", href: "/shop" },
-    { name: subCategory.category.name, href: `/shop/${resolvedParams.category}` },
-    { name: subCategory.name, href: `/shop/${resolvedParams.category}/${resolvedParams.subCategory}` },
+    { name: subCategory.category.name, href: `/shop/${resolvedParams.category.toLowerCase().replace(/\s+/g, '-')}` },
+    { name: subCategory.name, href: `/shop/${resolvedParams.category.toLowerCase().replace(/\s+/g, '-')}/${resolvedParams.subCategory.toLowerCase().replace(/\s+/g, '-')}` },
   ];
   return (
     <div className="min-h-screen bg-gray-50">

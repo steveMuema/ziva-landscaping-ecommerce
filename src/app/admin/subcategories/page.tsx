@@ -43,7 +43,7 @@ export default async function SubCategoriesPage() {
           type="file"
           name="image"
           accept="image/*"
-          className="p-2 border rounded w-full"
+          className="p-2 border rounded w-full text-gray-800"
         />
         <button type="submit" className="ml-2 bg-green-600 text-white p-2 rounded">Add</button>
       </form>

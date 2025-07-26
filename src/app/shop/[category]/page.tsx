@@ -5,6 +5,7 @@ import LoadingSkeleton from "@/components/LoadingSkeleton";
 import {SubCategoryGrid} from "@/components/SubCategoryGrid";
 import NavigationBar from "@/components/navbar";
 import {  SubCategory } from "@/types";
+import Footer from "@/components/Footer";
 
 export const revalidate = 10;
 
@@ -47,6 +48,7 @@ export default async function CategoryPage({
           <SubCategoryGrid subCategories={category.subCategories as SubCategory[]} categoryName={category.name} />
         </Suspense>
       </div>
+      <Footer/>
     </div>
   );
 }

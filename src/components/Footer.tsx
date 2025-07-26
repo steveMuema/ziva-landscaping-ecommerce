@@ -105,7 +105,7 @@ export default async function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-2">Contact Us</h3>
             <p className="text-sm text-gray-400">Email: info@zivalandscaping.com</p>
-            <p className="text-sm text-gray-400">Phone: +4</p>
+            <p className="text-sm text-gray-400">Phone: +254720651312</p>
           </div>
         </div>
 

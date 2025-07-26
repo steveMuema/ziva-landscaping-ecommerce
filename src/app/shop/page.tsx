@@ -5,6 +5,7 @@ import { getCategories } from "@/lib/api";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { CategoryGrid } from "@/components/CategoryGrid";
 import { Category } from "@/types";
+import Footer from "@/components/Footer";
 
 export const revalidate = 10;
 
@@ -23,6 +24,7 @@ export default async function ShopPage() {
           <CategoryGrid categories={categories as Category[]} />
         </Suspense>
       </div>
+      <Footer/>
     </div>
   );
 }

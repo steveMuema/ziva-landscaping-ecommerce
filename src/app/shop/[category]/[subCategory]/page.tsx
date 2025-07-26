@@ -5,6 +5,7 @@ import LoadingSkeleton from "@/components/LoadingSkeleton";
 import {ProductGridWithProviders} from "@/components/ProductGrid";
 import NavigationBar from "@/components/navbar";
 import { Product } from "@/types";
+import Footer from "@/components/Footer";
 
 // Function to capitalize first letter of each word
 const capitalizeWords = (str: string) => {
@@ -61,6 +62,7 @@ export default async function SubCategoryPage({
           <ProductGridWithProviders products={subCategory.products as Product[]} />
         </Suspense>
       </div>
+      <Footer/>
     </div>
   );
 }

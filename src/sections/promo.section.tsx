@@ -56,7 +56,7 @@ function Slideshow({ collections }: { collections: Collection[] }) {
       setCurrentIndex((prevIndex) =>
         prevIndex === collections.length - 1 ? 0 : prevIndex + 1
       );
-    }, 5000); // 5 seconds per slide
+    }, 10000); // 10 seconds per slide
     return () => clearInterval(interval);
   }, [collections.length, currentIndex]);
 

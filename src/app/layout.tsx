@@ -19,7 +19,7 @@ const quicksand = Quicksand({
 })
 
 export const metadata: Metadata = {
-  title: "Ziva Landscaping CO. ",
+  title: "Ziva Landscaping CO. — SUSTAINABLE LIVING. ",
   description: "We Specialize In Landscaping, Landscape Supplies, Lawn Care & Lawn Services",
 };
 

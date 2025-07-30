@@ -108,9 +108,12 @@ export default function NavigationBar() {
       </Dialog>
 
       <header className="relative bg-white">
-        <p className="flex h-10 items-center justify-center bg-[#044b3b] px-4 text-sm font-medium text-white sm:px-2 lg:px-8">
-          FURNITURE ITEMS HAVE A LEAD TIME OF 3-4WEEKS FROM ORDER PLACEMENT DATE.
-        </p>
+        {pathname === "/shop/furniture-and-fittings" && 
+        (
+          <p className="flex h-10 items-center justify-center bg-[#044b3b] px-4 text-sm font-medium text-white sm:px-2 lg:px-8">
+            FURNITURE ITEMS HAVE A LEAD TIME OF 3-4WEEKS FROM ORDER PLACEMENT DATE.
+          </p>
+        )}
 
         <nav aria-label="Top" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="border-b border-gray-200">
@@ -131,10 +134,10 @@ export default function NavigationBar() {
                   <span className="sr-only">Ziva Landscaping CO.</span>
                   <Image
                     alt="Ziva Landscaping Co."
-                    src="/Ziva_Logo.svg"
+                    src="/ziva_logo_white.jpg"
                     className="h-20 w-auto"
-                    width={20}
-                    height={20}
+                    width={480}
+                    height={480}
                   />
                 </Link>
               </div>
@@ -144,7 +147,7 @@ export default function NavigationBar() {
                 <div className="flex h-24 space-x-8">
                   <Popover className="flex">
                     <div className="relative flex">
-                      <PopoverButton className="group relative flex items-center justify-center text-sm font-medium text-gray-700 transition-colors duration-200 ease-out hover:text-gray-800">
+                      <PopoverButton className="group relative flex items-center justify-center text-base font-medium text-gray-700 transition-colors duration-200 ease-out hover:text-gray-800">
                         Categories
                         <span
                           aria-hidden="true"
@@ -199,7 +202,7 @@ export default function NavigationBar() {
                     <Link
                       key={page.name}
                       href={page.href}
-                      className={`flex items-center text-sm font-medium transition-colors duration-200 ease-out ${
+                      className={`flex items-center text-base font-medium transition-colors duration-200 ease-out ${
                         pathname === page.href
                           ? "text-emerald-600 border-b-2 border-emerald-600"
                           : "text-gray-700 hover:text-gray-800"
@@ -214,11 +217,11 @@ export default function NavigationBar() {
 
               <div className="ml-auto flex items-center">
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
+                  <a href="#" className="text-base font-medium text-gray-700 hover:text-gray-800">
                     Sign in
                   </a>
                   <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
-                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
+                  <a href="#" className="text-base font-medium text-gray-700 hover:text-gray-800">
                     Create account
                   </a>
                 </div>

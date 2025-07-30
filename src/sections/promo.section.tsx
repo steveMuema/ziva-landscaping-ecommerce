@@ -14,10 +14,10 @@ const collections: Collection[] = [
   },
   {
     id: 2,
-    image: "/home-decor.jpg",
-    category: "home-decor-and-furnishing",
-    alt: "Home Décor & Furnishing",
-    description: "Transform your home with elegant décor and furnishing options.",
+    image: "/garden.jpg",
+    category: "garden",
+    alt: "Gardening",
+    description: "Create a thriving garden with our expert gardening supplies.",
   },
   {
     id: 3,
@@ -28,11 +28,12 @@ const collections: Collection[] = [
   },
   {
     id: 4,
-    image: "/garden.jpg",
-    category: "garden",
-    alt: "Gardening",
-    description: "Create a thriving garden with our expert gardening supplies.",
-  },
+    image: "/home-decor.jpg",
+    category: "home-decor-and-furnishing",
+    alt: "Home Décor & Furnishing",
+    description: "Transform your home with elegant décor and furnishing options.",
+  }
+  
 ];
 
 export default function PromoSection() {

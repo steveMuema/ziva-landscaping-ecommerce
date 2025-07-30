@@ -1,87 +1,147 @@
+"use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Collection } from "@/types";
 
-const collections = [
+const collections: Collection[] = [
   {
     id: 1,
     image: "/landscaping.jpg",
     category: "landscaping",
     alt: "Landscaping",
+    description: "Enhance your outdoor space with professional landscaping services.",
   },
   {
     id: 2,
     image: "/home-decor.jpg",
     category: "home-decor-and-furnishing",
     alt: "Home Décor & Furnishing",
+    description: "Transform your home with elegant décor and furnishing options.",
   },
   {
     id: 3,
     image: "/furniture.jpg",
     category: "furniture-and-fittings",
     alt: "Furniture & Fittings",
+    description: "Quality furniture and fittings for every room in your house.",
   },
   {
     id: 4,
     image: "/garden.jpg",
     category: "garden",
     alt: "Gardening",
+    description: "Create a thriving garden with our expert gardening supplies.",
   },
 ];
 
 export default function PromoSection() {
   return (
-    <section className="relative min-h-[70vh] sm:min-h-[60vh] md:min-h-screen bg-gray-900 text-white overflow-hidden">
-      {/* Background Image or Overlay */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-50"
-        style={{
-          backgroundImage: "url('/promo.jpg')",
-        }}
-      ></div>
-
-      {/* Content */}
-      <div className="relative z-10 container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 md:py-12 text-center">
-        {/* Sale Banner */}
-        <div className="mb-6 sm:mb-8 md:mb-12">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-3 md:mb-4 text-white">
-            We Specialize In Landscaping, Landscape Supplies, Lawn Care & Lawn Services
-          </h1>
-          <Link href="/shop">
-            <button className="bg-[#C9A13C] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-yellow-400 transition duration-300 text-sm sm:text-base">
-              Shop Collection
-            </button>
-          </Link>
-        </div>
-
-        {/* Collections Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {collections.map((collection) => (
-            <Link
-              key={collection.id}
-              href={`/shop/${collection.category.toLowerCase()}`}
-              className="block relative bg-white rounded-lg shadow-lg overflow-hidden group"
-            >
-              <Image
-                src={collection.image}
-                alt={collection.alt}
-                className="w-full h-32 sm:h-40 md:h-48 lg:h-70 object-cover transition-transform duration-300 group-hover:scale-105"
-                width={255}
-                height={128} // Base height
-               />
-              <div className="absolute inset-0 bg-black bg-opacity-0 flex items-end p-4 opacity-60">
-                <div className="w-full text-center text-white">
-                  <p className="font-bold text-sm sm:text-base md:text-lg">{collection.alt}</p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {/* Activate Wind Note (Placeholder) */}
-        {/* <div className="mt-4 sm:mt-6 md:mt-8 text-gray-400 text-xs sm:text-sm">
-          Activate Wind - Go to Settings to customize
-        </div> */}
+    <section className="w-full py-4 bg-gray-100">
+      <div className="relative w-full max-w-7xl mx-auto">
+        <Slideshow collections={collections} />
       </div>
     </section>
+  );
+}
+
+function Slideshow({ collections }: { collections: Collection[] }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [prevIndex, setPrevIndex] = useState(-1);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPrevIndex(currentIndex);
+      setCurrentIndex((prevIndex) =>
+        prevIndex === collections.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 5000); // 5 seconds per slide
+    return () => clearInterval(interval);
+  }, [collections.length, currentIndex]);
+
+  const imageHeight = 400; // Fixed image height
+
+  return (
+    <div className="relative w-full">
+      {collections.map((collection, index) => {
+        const isActive = index === currentIndex;
+        const isExiting = index === prevIndex;
+
+        return (
+          <div
+            key={collection.id}
+            className={`w-full transition-opacity duration-1000 ${
+              isActive ? "opacity-100" : "opacity-0 hidden"
+            }`}
+            style={{
+              transition: "opacity 1s ease-out",
+            }}
+          >
+            <div className="flex flex-col md:flex md:flex-row gap-6">
+              {/* Image Container (Desktop: Left, Mobile: Top) */}
+              <div className="relative w-full md:w-1/2">
+                <div
+                  className="w-full"
+                  style={{
+                    height: `${imageHeight}px`,
+                    animation: isActive
+                      ? "slideInLeft 1s ease-out forwards"
+                      : isExiting
+                      ? "slideOutLeft 1s ease-out forwards"
+                      : "none",
+                  }}
+                >
+                  <Image
+                    src={collection.image}
+                    alt={collection.alt}
+                    className="w-full h-full object-cover"
+                    width={800}
+                    height={400}
+                  />
+                </div>
+              </div>
+
+              {/* Description Container (Desktop: Right, Mobile: Bottom) */}
+              <div
+                className="w-full h-full md:w-1/2 flex flex-col p-4 md:p-0"
+                // style={{ minHeight: `${imageHeight}px` }}
+              >
+                <div
+                  className="flex flex-col"
+                  style={{
+                    animation: isActive
+                      ? "slideInRight 1s ease-out"
+                      : isExiting
+                      ? "slideOutRight 1s ease-out"
+                      : "none",
+                  }}
+                >
+                  {/* Title Container (Top) */}
+                  <div className="mb-4">
+                    <h2 className="text-5xl md:text-3xl font-bold text-gray-900 font-[family-name:var(--font-quicksand)]">
+                      {collection.alt}
+                    </h2>
+                  </div>
+                  {/* Description and Button Container (Centered in Desktop) */}
+                  <div className="flex flex-col justify-center flex-grow">
+                    <p className="text-gray-600 mb-6 font-[family-name:var(--font-quicksand)] font-medium">
+                      {collection.description}
+                    </p>
+                    <div>
+                      <Link
+                        href={`/shop/${collection.category.toLowerCase()}`}
+                        className="inline-block bg-emerald-700 text-white px-6 py-3 rounded-md hover:bg-[#044b3b] transition-colors duration-300"
+                      >
+                        Shop Now
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }

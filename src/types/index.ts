@@ -49,3 +49,11 @@ export interface Cart {
   quantity: number;
   createdAt: Date;
 }
+
+export interface Collection {
+  id: number;
+  image: string;
+  category: string;
+  alt: string;
+  description: string;
+}

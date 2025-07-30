@@ -57,7 +57,7 @@ const CategoryGridComponent = ({ categories: initialCategories }: CategoryGridPr
               <div className="p-2 sm:p-3 text-center">
                 <h3 className="text-base sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">{category.name}</h3>
                 <p className="text-base sm:text-sm text-gray-600 mb-2">
-                  {totalSubcategories} Products
+                  {totalSubcategories} Categories
                 </p>
               </div>
             </Link>

@@ -108,13 +108,13 @@ export default function NavigationBar() {
       </Dialog>
 
       <header className="relative bg-white">
-        <p className="flex h-10 items-center justify-center bg-emerald-700 px-4 text-sm font-medium text-white sm:px-2 lg:px-8">
+        <p className="flex h-10 items-center justify-center bg-[#044b3b] px-4 text-sm font-medium text-white sm:px-2 lg:px-8">
           FURNITURE ITEMS HAVE A LEAD TIME OF 3-4WEEKS FROM ORDER PLACEMENT DATE.
         </p>
 
         <nav aria-label="Top" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="border-b border-gray-200">
-            <div className="flex h-16 items-center">
+            <div className="flex h-24 sm:h-20 md:h-20 items-center">
               <button
                 type="button"
                 onClick={() => setIsSidebarOpen(true)}
@@ -126,22 +126,22 @@ export default function NavigationBar() {
               </button>
 
               {/* Logo */}
-              <div className="ml-4 flex lg:ml-0">
+              <div className="ml-4 flex  lg:ml-0">
                 <Link href="/">
                   <span className="sr-only">Ziva Landscaping CO.</span>
                   <Image
                     alt="Ziva Landscaping Co."
                     src="/Ziva_Logo.svg"
-                    className="h-15 w-auto"
-                    width={255}
-                    height={80}
+                    className="h-20 w-auto"
+                    width={20}
+                    height={20}
                   />
                 </Link>
               </div>
 
               {/* Desktop Navigation */}
               <PopoverGroup className="hidden lg:ml-8 lg:block lg:self-stretch">
-                <div className="flex h-full space-x-8">
+                <div className="flex h-24 space-x-8">
                   <Popover className="flex">
                     <div className="relative flex">
                       <PopoverButton className="group relative flex items-center justify-center text-sm font-medium text-gray-700 transition-colors duration-200 ease-out hover:text-gray-800">

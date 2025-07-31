@@ -31,6 +31,7 @@ export default async function CategoryPage({
     return <div className="text-center text-gray-500 py-8">Category not found</div>;
   }
 
+  const sortedSubCategories = category.subCategories.sort((a,b) => a.id - b.id);
   const breadcrumbPath = [
     { name: "Home", href: "/" },
     { name: "Shop", href: "/shop" },
@@ -45,7 +46,7 @@ export default async function CategoryPage({
           {category.name} Categories
         </h1>
         <Suspense fallback={<LoadingSkeleton count={category.subCategories.length || 4} />}>
-          <SubCategoryGrid subCategories={category.subCategories as SubCategory[]} categoryName={category.name} />
+          <SubCategoryGrid subCategories={sortedSubCategories as SubCategory[]} categoryName={category.name} />
         </Suspense>
       </div>
       <Footer/>

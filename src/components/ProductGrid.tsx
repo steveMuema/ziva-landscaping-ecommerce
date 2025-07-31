@@ -12,9 +12,11 @@ import cloudinaryLoader from "@/lib/cloudinaryLoader";
 
 interface ProductGridProps {
   products: Product[];
+  categoryName: string; // Dynamic based on clicked category
+  subCategoryName: string; // Dynamic based on clicked subcategory
 }
 
-const ProductGridComponent = ({ products: initialProducts }: ProductGridProps) => {
+const ProductGridComponent = ({ products: initialProducts, categoryName, subCategoryName }: ProductGridProps) => {
   const cart = useCart();
   const wishlist = useWishlist();
   const controls = useAnimation();
@@ -51,7 +53,10 @@ const ProductGridComponent = ({ products: initialProducts }: ProductGridProps) =
             whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.3 }}
           >
-            <Link href={`/shop/product/${product.id}`}>
+            <Link
+              href={`/shop/${categoryName.toLowerCase().replace(/\s+/g, '-')}/${subCategoryName.toLowerCase().replace(/\s+/g, '-')}/${product.id}`}
+              className="block"
+            >
               <div className="relative w-full h-32 sm:h-40 md:h-48">
                 {product.imageUrl ? (
                   <Image
@@ -71,7 +76,7 @@ const ProductGridComponent = ({ products: initialProducts }: ProductGridProps) =
               <div className="p-2 sm:p-3 text-center">
                 <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">{product.name}</h3>
                 <p className="text-xs sm:text-sm text-gray-600 mb-2">
-                  ${product.price.toFixed(2)}
+                  Kshs. {product.price.toFixed(2)}
                 </p>
                 <div className="flex justify-center space-x-1 sm:space-x-2">
                   <button
@@ -98,11 +103,11 @@ const ProductGridComponent = ({ products: initialProducts }: ProductGridProps) =
 
 export const ProductGrid = memo(ProductGridComponent);
 
-export function ProductGridWithProviders({ products }: ProductGridProps) {
+export function ProductGridWithProviders({ products, categoryName, subCategoryName }: ProductGridProps) {
   return (
     <CartProvider>
       <WishlistProvider>
-        <ProductGrid products={products} />
+        <ProductGrid products={products} categoryName={categoryName} subCategoryName={subCategoryName} />
       </WishlistProvider>
     </CartProvider>
   );

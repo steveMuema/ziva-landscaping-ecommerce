@@ -4,12 +4,14 @@ import prisma from "@/lib/prisma";
 export async function getCategories() {
   return prisma.category.findMany({
     include: { subCategories: { include: { products: true } } },
+    orderBy: {id: "asc"},
   });
 }
 
   export async function getCategoryByName(name: string) {
     return prisma.category.findFirst({
       where: { name: { contains: name, mode: "insensitive" } },
+      orderBy: {id: "asc"},
       include: { subCategories: { include: { products: true } } },
     });
   }
@@ -19,7 +21,8 @@ export async function getSubCategoryByNames(categoryName: string, subCategoryNam
 
   // Find the category first with limited relations
   const category = await prisma.category.findFirst({
-    where: { name: { equals: categoryName, mode: "insensitive" } },
+    where: { name: { equals: categoryName, mode: "insensitive" } }, 
+    orderBy: {id: "asc"},
     include: {
       subCategories: {
         include: {
@@ -43,6 +46,7 @@ export async function getSubCategoryByNames(categoryName: string, subCategoryNam
       categoryId: category.id,
       name: { equals: subCategoryName, mode: "insensitive" },
     },
+    orderBy: {id: "asc"},
     include: {
       products: {
         include: {
@@ -79,5 +83,6 @@ export async function getSubCategoryByNames(categoryName: string, subCategoryNam
 export async function getProductsBySubCategory(subCategoryId: string) {
   return prisma.product.findMany({
     where: { subCategoryId: parseInt(subCategoryId) },
+    orderBy: {id: "asc"},
   });
 }

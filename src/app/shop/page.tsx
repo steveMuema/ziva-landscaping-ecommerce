@@ -11,7 +11,11 @@ export const revalidate = 10;
 
 export default async function ShopPage() {
   const categories = await getCategories();
-  console.log("Categories fetched:", categories); // Debug log
+  
+  // Sort categories by id in ascending order
+  const sortedCategories = categories.sort((a, b) => a.id - b.id);
+  console.log("Categories fetched:", sortedCategories); // Debug log
+
   return (
     <div className="min-h-screen bg-gray-50">
       <NavigationBar />
@@ -21,7 +25,7 @@ export default async function ShopPage() {
           Shop Our Collections
         </h1>
         <Suspense fallback={<LoadingSkeleton count={4} />}>
-          <CategoryGrid categories={categories as Category[]} />
+          <CategoryGrid categories={sortedCategories as Category[]} />
         </Suspense>
       </div>
       <Footer/>

@@ -117,7 +117,7 @@ export default function NavigationBar() {
 
         <nav aria-label="Top" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="border-b border-gray-200">
-            <div className="flex h-24 sm:h-20 md:h-20 items-center">
+            <div className="flex h-20 sm:h-20 md:h-20 items-center">
               <button
                 type="button"
                 onClick={() => setIsSidebarOpen(true)}
@@ -134,8 +134,8 @@ export default function NavigationBar() {
                   <span className="sr-only">Ziva Landscaping CO.</span>
                   <Image
                     alt="Ziva Landscaping Co."
-                    src="/ziva_logo_white.jpg"
-                    className="h-20 w-auto"
+                    src="/Ziva-Logo-02.svg"
+                    className="h-24 w-auto"
                     width={480}
                     height={480}
                   />
@@ -144,7 +144,7 @@ export default function NavigationBar() {
 
               {/* Desktop Navigation */}
               <PopoverGroup className="hidden lg:ml-8 lg:block lg:self-stretch">
-                <div className="flex h-24 space-x-8">
+                <div className="flex h-20 space-x-8">
                   <Popover className="flex">
                     <div className="relative flex">
                       <PopoverButton className="group relative flex items-center justify-center text-base font-medium text-gray-700 transition-colors duration-200 ease-out hover:text-gray-800">

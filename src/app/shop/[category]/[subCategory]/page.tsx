@@ -51,7 +51,7 @@ export default async function SubCategoryPage({
 
   if (!subCategory) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center text-gray-500 py-8">Subcategory not found</div>
       </div>
     );
@@ -65,10 +65,10 @@ export default async function SubCategoryPage({
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <NavigationBar />
       <main className="flex-grow">
-        <div className="container mx-auto py-4 px-2 sm:px-4 md:px-6 lg:px-8">
+        <div className="container mx-auto py-8 px-2 sm:px-4 md:px-6 lg:px-8">
           <Breadcrumb path={breadcrumbPath} />
           <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-900">
             {subCategory.name} Products

@@ -4,8 +4,8 @@ import Link from "next/link";
 
 export default async function Footer() {
   return (
-    <footer className="bg-gray-900 text-white min-h-[550px] mt-auto relative">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <footer className="bg-white text-white min-h-[250px] pt-10 border-t-2 border-gray-300 relative">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Ziva Icon and Description */}
         <div className="flex flex-col items-start mb-12">
           {/* Ziva Icon (Placeholder SVG) */}
@@ -19,7 +19,7 @@ export default async function Footer() {
             />
         </div>
           {/* Description (Full Width, Wraps on Small Screens) */}
-          <p className="text-sm text-gray-400 mb-6">
+          <p className="text-sm text-gray-800 mb-6">
             Transforming outdoor spaces with expert landscaping and home solutions. Your dream yard is our passion.
           </p>
           {/* Social Links (Horizontal) */}
@@ -28,7 +28,7 @@ export default async function Footer() {
               href="https://facebook.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-gray-800 hover:text-white transition-colors"
             >
               <span className="sr-only">Facebook</span>
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -39,7 +39,7 @@ export default async function Footer() {
               href="https://instagram.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-gray-800 hover:text-white transition-colors"
             >
               <span className="sr-only">Instagram</span>
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -50,7 +50,7 @@ export default async function Footer() {
               href="https://twitter.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-gray-800 hover:text-white transition-colors"
             >
               <span className="sr-only">Twitter</span>
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -65,7 +65,7 @@ export default async function Footer() {
           {/* Our Stores */}
           <div>
             <h3 className="text-lg font-bold mb-2">Our Stores</h3>
-            <ul className="space-y-2 text-sm text-gray-400">
+            <ul className="space-y-2 text-sm text-gray-800">
               <li>
                 <Link href="#" className="hover:text-white transition-colors">
                   Kiambu Town, Kiambu County, Kenya
@@ -82,7 +82,7 @@ export default async function Footer() {
           {/* Legal */}
           <div>
             <h3 className="text-lg font-bold mb-2">Legal</h3>
-            <ul className="space-y-2 text-sm text-gray-400">
+            <ul className="space-y-2 text-sm text-gray-800">
               <li>
                 <Link href="#" className="hover:text-white transition-colors">
                   Privacy Policy
@@ -104,17 +104,17 @@ export default async function Footer() {
           {/* Contact Us */}
           <div>
             <h3 className="text-lg font-bold mb-2">Contact Us</h3>
-            <p className="text-sm text-gray-400">Email: info@zivalandscaping.com</p>
-            <p className="text-sm text-gray-400">Phone: +254720651312</p>
+            <p className="text-sm text-gray-800">Email: info@zivalandscaping.com</p>
+            <p className="text-sm text-gray-800">Phone: +254720651312</p>
           </div>
         </div>
 
         {/* Separator Line */}
-        <div className="border-t border-gray-700 my-8"></div>
+        <div className="border-t border-gray-300 my-8"></div>
 
         {/* Copyright Line */}
-        <div className="text-center text-xs text-gray-500">
-          © {new Date().getFullYear()} Ziva Landscaping & Home Solutions. All rights reserved.
+        <div className="text-center text-xs text-gray-800">
+          © {new Date().getFullYear()} Ziva Landscaping CO. All rights reserved.
         </div>
       </div>
     </footer>

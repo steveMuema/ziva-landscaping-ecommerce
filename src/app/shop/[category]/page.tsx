@@ -28,7 +28,7 @@ export default async function CategoryPage({
   const category = await getCategoryByName(categoryName);
   console.log("Category fetched:", category); // Debug log
   if (!category) {
-    return <div className="text-center text-gray-500 py-8">Category not found</div>;
+    return <div className="text-center text-white py-8">Category not found</div>;
   }
 
   const sortedSubCategories = category.subCategories.sort((a,b) => a.id - b.id);
@@ -38,9 +38,9 @@ export default async function CategoryPage({
     { name: category.name, href: `/shop/${categoryName.toLowerCase().replace(/\s+/g, '-')}` },
   ];
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <NavigationBar />
-      <div className="container mx-auto py-4 px-2 sm:px-4 md:px-6 lg:px-8 min-h-[400px]">
+      <div className="container mx-auto py-8 px-2 sm:px-4 md:px-6 lg:px-8 min-h-[400px]">
         <Breadcrumb path={breadcrumbPath} />
         <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-900">
           {category.name} Categories

@@ -38,7 +38,7 @@ const collections: Collection[] = [
 
 export default function PromoSection() {
   return (
-    <section className="w-full py-4 bg-gray-100">
+    <section className="w-full py-4 bg-white">
       <div className="relative w-full max-w-7xl mx-auto">
         <Slideshow collections={collections} />
       </div>

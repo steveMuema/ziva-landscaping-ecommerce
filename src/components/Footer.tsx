@@ -73,7 +73,12 @@ export default async function Footer() {
               </li>
               <li>
                 <Link href="#" className="hover:text-white transition-colors">
-                  Nairobi, Nairobi County, Kenya
+                  Westlands, Nairobi County, Kenya
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="hover:text-white transition-colors">
+                  Ngong, Nairobi County, Kenya
                 </Link>
               </li>
             </ul>

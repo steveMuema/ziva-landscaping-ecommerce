@@ -29,7 +29,7 @@ export default function AboutUsSection() {
         <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:items-center mb-20">
           <div className="order-1">
             <h2 className="text-3xl font-bold text-gray-900 mb-6 font-[family-name:var(--font-quicksand)]">Our mission</h2>
-            <p className="text-lg text-gray-600 leading-relaxed mb-6 font-[family-name:var(--font-quicksand)]">
+            <p className="text-lg text-gray-600 leading-relaxed mb-6 font-[family-name:var(--font-quicksand)] font-medium">
               At Ziva landscaping Co. We're dedicated to crafting vibrant,eco-friendly outdoor spaces that promote well-being and delight the senses .We achieve this by: </p>
               <ul role="list" className="mt-8 mb-8 space-y-8 text-gray-600 font-[family-name:var(--font-quicksand)]">
                 <li className="flex gap-x-3">
@@ -57,7 +57,7 @@ export default function AboutUsSection() {
                   </span>
                 </li>
               </ul>
-            <p className="text-lg text-gray-600 leading-relaxed font-[family-name:var(--font-quicksand)]">
+            <p className="text-lg text-gray-600 leading-relaxed font-[family-name:var(--font-quicksand)] font-medium">
               Our goal is to exceed expectations,inspire creativity and make a positive impact on our community and the environment.
             </p>
           </div>

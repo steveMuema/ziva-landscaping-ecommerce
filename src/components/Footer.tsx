@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 // src/app/components/Footer.tsx
 import Image from "next/image";
 import Link from "next/link";
@@ -20,7 +21,7 @@ export default async function Footer() {
         </div>
           {/* Description (Full Width, Wraps on Small Screens) */}
           <p className="text-sm text-gray-800 mb-6">
-            Transforming outdoor spaces with expert landscaping and home solutions. Your dream yard is our passion.
+            To nurture thriving, sustainable landscapes that flourish with beauty, health and innovation while preserving our planet's precious resources
           </p>
           {/* Social Links (Horizontal) */}
           <div className="flex space-x-6 mb-2">

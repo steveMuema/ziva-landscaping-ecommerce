@@ -74,8 +74,8 @@ const ProductGridComponent = ({ products: initialProducts, categoryName, subCate
                 )}
               </div>
               <div className="p-2 sm:p-3 text-center">
-                <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">{product.name}</h3>
-                <p className="text-xs sm:text-sm text-gray-600 mb-2">
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-1 sm:mb-2 font-[family-name:var(--font-quicksand)]">{product.name}</h3>
+                <p className="text-xs sm:text-sm text-gray-600 mb-2 font-[family-name:var(--font-quicksand)]">
                   Kshs. {product.price.toFixed(2)}
                 </p>
                 <div className="flex justify-center space-x-1 sm:space-x-2">

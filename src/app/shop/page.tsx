@@ -21,7 +21,7 @@ export default async function ShopPage() {
       <NavigationBar />
       <div className="container mx-auto py-8 px-2 sm:px-4 md:px-6 lg:px-8 min-h-[400px]">
         <Breadcrumb path={[{ name: "Home", href: "/" }, { name: "Shop", href: "/shop" }]} />
-        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-900">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-900 font-[family-name:var(--font-quicksand)]">
           Shop Our Collections
         </h1>
         <Suspense fallback={<LoadingSkeleton count={4} />}>

@@ -1,9 +1,9 @@
 /* eslint-disable react/no-unescaped-entities */
-// src/app/components/Footer.tsx
+'use client'
 import Image from "next/image";
 import Link from "next/link";
 
-export default async function Footer() {
+export default function Footer() {
   return (
     <footer className="bg-white text-white min-h-[250px] pt-10 border-t-2 border-gray-300 relative">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -29,7 +29,7 @@ export default async function Footer() {
               href="https://facebook.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-800 hover:text-white transition-colors"
+              className="text-emerald-800 hover:text-gray-800 transition-colors"
             >
               <span className="sr-only">Facebook</span>
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -40,7 +40,7 @@ export default async function Footer() {
               href="https://instagram.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-800 hover:text-white transition-colors"
+              className="text-emerald-900 hover:text-gray-800 transition-colors"
             >
               <span className="sr-only">Instagram</span>
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -51,7 +51,7 @@ export default async function Footer() {
               href="https://twitter.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-800 hover:text-white transition-colors"
+              className="text-emerald-800 hover:text-gray-800 transition-colors"
             >
               <span className="sr-only">Twitter</span>
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">

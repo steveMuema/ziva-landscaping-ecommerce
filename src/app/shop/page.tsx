@@ -1,4 +1,4 @@
-import NavigationBar from "@/components/navbar";
+// import NavigationBar from "@/components/navbar";
 import Breadcrumb from "@/components/Breadcrumb";
 import { Suspense } from "react";
 import { getCategories } from "@/lib/api";
@@ -16,11 +16,15 @@ export default async function ShopPage() {
   const sortedCategories = categories.sort((a, b) => a.id - b.id);
   console.log("Categories fetched:", sortedCategories); // Debug log
 
+   const breadcrumbPath = [
+    { name: "Home", href: "/" },
+    { name: "Shop", href: "/shop", isCurrent: true },
+  ];
   return (
     <div className="min-h-screen bg-white">
-      <NavigationBar />
+      {/* <NavigationBar /> */}
       <div className="container mx-auto py-8 px-2 sm:px-4 md:px-6 lg:px-8 min-h-[400px]">
-        <Breadcrumb path={[{ name: "Home", href: "/" }, { name: "Shop", href: "/shop" }]} />
+        <Breadcrumb path={breadcrumbPath} />
         <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-900 font-[family-name:var(--font-quicksand)]">
           Shop Our Collections
         </h1>

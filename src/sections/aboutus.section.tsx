@@ -79,7 +79,7 @@ export default function AboutUsSection() {
                   <p className="font-medium">Team Collaboration</p>
                 </div> */}
               </div>
-              <div className="rounded-2xl h-32 flex items-center justify-center shadow-lg">
+              <div className="rounded-2xl h-80 flex items-center justify-center shadow-lg">
                 {/* <div className="text-center text-white">
                   <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2"> */}
                     <Image
@@ -95,7 +95,7 @@ export default function AboutUsSection() {
               </div>
             </div>
             <div className="space-y-4 pt-8">
-              <div className="rounded-2xl h-32 flex items-center justify-center shadow-lg">
+              <div className="rounded-2xl h-80 flex items-center justify-center shadow-lg">
                 {/* <div className="text-center text-white">
                   <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2"> */}
                     <Image
@@ -103,7 +103,7 @@ export default function AboutUsSection() {
                       alt="No description"
                       className="rounded-2xl w-full h-full object-cover"
                       width={400}
-                      height={200}
+                      height={600}
                     />
                   {/* </div> */}
                   {/* <p className="text-sm font-medium">Video Meetings</p>

@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Quicksand } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next"
+import { CartProvider } from "@/lib/cart";
+import { WishlistProvider } from "@/lib/wishlist";
+import { ProductProvider } from "@/lib/productContext";
+import { CartSidebarProvider } from "@/lib/cartSidebarContext";
+import NavigationBar from "@/components/navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,8 +38,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${quicksand.variable} antialiased`}
       >
-        {children}
-        <Analytics/>
+        <CartSidebarProvider>
+          <ProductProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <NavigationBar />
+                <main>{children}</main>
+            </WishlistProvider>
+          </CartProvider>
+        </ProductProvider>
+      </CartSidebarProvider>
+      <Analytics/>
       </body>
     </html>
   );

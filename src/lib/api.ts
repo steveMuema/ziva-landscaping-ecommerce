@@ -86,3 +86,8 @@ export async function getProductsBySubCategory(subCategoryId: string) {
     orderBy: {id: "asc"},
   });
 }
+export async function getProductById(id: string) {
+  return prisma.product.findUnique({
+    where: {id: parseInt(id)}
+  })
+}

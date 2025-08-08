@@ -19,6 +19,9 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useCart } from "@/lib/cart";
+import { useCartSidebar } from "@/lib/cartSidebarContext";
+import ShoppingCart from "@/components/ShoppingCart";
 
 // Server action to fetch categories
 async function getCategories() {
@@ -40,6 +43,8 @@ export default function NavigationBar() {
     ],
   });
   const pathname = usePathname();
+  const { items } = useCart();
+  const { cartOpen, setCartOpen } = useCartSidebar();
 
   useEffect(() => {
     getCategories().then((data) =>
@@ -47,7 +52,7 @@ export default function NavigationBar() {
     );
   }, []);
 
-  const toggleCategory = (categoryId) => {
+  const toggleCategory = (categoryId: string) => {
     setCategoryStates((prev) => ({
       ...prev,
       [categoryId]: !prev[categoryId],
@@ -60,7 +65,7 @@ export default function NavigationBar() {
       <Dialog open={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} className="relative z-40 lg:hidden">
         <DialogBackdrop
           transition
-          className="fixed inset-0 bg-black/25 transition-opacity duration-300 ease-linear data-closed:opacity-0"
+          className="fixed inset-0 bg-black/25 transition-opacity duration-300 ease-linear data-[closed]:opacity-0"
         />
         <div className="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out">
           <DialogPanel className="h-full overflow-y-auto p-4">
@@ -76,12 +81,14 @@ export default function NavigationBar() {
               </button>
             </div>
 
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Categories</h2>
-            {navigation.categories.map((category) => (
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 font-[family-name:var(--font-quicksand)]">
+              Categories
+            </h2>
+            {navigation.categories.map((category: { id: string; name: string; sections: { items: { name: string; href: string }[] }[] }) => (
               <div key={category.id} className="mb-4">
                 <button
                   onClick={() => toggleCategory(category.id)}
-                  className="w-full text-left font-medium text-gray-700 hover:text-gray-900 flex justify-between items-center"
+                  className="w-full text-left font-medium text-gray-700 hover:text-gray-900 flex justify-between items-center font-[family-name:var(--font-quicksand)]"
                 >
                   {category.name}
                   <span>{categoryStates[category.id] ? "−" : "+"}</span>
@@ -92,7 +99,7 @@ export default function NavigationBar() {
                       <li key={item.name}>
                         <Link
                           href={item.href}
-                          className="block text-sm text-gray-500 hover:text-gray-700"
+                          className="block text-sm text-gray-500 hover:text-gray-700 font-[family-name:var(--font-quicksand)]"
                           onClick={() => setIsSidebarOpen(false)}
                         >
                           {item.name}
@@ -108,10 +115,9 @@ export default function NavigationBar() {
       </Dialog>
 
       <header className="relative bg-white">
-        {pathname === "/shop/furniture-and-fittings" && 
-        (
-          <p className="flex h-10 items-center justify-center bg-[#044b3b] px-4 text-sm font-medium text-white sm:px-2 lg:px-8">
-            FURNITURE ITEMS HAVE A LEAD TIME OF 3-4WEEKS FROM ORDER PLACEMENT DATE.
+        {pathname === "/shop/furniture-and-fittings" && (
+          <p className="flex h-10 items-center justify-center bg-[#044b3b] px-4 text-sm font-medium text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
+            FURNITURE ITEMS HAVE A LEAD TIME OF 3-4 WEEKS FROM ORDER PLACEMENT DATE.
           </p>
         )}
 
@@ -129,60 +135,57 @@ export default function NavigationBar() {
               </button>
 
               {/* Logo */}
-              <div className="ml-4 flex  lg:ml-0">
+              <div className="ml-4 flex lg:ml-0">
                 <Link href="/">
                   <span className="sr-only">Ziva Landscaping CO.</span>
                   <Image
-                    alt="Ziva Landscaping Co."
                     src="/Ziva-Logo-02.svg"
+                    alt="Ziva Landscaping CO."
+                    width={150}
+                    height={40}
                     className="h-24 w-auto"
-                    width={480}
-                    height={480}
                   />
                 </Link>
               </div>
 
-              {/* Desktop Navigation */}
+              {/* Flyout menus */}
               <PopoverGroup className="hidden lg:ml-8 lg:block lg:self-stretch">
-                <div className="flex h-20 space-x-8">
-                  <Popover className="flex">
+                <div className="flex h-full space-x-8">
+                  <Popover className="relative flex">
                     <div className="relative flex">
-                      <PopoverButton className="group relative flex items-center justify-center text-base font-medium text-gray-700 transition-colors duration-200 ease-out hover:text-gray-800">
+                      <PopoverButton className="group relative flex items-center justify-center text-base font-medium text-gray-700 transition-colors duration-200 ease-out hover:text-gray-800 font-[family-name:var(--font-quicksand)]">
                         Categories
                         <span
                           aria-hidden="true"
-                          className="absolute inset-x-0 -bottom-px z-30 h-0.5 transition duration-200 ease-out group-data-open:bg-emerald-700"
+                          className="absolute inset-x-0 -bottom-px z-30 h-0.5 transition duration-200 ease-out group-data-[open]:bg-emerald-600"
                         />
                       </PopoverButton>
                     </div>
 
                     <PopoverPanel
                       transition
-                      className="absolute inset-x-0 top-full z-20 w-full bg-white text-sm text-gray-500 transition data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
+                      className="absolute inset-x-0 top-full z-20 w-full bg-white text-sm text-gray-500 transition data-[closed]:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
                     >
                       <div aria-hidden="true" className="absolute inset-0 top-1/2 bg-white shadow-sm" />
                       <div className="relative bg-white">
                         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                           <div className="grid grid-cols-1 gap-y-10 py-16">
-                            {navigation.categories.map((category) => (
+                            {navigation.categories.map((category: { id: string; name: string; sections: { items: { name: string; href: string }[] }[] }) => (
                               <div key={category.id}>
                                 <button
                                   onClick={() => toggleCategory(category.id)}
-                                  className="w-full text-left font-medium text-gray-900 flex justify-between items-center"
+                                  className="w-full text-left font-medium text-gray-900 flex justify-between items-center font-[family-name:var(--font-quicksand)]"
                                 >
                                   {category.name}
                                   <span>{categoryStates[category.id] ? "−" : "+"}</span>
                                 </button>
                                 {categoryStates[category.id] && (
-                                  <ul
-                                    role="list"
-                                    className="mt-6 space-y-6"
-                                  >
+                                  <ul role="list" className="mt-6 space-y-6">
                                     {category.sections[0].items.map((item) => (
                                       <li key={item.name} className="flex">
                                         <Link
                                           href={item.href}
-                                          className="hover:text-gray-800"
+                                          className="hover:text-gray-800 font-[family-name:var(--font-quicksand)]"
                                         >
                                           {item.name}
                                         </Link>
@@ -202,7 +205,7 @@ export default function NavigationBar() {
                     <Link
                       key={page.name}
                       href={page.href}
-                      className={`flex items-center text-base font-medium transition-colors duration-200 ease-out ${
+                      className={`flex items-center text-base font-medium transition-colors duration-200 ease-out font-[family-name:var(--font-quicksand)] ${
                         pathname === page.href
                           ? "text-emerald-600 border-b-2 border-emerald-600"
                           : "text-gray-700 hover:text-gray-800"
@@ -217,31 +220,46 @@ export default function NavigationBar() {
 
               <div className="ml-auto flex items-center">
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  <a href="#" className="text-base font-medium text-gray-700 hover:text-gray-800">
+                  <a href="#" className="text-base font-medium text-gray-700 hover:text-gray-800 font-[family-name:var(--font-quicksand)]">
                     Sign in
                   </a>
                   <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
-                  <a href="#" className="text-base font-medium text-gray-700 hover:text-gray-800">
+                  <a href="#" className="text-base font-medium text-gray-700 hover:text-gray-800 font-[family-name:var(--font-quicksand)]">
                     Create account
+                  </a>
+                </div>
+
+                {/* Search */}
+                <div className="ml-4 flex lg:ml-6">
+                  <a href="#" className="p-2 text-gray-400 hover:text-gray-500">
+                    <span className="sr-only">Search</span>
+                    <MagnifyingGlassIcon aria-hidden="true" className="size-6" />
                   </a>
                 </div>
 
                 {/* Cart */}
                 <div className="ml-4 flow-root lg:ml-6">
-                  <a href="#" className="group -m-2 flex items-center p-2">
+                  <button
+                    onClick={() => setCartOpen(true)}
+                    className="group -m-2 flex items-center p-2"
+                    aria-label="Open shopping cart"
+                  >
                     <ShoppingBagIcon
                       aria-hidden="true"
                       className="size-6 shrink-0 text-gray-400 group-hover:text-gray-500"
                     />
-                    <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">0</span>
-                    <span className="sr-only">items in cart, view bag</span>
-                  </a>
+                    <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800 font-[family-name:var(--font-quicksand)]">
+                      {items.length}
+                    </span>
+                    <span className="sr-only">items in cart, view cart</span>
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </nav>
       </header>
+      <ShoppingCart open={cartOpen} setOpen={setCartOpen} />
     </div>
   );
 }

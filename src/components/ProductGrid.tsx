@@ -1,49 +1,44 @@
 "use client";
 import { motion, useAnimation } from "framer-motion";
 import { Product } from "@/types";
-import { useCart } from "@/lib/cart";
-import { useWishlist } from "@/lib/wishlist";
 import { CartProvider } from "@/lib/cart";
 import { WishlistProvider } from "@/lib/wishlist";
-import { useEffect, useMemo, useCallback, memo } from "react";
+import { useProducts } from "@/lib/productContext";
+import { useEffect, useMemo, memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import cloudinaryLoader from "@/lib/cloudinaryLoader";
+import ProductActions from "@/components/ProductActions";
 
 interface ProductGridProps {
   products: Product[];
-  categoryName: string; // Dynamic based on clicked category
-  subCategoryName: string; // Dynamic based on clicked subcategory
+  categoryName: string;
+  subCategoryName: string;
 }
 
 const ProductGridComponent = ({ products: initialProducts, categoryName, subCategoryName }: ProductGridProps) => {
-  const cart = useCart();
-  const wishlist = useWishlist();
+  const { setProducts } = useProducts();
   const controls = useAnimation();
 
   const memoizedProducts = useMemo(() => initialProducts, [initialProducts]);
 
-  const handleAddToCart = useCallback((productId: number) => {
-    cart.addToCart(productId);
-  }, [cart]);
-
-  const handleAddToWishlist = useCallback((productId: number) => {
-    wishlist.addToWishlist(productId);
-  }, [wishlist]);
+  useEffect(() => {
+    setProducts(memoizedProducts);
+  }, [memoizedProducts, setProducts]);
 
   useEffect(() => {
     controls.start({ opacity: 1 });
   }, [controls]);
 
   if (!memoizedProducts || memoizedProducts.length === 0) {
-    console.log("No products to render:", initialProducts); // Debug log
+    console.log("No products to render:", initialProducts);
     return <div className="text-center text-gray-500 py-6 sm:py-8">No products available</div>;
   }
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 px-2 sm:px-0 min-h-[300px]">
       {memoizedProducts.map((product) => {
-        console.log("Rendering product:", product.name, "Image:", product.imageUrl); // Debug log
+        console.log("Rendering product:", product.name, "Image:", product.imageUrl);
         return (
           <motion.div
             key={product.id}
@@ -54,7 +49,9 @@ const ProductGridComponent = ({ products: initialProducts, categoryName, subCate
             transition={{ duration: 0.3 }}
           >
             <Link
-              href={`/shop/${categoryName.toLowerCase().replace(/\s+/g, '-')}/${subCategoryName.toLowerCase().replace(/\s+/g, '-')}/${product.id}`}
+              href={`/shop/${categoryName.toLowerCase().replace(/\s+/g, "-")}/${subCategoryName
+                .toLowerCase()
+                .replace(/\s+/g, "-")}/${product.id}`}
               className="block"
             >
               <div className="relative w-full h-32 sm:h-40 md:h-48">
@@ -65,7 +62,7 @@ const ProductGridComponent = ({ products: initialProducts, categoryName, subCate
                     fill
                     className="object-cover"
                     sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                    loader={product.imageUrl ? cloudinaryLoader : undefined} 
+                    loader={product.imageUrl ? cloudinaryLoader : undefined}
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -74,26 +71,17 @@ const ProductGridComponent = ({ products: initialProducts, categoryName, subCate
                 )}
               </div>
               <div className="p-2 sm:p-3 text-center">
-                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-1 sm:mb-2 font-[family-name:var(--font-quicksand)]">{product.name}</h3>
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-1 sm:mb-2 font-[family-name:var(--font-quicksand)]">
+                  {product.name}
+                </h3>
                 <p className="text-xs sm:text-sm text-gray-600 mb-2 font-[family-name:var(--font-quicksand)]">
                   Kshs. {product.price.toFixed(2)}
                 </p>
-                <div className="flex justify-center space-x-1 sm:space-x-2">
-                  <button
-                    onClick={(e) => { e.preventDefault(); handleAddToCart(product.id); }}
-                    className="bg-green-600 text-white px-2 sm:px-3 py-1 sm:py-2 rounded-md hover:bg-green-700 transition-colors duration-200 text-xs sm:text-sm"
-                  >
-                    Buy Now
-                  </button>
-                  <button
-                    onClick={(e) => { e.preventDefault(); handleAddToWishlist(product.id); }}
-                    className="text-red-500 hover:text-red-700 transition-colors duration-200 text-xs sm:text-sm"
-                  >
-                    Add to Wishlist
-                  </button>
-                </div>
               </div>
             </Link>
+            <div className="p-2 sm:p-3">
+              <ProductActions productId={product.id} stock={product.stock} quantity={1} />
+            </div>
           </motion.div>
         );
       })}

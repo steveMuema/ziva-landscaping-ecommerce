@@ -44,6 +44,15 @@ export interface Cart {
   productId: number;
   quantity: number;
   createdAt: Date;
+  product: {
+    id: number;
+    name: string;
+    price: number;
+    imageUrl: string | null;
+    description: string | null;
+    stock: number;
+    subCategoryId: number;
+  };
 }
 
 export interface Collection {

@@ -10,14 +10,14 @@ const collections: Collection[] = [
     image: "/landscaping.jpg",
     category: "landscaping",
     alt: "Landscaping",
-    description: "Landscape design and Sustainability: Incorporating landscaping with functionality,sustainability and environment friendly.Crafting vibrant ecofriendly outdoor spaces by designin with drought resistant plants,edible landscape and Organic practices",
+    description: "Landscape design and Sustainability: Incorporating landscaping with functionality, sustainability and environment friendly. Crafting vibrant eco-friendly outdoor spaces by designing with drought resistant plants, edible landscape and organic practices",
   },
   {
     id: 2,
     image: "/garden.jpg",
     category: "garden",
-    alt: "Garden",
-    description: "We sell fresh organic fruits,vegetables and herbs from the farm.We practice organic farming avoiding synthetic pesticides & fertilizers,Instead we use natural alternatives to promote soil health,human health and reduce pollution.",
+    alt: "Gardening",
+    description: "We sell fresh organic fruits,vegetables and herbs from the farm.We practice organic farming avoiding synthetic pesticides & fertilizers. Instead we use natural alternatives to promote soil health, human health and reduce pollution.",
   },
   {
     id: 3,
@@ -31,7 +31,7 @@ const collections: Collection[] = [
     image: "/home-decor.jpg",
     category: "home-decor-and-furnishing",
     alt: "Home Décor & Furnishing",
-    description: "Hand drawn Pencil art pieces.We incorporate interior design with art pieces to beautify your home /office with a unique touch.Available in sizes.A4 3 days,A3 a week  A2 2 weeks, A1 month.Call/message for prices.Art available in Pencil / Paint framed on Canvas or to customers preference.",
+    description: "Hand-drawn Pencil art pieces. We incorporate interior design with art pieces to beautify your home or office with a unique touch. Available in sizes. A4 3 days, A3 a week, A2 2 weeks, A1 month. Call or Message for prices. Art available in Pencil or Paint framed on Canvas or to customer's preference.",
   }
   
 ];

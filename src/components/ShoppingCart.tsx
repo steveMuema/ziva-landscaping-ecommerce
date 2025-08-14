@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useCart } from "@/lib/cart";
-import { useProducts } from "@/lib/productContext";
 import Image from "next/image";
 import cloudinaryLoader from "@/lib/cloudinaryLoader";
 
@@ -15,94 +14,40 @@ interface ShoppingCartProps {
 
 const ShoppingCart = ({ open, setOpen }: ShoppingCartProps) => {
   const { items, removeFromCart, clearCart } = useCart();
-  const { products } = useProducts();
-  const [cartQuantities, setCartQuantities] = useState<{ [key: string]: number }>({});
-  const [cartKey, setCartKey] = useState(0); // Force re-render
+  const [cartKey, setCartKey] = useState(0);
 
-  // Initialize cartQuantities from localStorage on mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const storedQuantities = localStorage.getItem("cartQuantities");
-        const storedCart = localStorage.getItem("cart");
-        const quantities = storedQuantities ? JSON.parse(storedQuantities) : {};
-        const cartItems = storedCart ? JSON.parse(storedCart) : [];
-        // Only keep quantities for items in cart
-        const updatedQuantities = cartItems.reduce((acc, item: { id: number }) => {
-          acc[item.id] = quantities[item.id] || 1;
-          return acc;
-        }, {} as { [key: string]: number });
-        setCartQuantities(updatedQuantities);
-        localStorage.setItem("cartQuantities", JSON.stringify(updatedQuantities));
-        console.log("Initialized cartQuantities from localStorage:", updatedQuantities);
-      } catch (error) {
-        console.error("Error initializing cartQuantities:", error);
-      }
+    const handleCartUpdate = () => {
+      // Increment cartKey to force re-render only if items change
+      setCartKey((prev) => prev + 1);
+      console.log("ShoppingCart: Received cartUpdated event, items:", items);
+    };
+
+    window.addEventListener("cartUpdated", handleCartUpdate);
+    return () => window.removeEventListener("cartUpdated", handleCartUpdate);
+  }, []); // Remove `items` from dependencies to avoid re-adding listener
+
+  const handleRemoveFromCart = async (productId: number) => {
+    try {
+      await removeFromCart(productId);
+      console.log(`Removed product ${productId} from cart`);
+    } catch (error) {
+      console.error("Error removing from cart:", error);
     }
-  }, []);
-
-  // Listen for cart updates and storage events
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const handleCartUpdate = () => {
-        try {
-          const storedQuantities = localStorage.getItem("cartQuantities");
-          const storedCart = localStorage.getItem("cart");
-          const quantities = storedQuantities ? JSON.parse(storedQuantities) : {};
-          const cartItems = storedCart ? JSON.parse(storedCart) : [];
-          const updatedQuantities = cartItems.reduce((acc, item: { id: number }) => {
-            acc[item.id] = quantities[item.id] || 1;
-            return acc;
-          }, {} as { [key: string]: number });
-          setCartQuantities(updatedQuantities);
-          setCartKey((prev) => prev + 1); // Force re-render
-          console.log("Synced cartQuantities from cartUpdated event:", updatedQuantities);
-        } catch (error) {
-          console.error("Error syncing cartQuantities from cartUpdated event:", error);
-        }
-      };
-
-      const handleStorageChange = (event: StorageEvent) => {
-        if (event.key === "cartQuantities" || event.key === "cart") {
-          handleCartUpdate();
-        }
-      };
-
-      window.addEventListener("cartUpdated", handleCartUpdate);
-      window.addEventListener("storage", handleStorageChange);
-      return () => {
-        window.removeEventListener("cartUpdated", handleCartUpdate);
-        window.removeEventListener("storage", handleStorageChange);
-      };
-    }
-  }, []);
-
-  // Handle remove from cart
-  const handleRemoveFromCart = (productId: number) => {
-    removeFromCart(productId);
-    setCartQuantities((prev) => {
-      const updated = { ...prev };
-      delete updated[productId];
-      localStorage.setItem("cartQuantities", JSON.stringify(updated));
-      console.log(`Removed product ${productId} from cart and cartQuantities`);
-      return updated;
-    });
-    window.dispatchEvent(new Event("cartUpdated"));
   };
 
-  // Handle clear cart
-  const handleClearCart = () => {
-    clearCart();
-    setCartQuantities({});
-    localStorage.setItem("cartQuantities", JSON.stringify({}));
-    console.log("Cleared cart and cartQuantities");
-    window.dispatchEvent(new Event("cartUpdated"));
+  const handleClearCart = async () => {
+    try {
+      await clearCart();
+      console.log("Cleared cart");
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+    }
   };
 
-  // Calculate subtotal
   const subtotal = items.reduce((total, item) => {
-    const product = products.find((p) => p.id === item.id);
-    const quantity = cartQuantities[item.id] || 1;
+    const product = item.product;
+    const quantity = item.quantity || 1;
     return total + (product ? product.price * quantity : 0);
   }, 0);
 
@@ -156,9 +101,12 @@ const ShoppingCart = ({ open, setOpen }: ShoppingCartProps) => {
                       ) : (
                         <ul role="list" className="-my-6 divide-y divide-gray-200">
                           {items.map((item) => {
-                            const product = products.find((p) => p.id === item.id);
-                            if (!product) return null;
-                            const quantity = cartQuantities[item.id] || 1;
+                            const product = item.product;
+                            if (!product) {
+                              console.warn(`Product missing for cart item ID ${item.id}`);
+                              return null;
+                            }
+                            const quantity = item.quantity || 1;
                             return (
                               <li key={item.id} className="flex py-6">
                                 <div className="size-24 shrink-0 overflow-hidden rounded-md border border-gray-200">
@@ -191,7 +139,7 @@ const ShoppingCart = ({ open, setOpen }: ShoppingCartProps) => {
                                     <div className="flex">
                                       <button
                                         type="button"
-                                        onClick={() => handleRemoveFromCart(item.id)}
+                                        onClick={() => handleRemoveFromCart(item.productId)}
                                         className="font-medium text-emerald-600 hover:text-emerald-500 font-[family-name:var(--font-quicksand)]"
                                       >
                                         Remove

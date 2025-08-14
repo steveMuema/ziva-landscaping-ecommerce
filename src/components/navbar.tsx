@@ -114,6 +114,7 @@ export default function NavigationBar() {
         </div>
       </Dialog>
 
+      {/* Desktop header */}
       <header className="relative bg-white">
         {pathname === "/shop/furniture-and-fittings" && (
           <p className="flex h-10 items-center justify-center bg-[#044b3b] px-4 text-sm font-medium text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
@@ -151,54 +152,62 @@ export default function NavigationBar() {
               {/* Flyout menus */}
               <PopoverGroup className="hidden lg:ml-8 lg:block lg:self-stretch">
                 <div className="flex h-full space-x-8">
-                  <Popover className="relative flex">
-                    <div className="relative flex">
-                      <PopoverButton className="group relative flex items-center justify-center text-base font-medium text-gray-700 transition-colors duration-200 ease-out hover:text-gray-800 font-[family-name:var(--font-quicksand)]">
-                        Categories
-                        <span
-                          aria-hidden="true"
-                          className="absolute inset-x-0 -bottom-px z-30 h-0.5 transition duration-200 ease-out group-data-[open]:bg-emerald-600"
-                        />
-                      </PopoverButton>
-                    </div>
+                  <Popover className="flex">
+                    {({ open }) => (
+                      <>
+                        <div className="relative flex">
+                          <PopoverButton
+                            className={`relative z-10 flex items-center text-sm font-medium text-gray-700 font-[family-name:var(--font-quicksand)] transition-colors duration-200 ease-out hover:text-gray-800 ${
+                              open ? "text-gray-800" : ""
+                            }`}
+                          >
+                            Categories
+                            <span
+                              aria-hidden="true"
+                              className={`absolute inset-x-0 -bottom-px z-20 h-0.5 transition duration-200 ease-out ${
+                                open ? "bg-emerald-600" : "bg-transparent"
+                              }`}
+                            />
+                          </PopoverButton>
+                        </div>
 
-                    <PopoverPanel
-                      transition
-                      className="absolute inset-x-0 top-full z-20 w-full bg-white text-sm text-gray-500 transition data-[closed]:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
-                    >
-                      <div aria-hidden="true" className="absolute inset-0 top-1/2 bg-white shadow-sm" />
-                      <div className="relative bg-white">
-                        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                          <div className="grid grid-cols-1 gap-y-10 py-16">
-                            {navigation.categories.map((category: { id: string; name: string; sections: { items: { name: string; href: string }[] }[] }) => (
-                              <div key={category.id}>
-                                <button
-                                  onClick={() => toggleCategory(category.id)}
-                                  className="w-full text-left font-medium text-gray-900 flex justify-between items-center font-[family-name:var(--font-quicksand)]"
-                                >
-                                  {category.name}
-                                  <span>{categoryStates[category.id] ? "−" : "+"}</span>
-                                </button>
-                                {categoryStates[category.id] && (
-                                  <ul role="list" className="mt-6 space-y-6">
-                                    {category.sections[0].items.map((item) => (
+                        <PopoverPanel
+                          transition
+                          className="absolute inset-x-0 top-full z-20 text-sm text-gray-500 transition data-[closed]:opacity-0 data-[enter]:duration-200 data-[enter]:ease-out data-[leave]:duration-150 data-[leave]:ease-in"
+                        >
+                          <div className="absolute inset-0 top-1/2 bg-white shadow" aria-hidden="true" />
+                          <div className="relative bg-white">
+                            <div className="mx-auto max-w-7xl px-8">
+                              <div className="grid grid-cols-2 gap-x-8 gap-y-10 py-16">
+                                {navigation.categories.map((category: { id: string; name: string; sections: { items: { name: string; href: string }[] }[] })=> (
+                                  <div key={category.id} className="col-span-2">
+                                    <p id={`${category.id}-heading`} className="font-medium text-gray-900 font-[family-name:var(--font-quicksand)]">
+                                      {category.name}
+                                    </p>
+                                    <ul
+                                      role="list"
+                                      aria-labelledby={`${category.id}-heading`}
+                                      className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
+                                    >
+                                      {category.sections[0].items.map((item) => (
                                       <li key={item.name} className="flex">
                                         <Link
                                           href={item.href}
                                           className="hover:text-gray-800 font-[family-name:var(--font-quicksand)]"
                                         >
                                           {item.name}
-                                        </Link>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                )}
+                                          </Link>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                ))}
                               </div>
-                            ))}
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    </PopoverPanel>
+                        </PopoverPanel>
+                      </>
+                    )}
                   </Popover>
 
                   {navigation.pages.map((page) => (

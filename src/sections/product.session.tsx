@@ -81,7 +81,7 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
   }
 
   return (
-    <div className="bg-white mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
+    <div className="bg-white mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <Breadcrumb path={breadcrumbPath} />
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
         <div className="space-y-8 w-full lg:w-1/2 order-2 lg:order-1">

@@ -1,95 +1,178 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, FC } from "react";
-
-export interface CartItem {
-  id: number;
-}
+import { Cart } from "@/types";
+import { v4 as uuidv4 } from "uuid";
 
 interface CartContextType {
-  items: CartItem[];
-  addToCart: (productId: number) => void;
-  removeFromCart: (productId: number) => void;
-  clearCart: () => void;
+  items: Cart[];
+  addToCart: (productId: number, quantity: number) => Promise<void>;
+  removeFromCart: (productId: number) => Promise<void>;
+  clearCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<Cart[]>([]);
+  const [clientId, setClientId] = useState<string>("");
 
-  // Initialize cart from localStorage on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
-      try {
-        const storedCart = localStorage.getItem("cart");
-        if (storedCart) {
-          setItems(JSON.parse(storedCart));
-          console.log("Initialized cart from localStorage:", JSON.parse(storedCart));
-        }
-      } catch (error) {
-        console.error("Error initializing cart from localStorage:", error);
+      let id = localStorage.getItem("clientId");
+      if (!id) {
+        id = uuidv4();
+        localStorage.setItem("clientId", id);
+        console.log("Generated new clientId:", id);
       }
-    }
-  }, []);
+      setClientId(id);
 
-  // Sync cart with localStorage and dispatch custom event on items change
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem("cart", JSON.stringify(items));
-        console.log("Updated cart in localStorage:", items);
-        // Dispatch custom event to notify listeners
-        window.dispatchEvent(new Event("cartUpdated"));
-      } catch (error) {
-        console.error("Error updating cart in localStorage:", error);
-      }
-    }
-  }, [items]);
-
-  // Listen for storage events to sync cart across tabs
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const handleStorageChange = (event: StorageEvent) => {
-        if (event.key === "cart" && event.newValue) {
-          try {
-            const updatedCart = JSON.parse(event.newValue);
-            setItems(updatedCart);
-            console.log("Synced cart from storage event:", updatedCart);
-            window.dispatchEvent(new Event("cartUpdated"));
-          } catch (error) {
-            console.error("Error syncing cart from storage event:", error);
+      const fetchCart = async () => {
+        try {
+          const response = await fetch(`/api/cart?clientId=${id}`, {
+            headers: { "Content-Type": "application/json" },
+          });
+          if (!response.ok) {
+            throw new Error(`Failed to fetch cart: ${response.status} ${response.statusText}`);
           }
+          const cartItems = await response.json();
+          if (!Array.isArray(cartItems)) {
+            console.warn("Received non-array cart response:", cartItems);
+            setItems([]);
+            return;
+          }
+          const validItems = cartItems.filter((item: Cart) => {
+            if (!item.product) {
+              console.warn(`Cart item ${item.id} missing product data`, item);
+              return false;
+            }
+            return true;
+          });
+          setItems(validItems);
+          console.log("Initialized cart from API:", validItems);
+        } catch (error) {
+          console.error("Error initializing cart from API:", error);
+          setItems([]);
         }
       };
-      window.addEventListener("storage", handleStorageChange);
-      return () => window.removeEventListener("storage", handleStorageChange);
+      fetchCart();
     }
   }, []);
 
-  const addToCart = (productId: number) => {
-    setItems((prevItems) => {
-      if (!prevItems.some((item) => item.id === productId)) {
-        const newItems = [...prevItems, { id: productId }];
-        console.log(`Added product ${productId} to cart`);
-        return newItems;
+  useEffect(() => {
+    if (typeof window !== "undefined" && clientId) {
+      const handleCartUpdate = async () => {
+        try {
+          const response = await fetch(`/api/cart?clientId=${clientId}`, {
+            headers: { "Content-Type": "application/json" },
+          });
+          if (!response.ok) {
+            throw new Error(`Failed to sync cart: ${response.status} ${response.statusText}`);
+          }
+          const cartItems = await response.json();
+          if (!Array.isArray(cartItems)) {
+            console.warn("Received non-array cart response in cartUpdated:", cartItems);
+            setItems([]);
+            return;
+          }
+          const validItems = cartItems.filter((item: Cart) => {
+            if (!item.product) {
+              console.warn(`Cart item ${item.id} missing product data`, item);
+              return false;
+            }
+            return true;
+          });
+          setItems(validItems);
+          console.log("Synced cart from cartUpdated event:", validItems);
+        } catch (error) {
+          console.error("Error syncing cart from cartUpdated event:", error);
+          setItems([]);
+        }
+      };
+      window.addEventListener("cartUpdated", handleCartUpdate);
+      return () => window.removeEventListener("cartUpdated", handleCartUpdate);
+    }
+  }, [clientId]);
+
+  const addToCart = async (productId: number, quantity: number) => {
+    try {
+      const response = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId, productId, quantity }),
+      });
+      if (!response.ok) throw new Error(`Failed to add to cart: ${response.status} ${response.statusText}`);
+      const newItem = await response.json();
+      if (!newItem.product) {
+        console.warn(`Added cart item ${newItem.id} missing product data`, newItem);
+        return;
       }
-      console.log(`Product ${productId} already in cart`);
-      return prevItems;
-    });
+      setItems((prevItems) => {
+        const existingItem = prevItems.find((item) => item.productId === productId);
+        if (existingItem) {
+          return prevItems.map((item) =>
+            item.productId === productId ? { ...item, quantity: newItem.quantity, product: newItem.product } : item
+          );
+        }
+        return [...prevItems, newItem];
+      });
+      console.log(`Added product ${productId} to cart with quantity ${quantity}`);
+      window.dispatchEvent(new CustomEvent("cartUpdated"));
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
   };
 
-  const removeFromCart = (productId: number) => {
-    setItems((prevItems) => {
-      const newItems = prevItems.filter((item) => item.id !== productId);
-      console.log(`Removed product ${productId} from cart`);
-      return newItems;
-    });
+  const removeFromCart = async (productId: number) => {
+    try {
+      const response = await fetch("/api/cart", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId, productId }),
+      });
+      if (!response.ok) throw new Error(`Failed to remove from cart: ${response.status} ${response.statusText}`);
+      
+      const fetchResponse = await fetch(`/api/cart?clientId=${clientId}`, {
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!fetchResponse.ok) {
+        throw new Error(`Failed to fetch cart after removal: ${fetchResponse.status} ${fetchResponse.statusText}`);
+      }
+      const cartItems = await fetchResponse.json();
+      if (!Array.isArray(cartItems)) {
+        console.warn("Received non-array cart response after removal:", cartItems);
+        setItems([]);
+        return;
+      }
+      const validItems = cartItems.filter((item: Cart) => {
+        if (!item.product) {
+          console.warn(`Cart item ${item.id} missing product data`, item);
+          return false;
+        }
+        return true;
+      });
+      setItems(validItems);
+      console.log(`Removed product ${productId} from cart, new items:`, validItems);
+      window.dispatchEvent(new CustomEvent("cartUpdated"));
+    } catch (error) {
+      console.error("Error removing from cart:", error);
+    }
   };
 
-  const clearCart = () => {
-    setItems([]);
-    console.log("Cleared cart");
+  const clearCart = async () => {
+    try {
+      const response = await fetch("/api/cart/clear", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId }),
+      });
+      if (!response.ok) throw new Error(`Failed to clear cart: ${response.status} ${response.statusText}`);
+      setItems([]);
+      console.log("Cleared cart for clientId:", clientId);
+      window.dispatchEvent(new CustomEvent("cartUpdated"));
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+    }
   };
 
   return (

@@ -2,84 +2,67 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator prismaClientJs {
-  provider = "prisma-client-js"
-  seed     = "ts-node prisma/seed.ts"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Category {
-  id          Int           @id @default(autoincrement())
-  name        String        @unique
-  imageUrl    String?      
+  id            Int         @id @default(autoincrement())
+  name          String
+  imageUrl      String?
   subCategories SubCategory[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
 
 model SubCategory {
-  id          Int           @id @default(autoincrement())
-  name        String
-  categoryId  Int
-  imageUrl    String?       
-  category    Category      @relation(fields: [categoryId], references: [id])
-  products    Product[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id         Int       @id @default(autoincrement())
+  name       String
+  categoryId Int
+  imageUrl   String?
+  category   Category  @relation(fields: [categoryId], references: [id])
+  products   Product[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
 model Product {
-  id          Int           @id @default(autoincrement())
-  name        String
-  description String?
-  price       Float
-  imageUrl    String?       
-  stock       Int
+  id            Int         @id @default(autoincrement())
+  name          String
+  description   String?
+  price         Float
+  imageUrl      String?
+  stock         Int
   subCategoryId Int
-  subCategory SubCategory   @relation(fields: [subCategoryId], references: [id])
-  carts       Cart[]
-  wishlists   Wishlist[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-}
-
-model Wishlist {
-  id        Int      @id @default(autoincrement())
-  userId    String
-  productId Int
-  product   Product  @relation(fields: [productId], references: [id])
-  createdAt DateTime @default(now())
+  subCategory   SubCategory @relation(fields: [subCategoryId], references: [id])
+  carts         Cart[]
+  wishlists     Wishlist[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
 
 model Cart {
   id        Int      @id @default(autoincrement())
-  userId    String
+  clientId  String
   productId Int
-  product   Product  @relation(fields: [productId], references: [id])
   quantity  Int
+  product   Product  @relation(fields: [productId], references: [id])
   createdAt DateTime @default(now())
 }
 
-model Order {
-  id          Int      @id @default(autoincrement())
-  userDetails String
-  items       String
-  total       Float
-  status      String
-  createdAt   DateTime @default(now())
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  clientId  String
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
 }
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  password      String?
-  role          String    @default("user")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+model Collection {
+  id          Int      @id @default(autoincrement())
+  image       String
+  category    String
+  alt         String
+  description String
 }

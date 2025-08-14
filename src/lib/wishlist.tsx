@@ -1,96 +1,111 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, FC } from "react";
-
-interface WishlistItem {
-  id: number;
-}
+import { Wishlist } from "@/types";
+import { v4 as uuidv4 } from "uuid";
 
 interface WishlistContextType {
-  items: WishlistItem[];
-  addToWishlist: (productId: number) => void;
-  removeFromWishlist: (productId: number) => void;
-  clearWishlist: () => void;
+  items: Wishlist[];
+  addToWishlist: (productId: number) => Promise<void>;
+  removeFromWishlist: (productId: number) => Promise<void>;
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
 
-export { WishlistContext };
-
-// eslint-disable-next-line react/display-name
 export const WishlistProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<WishlistItem[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const storedWishlist = localStorage.getItem("wishlist");
-      const parsed = storedWishlist ? JSON.parse(storedWishlist) : [];
-      if (Array.isArray(parsed) && parsed.every(item => typeof item.id === "number")) {
-        console.log("Initialized wishlist from localStorage:", parsed);
-        return parsed;
-      }
-      console.warn("Invalid wishlist data in localStorage, resetting to empty");
-      return [];
-    } catch (error) {
-      console.error("Error parsing wishlist from localStorage:", error);
-      return [];
-    }
-  });
+  const [items, setItems] = useState<Wishlist[]>([]);
+  const [clientId, setClientId] = useState<string>("");
 
-  // Sync with localStorage on mount and window focus
-  useEffect(() => {
-    const syncWishlist = () => {
-      if (typeof window !== "undefined") {
-        try {
-          const storedWishlist = localStorage.getItem("wishlist");
-          const parsed = storedWishlist ? JSON.parse(storedWishlist) : [];
-          if (Array.isArray(parsed) && parsed.every(item => typeof item.id === "number")) {
-            setItems(parsed);
-            console.log("Synced wishlist from localStorage on focus:", parsed);
-          }
-        } catch (error) {
-          console.error("Error syncing wishlist from localStorage:", error);
-        }
-      }
-    };
-
-    syncWishlist(); // Initial sync
-    window.addEventListener("focus", syncWishlist);
-    return () => window.removeEventListener("focus", syncWishlist);
-  }, []);
-
-  // Save to localStorage on items change
   useEffect(() => {
     if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem("wishlist", JSON.stringify(items));
-        localStorage.setItem("wishlistTimestamp", Date.now().toString());
-        console.log("Saved wishlist to localStorage:", items);
-      } catch (error) {
-        console.error("Error saving wishlist to localStorage:", error);
+      let id = localStorage.getItem("clientId");
+      if (!id) {
+        id = uuidv4();
+        localStorage.setItem("clientId", id);
+        console.log("Generated new clientId:", id);
       }
+      setClientId(id);
+
+      const fetchWishlist = async () => {
+        try {
+          const response = await fetch(`/api/wishlist?clientId=${id}`);
+          const wishlistItems = await response.json();
+          setItems(Array.isArray(wishlistItems) ? wishlistItems : []);
+          console.log("Initialized wishlist from API:", wishlistItems);
+        } catch (error) {
+          console.error("Error initializing wishlist from API:", error);
+        }
+      };
+      fetchWishlist();
     }
-  }, [items]);
+  }, []);
 
-  const addToWishlist = (productId: number) => {
-    setItems((prev) => {
-      if (!prev.some((item) => item.id === productId)) {
-        return [...prev, { id: productId }];
-      }
-      return prev;
-    });
+  useEffect(() => {
+    if (typeof window !== "undefined" && clientId) {
+      const handleWishlistUpdate = () => {
+        const fetchWishlist = async () => {
+          try {
+            const response = await fetch(`/api/wishlist?clientId=${clientId}`);
+            const wishlistItems = await response.json();
+            if (Array.isArray(wishlistItems)) {
+              setItems(wishlistItems);
+              console.log("Synced wishlist from wishlistUpdated event:", wishlistItems);
+            }
+          } catch (error) {
+            console.error("Error syncing wishlist from wishlistUpdated event:", error);
+          }
+        };
+        fetchWishlist();
+      };
+      window.addEventListener("wishlistUpdated", handleWishlistUpdate);
+      return () => window.removeEventListener("wishlistUpdated", handleWishlistUpdate);
+    }
+  }, [clientId]);
+
+  const addToWishlist = async (productId: number) => {
+    try {
+      const response = await fetch("/api/wishlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId, productId }),
+      });
+      if (!response.ok) throw new Error("Failed to add to wishlist");
+      const newItem = await response.json();
+      setItems((prevItems) => {
+        if (!prevItems.some((item) => item.productId === productId)) {
+          const newItems = [...prevItems, newItem];
+          console.log(`Added product ${productId} to wishlist, new items:`, newItems);
+          window.dispatchEvent(new CustomEvent("wishlistUpdated", { detail: { items: newItems } }));
+          return newItems;
+        }
+        return prevItems;
+      });
+    } catch (error) {
+      console.error("Error adding to wishlist:", error);
+    }
   };
 
-  const removeFromWishlist = (productId: number) => {
-    setItems((prev) => prev.filter((item) => item.id !== productId));
+  const removeFromWishlist = async (productId: number) => {
+    try {
+      const response = await fetch("/api/wishlist", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId, productId }),
+      });
+      if (!response.ok) throw new Error("Failed to remove from wishlist");
+      setItems((prevItems) => {
+        const newItems = prevItems.filter((item) => item.productId !== productId);
+        console.log(`Removed product ${productId} from wishlist, new items:`, newItems);
+        window.dispatchEvent(new CustomEvent("wishlistUpdated", { detail: { items: newItems } }));
+        return newItems;
+      });
+    } catch (error) {
+      console.error("Error removing from wishlist:", error);
+    }
   };
 
-  const clearWishlist = () => {
-    setItems([]);
-  };
-
-  console.log("WishlistProvider rendering with items:", items);
   return (
-    <WishlistContext.Provider value={{ items, addToWishlist, removeFromWishlist, clearWishlist }}>
+    <WishlistContext.Provider value={{ items, addToWishlist, removeFromWishlist }}>
       {children}
     </WishlistContext.Provider>
   );

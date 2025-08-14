@@ -27,25 +27,21 @@ export interface Product {
   stock: number;
   subCategoryId: number;
   subCategory: SubCategory;
-  carts: Cart[];
-  wishlists: Wishlist[];
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface Wishlist {
   id: number;
-  userId: string;
+  clientId: string;
   productId: number;
-  product: Product;
   createdAt: Date;
 }
 
 export interface Cart {
   id: number;
-  userId: string;
+  clientId: string;
   productId: number;
-  product: Product;
   quantity: number;
   createdAt: Date;
 }

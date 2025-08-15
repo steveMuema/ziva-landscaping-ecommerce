@@ -373,7 +373,7 @@ export async function getOrders(clientId: string): Promise<Order[]> {
       }
       return true;
     });
-    return validOrders as Order[];
+    return validOrders as unknown as Order[];
   } catch (error) {
     console.error("Error fetching orders:", error);
     return [];
@@ -414,7 +414,7 @@ export async function getOrder(orderId: number, clientId: string): Promise<Order
       console.warn(`Order ${order.id} has invalid order items`);
       return null;
     }
-    return order as Order;
+    return order as unknown as Order;
   } catch (error) {
     console.error("Error fetching order:", error);
     throw error;
@@ -563,7 +563,7 @@ export async function updateOrder(clientId: string, orderId: number, status: str
       console.warn(`Updated order ${orderId} has invalid order items`);
       throw new Error(`Invalid order items in updated order ${orderId}`);
     }
-    return updatedOrder as Order;
+    return updatedOrder as unknown as Order;
   } catch (error) {
     console.error("Error updating order:", error);
     throw error;

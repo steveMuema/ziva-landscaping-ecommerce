@@ -8,12 +8,12 @@ datasource db {
 }
 
 model Category {
-  id            Int         @id @default(autoincrement())
+  id            Int           @id @default(autoincrement())
   name          String
   imageUrl      String?
   subCategories SubCategory[]
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
 model SubCategory {
@@ -40,6 +40,7 @@ model Product {
   wishlists     Wishlist[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  OrderItem     OrderItem[]
 }
 
 model Cart {
@@ -60,7 +61,7 @@ model Wishlist {
 }
 
 model Collection {
-  id          Int      @id @default(autoincrement())
+  id          Int    @id @default(autoincrement())
   image       String
   category    String
   alt         String
@@ -76,4 +77,35 @@ model User {
   role          String    @default("user")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+}
+
+model Order {
+  id         Int         @id @default(autoincrement())
+  clientId   String
+  email      String
+  fullname   String
+  phone      String
+  company    String?
+  country    String
+  state      String
+  address    String
+  apartment  String?
+  city       String
+  postalCode String
+  subtotal   Float
+  status     String      @default("pending") // e.g., "pending", "processing", "completed", "cancelled"
+  orderItems OrderItem[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  price     Float // Price at the time of order
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
 }

@@ -8,6 +8,7 @@ interface CartContextType {
   items: Cart[];
   addToCart: (productId: number, quantity: number) => Promise<void>;
   removeFromCart: (productId: number) => Promise<void>;
+  updateCart: (productId: number, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
 }
 
@@ -23,7 +24,13 @@ export const CartProvider: FC<{ children: ReactNode }> = ({ children }) => {
       if (!id) {
         id = uuidv4();
         localStorage.setItem("clientId", id);
+        // Set clientId in a cookie for server-side access
+        document.cookie = `clientId=${id}; path=/; max-age=31536000; SameSite=Lax`;
         console.log("Generated new clientId:", id);
+      } else {
+        // Ensure cookie is set for existing clientId
+        document.cookie = `clientId=${id}; path=/; max-age=31536000; SameSite=Lax`;
+        console.log("Retrieved existing clientId:", id);
       }
       setClientId(id);
 
@@ -136,7 +143,7 @@ export const CartProvider: FC<{ children: ReactNode }> = ({ children }) => {
         headers: { "Content-Type": "application/json" },
       });
       if (!fetchResponse.ok) {
-        throw new Error(`Failed to fetch cart after removal: ${fetchResponse.status} ${fetchResponse.statusText}`);
+        throw new Error(`Failed to fetch cart after removal: ${fetchResponse.status} ${response.statusText}`);
       }
       const cartItems = await fetchResponse.json();
       if (!Array.isArray(cartItems)) {
@@ -159,6 +166,42 @@ export const CartProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   };
 
+  const updateCart = async (productId: number, quantity: number) => {
+    try {
+      const response = await fetch("/api/cart", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId, productId, quantity }),
+      });
+      if (!response.ok) throw new Error(`Failed to update cart: ${response.status} ${response.statusText}`);
+      
+      const fetchResponse = await fetch(`/api/cart?clientId=${clientId}`, {
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!fetchResponse.ok) {
+        throw new Error(`Failed to fetch cart after update: ${fetchResponse.status} ${fetchResponse.statusText}`);
+      }
+      const cartItems = await fetchResponse.json();
+      if (!Array.isArray(cartItems)) {
+        console.warn("Received non-array cart response after update:", cartItems);
+        setItems([]);
+        return;
+      }
+      const validItems = cartItems.filter((item: Cart) => {
+        if (!item.product) {
+          console.warn(`Cart item ${item.id} missing product data`, item);
+          return false;
+        }
+        return true;
+      });
+      setItems(validItems);
+      console.log(`Updated product ${productId} quantity to ${quantity}, new items:`, validItems);
+      window.dispatchEvent(new CustomEvent("cartUpdated"));
+    } catch (error) {
+      console.error("Error updating cart:", error);
+    }
+  };
+
   const clearCart = async () => {
     try {
       const response = await fetch("/api/cart/clear", {
@@ -167,6 +210,12 @@ export const CartProvider: FC<{ children: ReactNode }> = ({ children }) => {
         body: JSON.stringify({ clientId }),
       });
       if (!response.ok) throw new Error(`Failed to clear cart: ${response.status} ${response.statusText}`);
+      const fetchResponse = await fetch(`/api/cart?clientId=${clientId}`, {
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!fetchResponse.ok) {
+        throw new Error(`Failed to fetch cart after clearing: ${fetchResponse.status} ${fetchResponse.statusText}`);
+      }
       setItems([]);
       console.log("Cleared cart for clientId:", clientId);
       window.dispatchEvent(new CustomEvent("cartUpdated"));
@@ -176,7 +225,7 @@ export const CartProvider: FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ items, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{ items, addToCart, removeFromCart, updateCart, clearCart }}>
       {children}
     </CartContext.Provider>
   );
@@ -189,4 +238,4 @@ export function useCart() {
     throw new Error("useCart must be used within a CartProvider");
   }
   return context;
-}
+}                                                                                                                                                                                                     

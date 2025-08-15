@@ -62,3 +62,30 @@ export interface Collection {
   alt: string;
   description: string;
 }
+
+export interface Order {
+  id: number;
+  clientId: string;
+  email: string;
+  fullname: string;
+  phone: string;
+  company?: string;
+  country: string;
+  state: string;
+  address: string;
+  apartment?: string;
+  city: string;
+  postalCode: string;
+  subtotal: number;
+  status: string;
+  orderItems: {
+    id: number;
+    orderId: number;
+    productId: number;
+    quantity: number;
+    price: number;
+    product: Product;
+  }[];
+  createdAt: Date;
+  updatedAt: Date;
+}

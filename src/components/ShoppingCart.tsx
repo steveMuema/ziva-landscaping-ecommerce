@@ -6,6 +6,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useCart } from "@/lib/cart";
 import Image from "next/image";
 import cloudinaryLoader from "@/lib/cloudinaryLoader";
+import Link from "next/link";
 
 interface ShoppingCartProps {
   open: boolean;
@@ -165,12 +166,12 @@ const ShoppingCart = ({ open, setOpen }: ShoppingCartProps) => {
                     Shipping and taxes calculated at checkout.
                   </p>
                   <div className="mt-6">
-                    <a
-                      href="/checkout"
+                    <Link
+                      href="/shop/checkout"
                       className="flex items-center justify-center rounded-lg border border-transparent bg-emerald-600 px-6 py-4 text-base font-semibold text-white shadow-lg hover:bg-emerald-700 font-[family-name:var(--font-quicksand)]"
                     >
                       Checkout
-                    </a>
+                    </Link>
                   </div>
                   <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
                     <p>

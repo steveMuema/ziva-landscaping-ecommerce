@@ -7,6 +7,7 @@ import { ProductProvider, useProducts } from "@/lib/productContext";
 import { CartProvider } from "@/lib/cart";
 import { WishlistProvider } from "@/lib/wishlist";
 
+
 // Inner component to use useProducts within ProductProvider
 function ProductPageContent() {
   const params = useParams();

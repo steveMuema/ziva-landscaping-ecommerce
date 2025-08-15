@@ -132,7 +132,7 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
                 >
                   <span className="text-xl">-</span>
                 </button>
-                <span className="text-lg font-medium w-12 text-center">{quantity}</span>
+                <span className="text-lg font-medium w-12 text-gray-900 text-center">{quantity}</span>
                 <button
                   onClick={() => handleQuantityChange(1)}
                   disabled={quantity >= product.stock}

@@ -21,6 +21,7 @@ export default function SignIn() {
     const result = await signIn("credentials", {
       email,
       password,
+      callbackUrl: "/admin",
     });
 
     

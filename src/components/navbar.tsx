@@ -159,11 +159,7 @@ export default function NavigationBar() {
 
       {/* Header */}
       <header className="relative bg-white">
-        {pathname === "/shop/furniture-and-fittings" && (
-          <p className="flex h-10 items-center justify-center bg-[#044b3b] px-4 text-sm font-medium text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
-            FURNITURE ITEMS HAVE A LEAD TIME OF 3-4 WEEKS FROM ORDER PLACEMENT DATE.
-          </p>
-        )}
+        
 
         <nav aria-label="Top" className="mx-auto max-w-full px-1 sm:px-2 lg:px-1">
           <div className="border-b border-gray-200">
@@ -251,6 +247,11 @@ export default function NavigationBar() {
             </div>
           </div>
         </nav>
+        {pathname === "/shop/furniture-and-fittings" && (
+          <p className="flex h-10 items-center justify-center bg-[#044b3b] px-4 text-sm font-medium text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
+            FURNITURE ITEMS HAVE A LEAD TIME OF 3-4 WEEKS FROM ORDER PLACEMENT DATE.
+          </p>
+        )}
       </header>
       <ShoppingCart open={cartOpen} setOpen={setCartOpen} />
     </div>

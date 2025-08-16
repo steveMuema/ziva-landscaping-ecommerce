@@ -69,7 +69,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-gray-800">
               <li>
                 <Link href="#" className="hover:text-white transition-colors">
-                  Kiambu Town, Kiambu County, Kenya
+                  Kiambu Rd Ridgeways, Kiambu County, Kenya
                 </Link>
               </li>
               <li>
@@ -111,7 +111,7 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-2">Contact Us</h3>
             <p className="text-sm text-gray-800">Email: info@zivalandscaping.com</p>
-            <p className="text-sm text-gray-800">Phone: +254720651312</p>
+            <p className="text-sm text-gray-800">Phone: +254757133726</p>
           </div>
         </div>
 

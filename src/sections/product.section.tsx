@@ -115,7 +115,7 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
                     />
                   </svg>
                   <span className="text-green-600 font-medium">
-                    {product.stock} in stock and ready to ship
+                    in stock and ready to ship
                   </span>
                 </>
               ) : (

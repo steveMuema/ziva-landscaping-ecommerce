@@ -51,10 +51,15 @@ const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user }) {
+      // Only allow admins to sign in
       if (user.role === "admin") {
-        return "/admin"; // Redirect to /admin on success
+        return true;
       }
-      return true; // Default behavior
+      throw new Error("Only admin users are allowed to sign in.");
+    },
+    async redirect({ url, baseUrl }) {
+      // Always redirect to /admin after sign-in
+      return "/admin";
     },
     async jwt({ token, user }) {
       if (user) {

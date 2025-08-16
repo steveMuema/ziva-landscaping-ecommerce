@@ -1,7 +1,6 @@
 "use client";
 import Footer from "@/components/Footer";
-import NavigationBar from "@/components/navbar";
-import ProductSection from "@/sections/product.session";
+import ProductSection from "@/sections/product.section";
 import { useParams } from "next/navigation";
 import { ProductProvider, useProducts } from "@/lib/productContext";
 import { CartProvider } from "@/lib/cart";

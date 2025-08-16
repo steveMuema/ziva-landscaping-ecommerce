@@ -1,6 +1,16 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "../api/auth/[...nextauth]/route"; // Adjust the import path as needed
 
-export default function AdminDashboard() {
+export default async function AdminDashboard() {
+  const session = await getServerSession(authOptions);
+
+  // Redirect if not authenticated or not an admin
+  if (!session || session.user?.role !== "admin") {
+    redirect("/auth/signin"); // or redirect("/shop") if you prefer
+  }
+
   return (
     <div className="min-h-screen bg-gray-100">
       <nav className="bg-gray-800 text-white p-4">

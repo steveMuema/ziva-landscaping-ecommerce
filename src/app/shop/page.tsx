@@ -1,4 +1,3 @@
-// import NavigationBar from "@/components/navbar";
 import Breadcrumb from "@/components/Breadcrumb";
 import { Suspense } from "react";
 import { getCategories } from "@/lib/api";
@@ -22,7 +21,6 @@ export default async function ShopPage() {
   ];
   return (
     <div className="min-h-screen bg-white">
-      {/* <NavigationBar /> */}
       <div className="container mx-auto py-8 px-2 sm:px-4 md:px-6 lg:px-8 min-h-[400px]">
         <Breadcrumb path={breadcrumbPath} />
         <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-900 font-[family-name:var(--font-quicksand)]">

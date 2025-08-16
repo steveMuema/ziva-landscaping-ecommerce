@@ -5,16 +5,14 @@ import {
   Dialog,
   DialogBackdrop,
   DialogPanel,
-  Popover,
-  PopoverButton,
-  PopoverGroup,
-  PopoverPanel,
 } from "@headlessui/react";
 import {
   Bars3Icon,
   MagnifyingGlassIcon,
   ShoppingBagIcon,
   XMarkIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
 } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import Link from "next/link";
@@ -31,9 +29,18 @@ async function getCategories() {
   return res.json();
 }
 
+// Utility to slugify names (matches Breadcrumb logic)
+function slugify(name: string) {
+  return name
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "") // remove non-word chars except spaces/dashes
+    .trim()
+    .replace(/\s+/g, "-");
+}
+
 export default function NavigationBar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [categoryStates, setCategoryStates] = useState({});
+  const [categoryStates, setCategoryStates] = useState<{ [key: string]: boolean }>({});
   const [navigation, setNavigation] = useState({
     categories: [],
     pages: [
@@ -53,26 +60,29 @@ export default function NavigationBar() {
   }, []);
 
   const toggleCategory = (categoryId: string) => {
-    setCategoryStates((prev) => ({
-      ...prev,
-      [categoryId]: !prev[categoryId],
-    }));
+    setCategoryStates((prev) => {
+      // If the clicked category is already open, close it
+      if (prev[categoryId]) {
+        return { [categoryId]: false };
+      }
+      // Otherwise, close all and open the clicked one
+      return { [categoryId]: true };
+    });
   };
+
+  const closeSidebar = () => setIsSidebarOpen(false);
 
   return (
     <div className="bg-white">
-      {/* Mobile menu */}
-      <Dialog open={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} className="relative z-40 lg:hidden">
-        <DialogBackdrop
-          transition
-          className="fixed inset-0 bg-black/25 transition-opacity duration-300 ease-linear data-[closed]:opacity-0"
-        />
-        <div className="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out">
+      {/* Sidebar for all screens */}
+      <Dialog open={isSidebarOpen} onClose={closeSidebar} className="fixed z-40 inset-0">
+        <DialogBackdrop className="fixed inset-0 bg-black/25 transition-opacity duration-300" />
+        <div className="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-lg transform transition-transform duration-300">
           <DialogPanel className="h-full overflow-y-auto p-4">
             <div className="flex justify-end pb-2">
               <button
                 type="button"
-                onClick={() => setIsSidebarOpen(false)}
+                onClick={closeSidebar}
                 className="relative -m-2 inline-flex items-center justify-center rounded-md p-2 text-gray-400"
               >
                 <span className="absolute -inset-0.5" />
@@ -80,41 +90,74 @@ export default function NavigationBar() {
                 <XMarkIcon aria-hidden="true" className="size-6" />
               </button>
             </div>
-
             <h2 className="text-lg font-semibold text-gray-900 mb-4 font-[family-name:var(--font-quicksand)]">
               Categories
             </h2>
-            {navigation.categories.map((category: { id: string; name: string; sections: { items: { name: string; href: string }[] }[] }) => (
-              <div key={category.id} className="mb-4">
-                <button
-                  onClick={() => toggleCategory(category.id)}
-                  className="w-full text-left font-medium text-gray-700 hover:text-gray-900 flex justify-between items-center font-[family-name:var(--font-quicksand)]"
-                >
-                  {category.name}
-                  <span>{categoryStates[category.id] ? "−" : "+"}</span>
-                </button>
-                {categoryStates[category.id] && (
-                  <ul className="mt-2 space-y-2 pl-4">
-                    {category.sections[0].items.map((item) => (
-                      <li key={item.name}>
-                        <Link
-                          href={item.href}
-                          className="block text-sm text-gray-500 hover:text-gray-700 font-[family-name:var(--font-quicksand)]"
-                          onClick={() => setIsSidebarOpen(false)}
+            <hr className="mb-4 border-gray-200" />
+            <ul>
+              {navigation.categories.map((category: { id: string; name: string; sections: { items: { name: string; href: string }[] }[] }) => {
+                const categorySlug = slugify(category.name);
+                const subcategories = category.sections[0]?.items || [];
+                return (
+                  <li key={category.id} className="mb-2">
+                    {/* Category element */}
+                    <div className="flex items-center justify-between">
+                      <Link
+                        href={`/shop/${categorySlug}`}
+                        className={`font-medium flex-1 text-left font-[family-name:var(--font-quicksand)] transition-colors
+    ${
+      pathname === `/shop/${categorySlug}`
+        ? "text-emerald-700 font-bold"
+        : "text-gray-700 hover:text-emerald-700 hover:font-bold"
+    }
+  `}
+                        onClick={closeSidebar}
+                      >
+                        {category.name}
+                      </Link>
+                      {subcategories.length > 0 && (
+                        <button
+                          onClick={() => toggleCategory(category.id)}
+                          className="ml-2 text-gray-500 hover:text-gray-700"
+                          aria-label={`Toggle ${category.name} subcategories`}
+                          tabIndex={0}
                         >
-                          {item.name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
+                          {categoryStates[category.id] ? (
+                            <ChevronUpIcon className="size-5" />
+                          ) : (
+                            <ChevronDownIcon className="size-5" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+                    {/* Subcategories nested under category */}
+                    {categoryStates[category.id] && subcategories.length > 0 && (
+                      <ul className="mt-2 space-y-2 pl-4">
+                        {subcategories.map((sub) => {
+                          const subcategorySlug = slugify(sub.name);
+                          return (
+                            <li key={sub.name}>
+                              <Link
+                                href={`/shop/${categorySlug}/${subcategorySlug}`}
+                                className="block text-sm text-gray-500 hover:text-gray-700 font-[family-name:var(--font-quicksand)]"
+                                onClick={closeSidebar}
+                              >
+                                {sub.name}
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
           </DialogPanel>
         </div>
       </Dialog>
 
-      {/* Desktop header */}
+      {/* Header */}
       <header className="relative bg-white">
         {pathname === "/shop/furniture-and-fittings" && (
           <p className="flex h-10 items-center justify-center bg-[#044b3b] px-4 text-sm font-medium text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
@@ -122,13 +165,14 @@ export default function NavigationBar() {
           </p>
         )}
 
-        <nav aria-label="Top" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <nav aria-label="Top" className="mx-auto max-w-full px-1 sm:px-2 lg:px-1">
           <div className="border-b border-gray-200">
-            <div className="flex h-20 sm:h-20 md:h-20 items-center">
+            <div className="flex h-20 items-center">
+              {/* Menu icon always visible */}
               <button
                 type="button"
                 onClick={() => setIsSidebarOpen(true)}
-                className="relative rounded-md bg-white p-2 text-gray-400 lg:hidden"
+                className="relative rounded-md bg-white p-2 text-gray-400"
               >
                 <span className="absolute -inset-0.5" />
                 <span className="sr-only">Open menu</span>
@@ -149,83 +193,23 @@ export default function NavigationBar() {
                 </Link>
               </div>
 
-              {/* Flyout menus */}
-              <PopoverGroup className="hidden lg:ml-8 lg:block lg:self-stretch">
-                <div className="flex h-full space-x-8">
-                  <Popover className="flex">
-                    {({ open }) => (
-                      <>
-                        <div className="relative flex">
-                          <PopoverButton
-                            className={`relative z-10 flex items-center text-sm font-medium text-gray-700 font-[family-name:var(--font-quicksand)] transition-colors duration-200 ease-out hover:text-gray-800 ${
-                              open ? "text-gray-800" : ""
-                            }`}
-                          >
-                            Categories
-                            <span
-                              aria-hidden="true"
-                              className={`absolute inset-x-0 -bottom-px z-20 h-0.5 transition duration-200 ease-out ${
-                                open ? "bg-emerald-600" : "bg-transparent"
-                              }`}
-                            />
-                          </PopoverButton>
-                        </div>
-
-                        <PopoverPanel
-                          transition
-                          className="absolute inset-x-0 top-full z-20 text-sm text-gray-500 transition data-[closed]:opacity-0 data-[enter]:duration-200 data-[enter]:ease-out data-[leave]:duration-150 data-[leave]:ease-in"
-                        >
-                          <div className="absolute inset-0 top-1/2 bg-white shadow" aria-hidden="true" />
-                          <div className="relative bg-white">
-                            <div className="mx-auto max-w-7xl px-8">
-                              <div className="grid grid-cols-2 gap-x-8 gap-y-10 py-16">
-                                {navigation.categories.map((category: { id: string; name: string; sections: { items: { name: string; href: string }[] }[] })=> (
-                                  <div key={category.id} className="col-span-2">
-                                    <p id={`${category.id}-heading`} className="font-medium text-gray-900 font-[family-name:var(--font-quicksand)]">
-                                      {category.name}
-                                    </p>
-                                    <ul
-                                      role="list"
-                                      aria-labelledby={`${category.id}-heading`}
-                                      className="mt-6 space-y-6 sm:mt-4 sm:space-y-4"
-                                    >
-                                      {category.sections[0].items.map((item) => (
-                                      <li key={item.name} className="flex">
-                                        <Link
-                                          href={item.href}
-                                          className="hover:text-gray-800 font-[family-name:var(--font-quicksand)]"
-                                        >
-                                          {item.name}
-                                          </Link>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </PopoverPanel>
-                      </>
-                    )}
-                  </Popover>
-
-                  {navigation.pages.map((page) => (
-                    <Link
-                      key={page.name}
-                      href={page.href}
-                      className={`flex items-center text-base font-medium transition-colors duration-200 ease-out font-[family-name:var(--font-quicksand)] ${
-                        pathname === page.href
-                          ? "text-emerald-600 border-b-2 border-emerald-600"
-                          : "text-gray-700 hover:text-gray-800"
-                      }`}
-                      aria-current={pathname === page.href ? "page" : undefined}
-                    >
-                      {page.name}
-                    </Link>
-                  ))}
-                </div>
-              </PopoverGroup>
+              {/* Navigation pages */}
+              <div className="hidden lg:flex lg:ml-8 lg:self-stretch h-full items-center space-x-8">
+                {navigation.pages.map((page) => (
+                  <Link
+                    key={page.name}
+                    href={page.href}
+                    className={`flex items-center text-base font-medium transition-colors duration-200 ease-out font-[family-name:var(--font-quicksand)] ${
+                      pathname === page.href
+                        ? "text-emerald-600 border-b-2 border-emerald-600"
+                        : "text-gray-700 hover:text-gray-800"
+                    }`}
+                    aria-current={pathname === page.href ? "page" : undefined}
+                  >
+                    {page.name}
+                  </Link>
+                ))}
+              </div>
 
               <div className="ml-auto flex items-center">
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "../api/auth/[...nextauth]/route"; // Adjust the import path as needed
+import { authOptions } from "@/lib/authOptions";
 
 export default async function AdminDashboard() {
   const session = await getServerSession(authOptions);

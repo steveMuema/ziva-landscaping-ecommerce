@@ -7,6 +7,11 @@ import { getProductById } from "@/lib/api";
 import { Product } from "@/types";
 import { Suspense } from "react";
 
+// Define the expected params structure
+interface PageProps {
+  params: { [key: string]: string };
+}
+
 // Server component to handle product fetching and rendering
 async function ProductPageContent({ id, category, subCategory }: { id: string; category: string; subCategory: string }) {
   const product = await getProductById(id);
@@ -31,8 +36,8 @@ async function ProductPageContent({ id, category, subCategory }: { id: string; c
   );
 }
 
-export default async function ProductPage({ params }: { params: { category: string; subCategory: string; id: string } }) {
-  const { category, subCategory, id } = await params;
+export default async function ProductPage({ params }: PageProps) {
+  const { category, subCategory, id } = params;
 
   return (
     <ProductProvider>

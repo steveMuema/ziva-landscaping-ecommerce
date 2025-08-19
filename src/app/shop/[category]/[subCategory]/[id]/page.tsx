@@ -7,14 +7,14 @@ import { getProductById } from "@/lib/api";
 import { Product } from "@/types";
 import { Suspense } from "react";
 
-// Define the expected params structure for the dynamic route
+// Define the expected props structure for Next.js 15 dynamic route
 type PageProps = {
-  params: {
+  params: Promise<{
     category: string;
     subCategory: string;
     id: string;
-  };
-  searchParams?: Record<string, string | string[] | undefined>;
+  }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
 // Server component to handle product fetching and rendering
@@ -42,7 +42,8 @@ async function ProductPageContent({ id, category, subCategory }: { id: string; c
 }
 
 export default async function ProductPage({ params }: PageProps) {
-  const { category, subCategory, id } = params;
+  const resolvedParams = await params;
+  const { category, subCategory, id } = resolvedParams;
 
   return (
     <ProductProvider>

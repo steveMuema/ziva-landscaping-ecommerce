@@ -8,14 +8,14 @@ import { Product } from "@/types";
 import { Suspense } from "react";
 
 // Define the expected params structure for the dynamic route
-interface PageProps {
+type PageProps = {
   params: {
     category: string;
     subCategory: string;
     id: string;
   };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}
+  searchParams?: Record<string, string | string[] | undefined>;
+};
 
 // Server component to handle product fetching and rendering
 async function ProductPageContent({ id, category, subCategory }: { id: string; category: string; subCategory: string }) {

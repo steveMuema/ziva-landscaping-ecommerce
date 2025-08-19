@@ -7,9 +7,14 @@ import { getProductById } from "@/lib/api";
 import { Product } from "@/types";
 import { Suspense } from "react";
 
-// Define the expected params structure
+// Define the expected params structure for the dynamic route
 interface PageProps {
-  params: { [key: string]: string };
+  params: {
+    category: string;
+    subCategory: string;
+    id: string;
+  };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
 // Server component to handle product fetching and rendering

@@ -24,7 +24,7 @@ const collections: Collection[] = [
     image: "/furniture.jpg",
     category: "furniture-and-fittings",
     alt: "Furniture & Fittings",
-    description: "Quality furniture and fittings for every room in your house.",
+    description: "Quality,unique furniture & fittings.Designing with reclaimed Logs/woods,to add unique character to your home interiors and also reduce on waste.",
   },
   {
     id: 4,

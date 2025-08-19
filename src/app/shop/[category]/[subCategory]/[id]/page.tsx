@@ -1,19 +1,15 @@
-"use client";
 import Footer from "@/components/Footer";
 import ProductSection from "@/sections/product.section";
-import { useParams } from "next/navigation";
-import { ProductProvider, useProducts } from "@/lib/productContext";
+import { ProductProvider } from "@/lib/productContext";
 import { CartProvider } from "@/lib/cart";
 import { WishlistProvider } from "@/lib/wishlist";
+import { getProductById } from "@/lib/api";
+import { Product } from "@/types";
+import { Suspense } from "react";
 
-
-// Inner component to use useProducts within ProductProvider
-function ProductPageContent() {
-  const params = useParams();
-  const { category, subCategory, id } = params;
-  const { products } = useProducts();
-
-  const product = products.find((p) => p.id === Number(id));
+// Server component to handle product fetching and rendering
+async function ProductPageContent({ id, category, subCategory }: { id: string; category: string; subCategory: string }) {
+  const product = await getProductById(id);
 
   if (!product) {
     return (
@@ -25,23 +21,32 @@ function ProductPageContent() {
 
   return (
     <>
-      {/* <NavigationBar /> */}
       <ProductSection
-        product={product}
-        categoryName={category as string}
-        subCategoryName={subCategory as string}
+        product={product as Product}
+        categoryName={category}
+        subCategoryName={subCategory}
       />
       <Footer />
     </>
   );
 }
 
-export default function ProductPage() {
+export default async function ProductPage({ params }: { params: { category: string; subCategory: string; id: string } }) {
+  const { category, subCategory, id } = await params;
+
   return (
     <ProductProvider>
       <CartProvider>
         <WishlistProvider>
-          <ProductPageContent />
+          <Suspense
+            fallback={
+              <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="text-center text-gray-500 py-8">Loading product...</div>
+              </div>
+            }
+          >
+            <ProductPageContent id={id} category={category} subCategory={subCategory} />
+          </Suspense>
         </WishlistProvider>
       </CartProvider>
     </ProductProvider>

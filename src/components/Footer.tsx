@@ -110,8 +110,8 @@ export default function Footer() {
           {/* Contact Us */}
           <div>
             <h3 className="text-lg font-bold mb-2">Contact Us</h3>
-            <p className="text-sm text-gray-800">Email: info@zivalandscaping.com</p>
-            <p className="text-sm text-gray-800">Phone: +254757133726</p>
+            <p className="text-sm text-gray-800">Email: sales@zivalandscaping.com</p>
+            <p className="text-sm text-gray-800">Phone: +25457133726</p>
           </div>
         </div>
 

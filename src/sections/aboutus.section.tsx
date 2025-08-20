@@ -53,19 +53,19 @@ export default function AboutUsSection() {
                 <li className="flex gap-x-3">
                   <PlusCircleIcon aria-hidden="true" className="mt-1 size-5 flex-none text-emerald-600" />
                   <span>
-                    Water conservation:Implementing rain water harvesting systems,drip irrigation and drought restistant plants to minimize water waste.
+                    Water conservation:Implementing rain water harvesting systems, drip irrigation and drought resistant plants to minimize water waste.
                   </span>
                 </li>
                 <li className="flex gap-x-3">
                   <PlusCircleIcon aria-hidden="true" className="mt-1 size-5 flex-none text-emerald-600" />
                   <span>
-                    Recycled material:Incorporating recycled material such us reclaimed wood or repuroosed stones,can reduce waste & add unique character to your landscape.
+                    Recycled material:Incorporating recycled material such us reclaimed wood or repurposed stones, can reduce waste & add unique character to your landscape.
                    </span>
                 </li>
                 <li className="flex gap-x-3">
                   <PlusCircleIcon aria-hidden="true" className="mt-1 size-5 flex-none text-emerald-600" />
                   <span>
-                    Wildlife-friendly:Creating habitats for local wildlife,like bees butterflies & birds can enhance biodiversity and ecosystem health.e.g. adding Orchards in your landscape.  
+                    Wildlife-friendly: Creating habitats for local wildlife, like bees butterflies & birds can enhance biodiversity and ecosystem health.e.g. adding Orchards in your landscape.
                   </span>
                 </li>
                 <li className="flex gap-x-3">
@@ -77,12 +77,12 @@ export default function AboutUsSection() {
                 <li className="flex gap-x-3">
                   <PlusCircleIcon aria-hidden="true" className="mt-1 size-5 flex-none text-emerald-600" />
                   <span>
-                    Creating sustainable home by designing your landscape with a garden/orchard,conserving water for irrigation,installation of solar pannels.With innovative ideas by listening to our customers wants and needs.
+                    Creating sustainable home by designing your landscape with a garden/orchard, conserving water for irrigation, installation of solar panels. With innovative ideas by listening to our customers wants and needs.
                   </span>
                 </li>
               </ul>
             <p className="text-lg text-gray-600 leading-relaxed font-[family-name:var(--font-quicksand)] font-medium">
-              Our goal is to exceed expectations,inspire creativity and make a positive impact on our community and the environment.
+              Our goal is to exceed expectations, inspire creativity and make a positive impact on our community and the environment.
             </p>
           </div>
           

@@ -83,7 +83,7 @@ export default async function SubCategoryPage({
             </h1>
             <Suspense fallback={<LoadingSkeleton count={subCategory.products.length || 4} />}>
               <ProductGridWithProviders
-                products={sortedSubCategoryProducts as Product[]}
+                products={sortedSubCategoryProducts as unknown as Product[]}
                 categoryName={categoryName}
                 subCategoryName={subCategoryName}
               />

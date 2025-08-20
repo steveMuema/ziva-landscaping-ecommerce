@@ -8,30 +8,44 @@ const collections: Collection[] = [
   {
     id: 1,
     image: "/landscaping.jpg",
-    category: "landscaping",
+    category: "/shop/landscaping",
     alt: "Landscaping",
     description: "Landscape design and Sustainability: Incorporating landscaping with functionality, sustainability and environment friendly. Crafting vibrant eco-friendly outdoor spaces by designing with drought resistant plants, edible landscape and organic practices",
   },
   {
     id: 2,
+    image: "/lawn-care.jpg",
+    category: "/shop/landscaping/lawn-care-and-lawn-services",
+    alt: "Lawn Care & Services",
+    description: "Top dressing flowers/lawns, Termite treatment, weed treatment, fungal treatment.",
+  },
+  // {
+  //   id: 3,
+  //   image: "/Rock Garden.jpg",
+  //   category: "/shop/landscaping/lawn-designs",
+  //   alt: "Lawn Designs",
+  //   description: "Design your lawn with unique ideas.",
+  // },
+  {
+    id: 4,
     image: "/garden.jpg",
-    category: "garden",
+    category: "/shop/garden",
     alt: "Gardening",
     description: "We sell fresh organic fruits,vegetables and herbs from the farm.We practice organic farming avoiding synthetic pesticides & fertilizers. Instead we use natural alternatives to promote soil health, human health and reduce pollution.",
   },
   {
-    id: 3,
+    id: 5,
     image: "/furniture.jpg",
-    category: "furniture-and-fittings",
+    category: "/shop/furniture-and-fittings",
     alt: "Furniture & Fittings",
     description: "Quality,unique furniture & fittings.Designing with reclaimed Logs/woods,to add unique character to your home interiors and also reduce on waste.",
   },
   {
-    id: 4,
+    id: 6,
     image: "/home-decor.jpg",
-    category: "home-decor-and-furnishing",
+    category: "/shop/home-decor-and-furnishing",
     alt: "Home Décor & Furnishing",
-    description: "Hand-drawn Pencil art pieces. We incorporate interior design with art pieces to beautify your home or office with a unique touch. Available in sizes. A4 3 days, A3 a week, A2 2 weeks, A1 month. Call or Message for prices. Art available in Pencil or Paint framed on Canvas or to customer's preference.",
+    description: "Furnishing your home with beauty creativity,and functionality. Planting and choosing unique plants/herbs that do well indoors, that promote health allowing oxygen and fresh air circulate around your home.",
   }
   
 ];
@@ -130,7 +144,7 @@ function Slideshow({ collections }: { collections: Collection[] }) {
                     </p>
                     <div>
                       <Link
-                        href={`/shop/${collection.category.toLowerCase()}`}
+                        href={collection.category}
                         className="inline-block bg-emerald-700 text-white px-6 py-3 rounded-md hover:bg-[#044b3b] transition-colors duration-300"
                       >
                         Shop Now

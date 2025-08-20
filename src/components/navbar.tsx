@@ -176,7 +176,7 @@ export default function NavigationBar() {
               </button>
 
               {/* Logo */}
-              <div className="ml-4 flex lg:ml-0">
+              <div className="flex lg:ml-0">
                 <Link href="/">
                   <span className="sr-only">Ziva Landscaping CO.</span>
                   <Image
@@ -188,7 +188,18 @@ export default function NavigationBar() {
                   />
                 </Link>
               </div>
-
+              <div className=" lg:hidden sm:flex lg:ml-0">
+                <Link href="/">
+                  <span className="sr-only">Ziva Landscaping CO.</span>
+                  <Image
+                    src="/Ziva-Logo-01.svg"
+                    alt="Ziva Landscaping CO."
+                    width={500}
+                    height={500}
+                    className="h-24 w-auto"
+                  />
+                </Link>
+              </div>
               {/* Navigation pages */}
               <div className="hidden lg:flex lg:ml-8 lg:self-stretch h-full items-center space-x-8">
                 {navigation.pages.map((page) => (
@@ -250,6 +261,16 @@ export default function NavigationBar() {
         {pathname === "/shop/furniture-and-fittings" && (
           <p className="flex h-10 items-center justify-center bg-[#044b3b] px-4 text-sm font-medium text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
             FURNITURE ITEMS HAVE A LEAD TIME OF 3-4 WEEKS FROM ORDER PLACEMENT DATE.
+          </p>
+        )}
+        {pathname === "/shop/landscaping/red-soil-and-manure" && (
+          <p className="flex h-10 items-center justify-center bg-[#044b3b] px-4 text-sm font-medium text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
+            Available in Sacks, Pick ups, Lorries and Tippers. Depends on location. Call/WhatsApp for prices.
+          </p>
+        )}
+        {pathname === "/shop/landscaping/lawn-care-and-lawn-services" && (
+          <p className="flex h-10 items-center justify-center bg-[#044b3b] px-4 text-sm font-medium text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
+            Call/WhatsApp for prices.
           </p>
         )}
       </header>

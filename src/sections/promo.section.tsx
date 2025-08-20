@@ -19,13 +19,13 @@ const collections: Collection[] = [
     alt: "Lawn Care & Services",
     description: "Top dressing flowers/lawns, Termite treatment, weed treatment, fungal treatment.",
   },
-  // {
-  //   id: 3,
-  //   image: "/Rock Garden.jpg",
-  //   category: "/shop/landscaping/lawn-designs",
-  //   alt: "Lawn Designs",
-  //   description: "Design your lawn with unique ideas.",
-  // },
+  {
+    id: 3,
+    image: "/Rock Garden.jpg",
+    category: "/shop/landscaping/lawn-designs",
+    alt: "Lawn Designs",
+    description: "Design your lawn with unique ideas.",
+  },
   {
     id: 4,
     image: "/garden.jpg",

@@ -27,7 +27,7 @@ export default async function ShopPage() {
           Shop Our Collections
         </h1>
         <Suspense fallback={<LoadingSkeleton count={4} />}>
-          <CategoryGrid categories={sortedCategories as Category[]} />
+          <CategoryGrid categories={sortedCategories as unknown as Category[]} />
         </Suspense>
       </div>
       <Footer/>

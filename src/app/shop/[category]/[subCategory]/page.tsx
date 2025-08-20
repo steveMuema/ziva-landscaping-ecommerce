@@ -3,7 +3,6 @@ import Breadcrumb from "@/components/Breadcrumb";
 import { Suspense } from "react";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { ProductGridWithProviders } from "@/components/ProductGrid";
-import NavigationBar from "@/components/navbar";
 import { Product } from "@/types";
 import Footer from "@/components/Footer";
 import { ProductProvider } from "@/lib/productContext";
@@ -74,7 +73,6 @@ export default async function SubCategoryPage({
   return (
     <ProductProvider>
       <div className="min-h-screen bg-white flex flex-col">
-        {/* <NavigationBar /> */}
         <main className="flex-grow">
           <div className="container mx-auto py-8 px-2 sm:px-4 md:px-6 lg:px-8">
             <Breadcrumb path={breadcrumbPath} />

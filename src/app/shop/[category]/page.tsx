@@ -3,7 +3,6 @@ import Breadcrumb from "@/components/Breadcrumb";
 import { Suspense } from "react";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import {SubCategoryGrid} from "@/components/SubCategoryGrid";
-import NavigationBar from "@/components/navbar";
 import {  SubCategory } from "@/types";
 import Footer from "@/components/Footer";
 
@@ -43,7 +42,6 @@ export default async function CategoryPage({
   ];
   return (
     <div className="min-h-screen bg-white">
-      {/* <NavigationBar /> */}
       <div className="container mx-auto py-8 px-2 sm:px-4 md:px-6 lg:px-8 min-h-[400px]">
         <Breadcrumb path={breadcrumbPath} />
         <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-900 font-[family-name:var(--font-quicksand)]">

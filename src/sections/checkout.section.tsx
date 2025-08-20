@@ -187,7 +187,7 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
                     id="country"
                     value={shippingData.country}
                     onChange={(e) => handleInputChange('country', e.target.value)}
-                    className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg text-gray-700 font-[family-name:var(--font-quicksand)] focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
+                    className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-500 rounded-lg text-gray-700 font-[family-name:var(--font-quicksand)] focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
                     placeholder="Country"
                   />
                 </div>
@@ -200,7 +200,7 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
                     id="address"
                     value={shippingData.address}
                     onChange={(e) => handleInputChange('address', e.target.value)}
-                    className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg text-gray-500 font-[family-name:var(--font-quicksand)] focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
+                    className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-500 rounded-lg text-gray-500 font-[family-name:var(--font-quicksand)] focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
                     placeholder="Street address"
                   />
                 </div>
@@ -213,7 +213,7 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
                     id="apartment"
                     value={shippingData.apartment}
                     onChange={(e) => handleInputChange('apartment', e.target.value)}
-                    className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 text-gray-500 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
+                    className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-500 rounded-lg focus:ring-2 text-gray-500 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
                     placeholder="Apartment, suite, unit, etc. (optional)"
                   />
                 </div>
@@ -227,7 +227,7 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
                       id="city"
                       value={shippingData.city}
                       onChange={(e) => handleInputChange('city', e.target.value)}
-                      className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg text-gray-500 font-[family-name:var(--font-quicksand)] focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
+                      className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-500 rounded-lg text-gray-500 font-[family-name:var(--font-quicksand)] focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
                       placeholder="City"
                     />
                   </div>
@@ -240,7 +240,7 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
                       id="state"
                       value={shippingData.state}
                       onChange={(e) => handleInputChange('state', e.target.value)}
-                      className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 text-gray-500 font-[family-name:var(--font-quicksand)] rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
+                      className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-500 text-gray-500 font-[family-name:var(--font-quicksand)] rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
                       placeholder="State / Province"
                     />
                   </div>
@@ -253,7 +253,7 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
                       id="postalCode"
                       value={shippingData.postalCode}
                       onChange={(e) => handleInputChange('postalCode', e.target.value)}
-                      className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg text-gray-500 font-[family-name:var(--font-quicksand)] focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
+                      className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-500 rounded-lg text-gray-500 font-[family-name:var(--font-quicksand)] focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
                       placeholder="Postal code"
                     />
                   </div>

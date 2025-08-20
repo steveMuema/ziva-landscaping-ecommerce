@@ -13,16 +13,6 @@ export default async function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="bg-gray-800 text-white p-4">
-        <div className="container mx-auto flex justify-between">
-          <div className="space-x-4">
-            <Link href="/admin/categories" className="hover:underline">Categories</Link>
-            <Link href="/admin/subcategories" className="hover:underline">Subcategories</Link>
-            <Link href="/admin/products" className="hover:underline">Products</Link>
-          </div>
-          <Link href="/auth/signin" className="hover:underline">Sign Out</Link>
-        </div>
-      </nav>
       <div className="container mx-auto p-4">
         <h1 className="text-3xl font-bold mb-6 text-gray-900">Admin Dashboard</h1>
         <p className="mb-4 text-gray-700">Welcome to the admin panel. Manage your store categories, subcategories, and products below.</p>

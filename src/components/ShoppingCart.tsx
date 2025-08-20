@@ -26,7 +26,7 @@ const ShoppingCart = ({ open, setOpen }: ShoppingCartProps) => {
 
     window.addEventListener("cartUpdated", handleCartUpdate);
     return () => window.removeEventListener("cartUpdated", handleCartUpdate);
-  }, []); // Remove `items` from dependencies to avoid re-adding listener
+  }, [items]); // Remove `items` from dependencies to avoid re-adding listener
 
   const handleRemoveFromCart = async (productId: number) => {
     try {
@@ -168,6 +168,7 @@ const ShoppingCart = ({ open, setOpen }: ShoppingCartProps) => {
                   <div className="mt-6">
                     <Link
                       href="/shop/checkout"
+                      onClick={() => setOpen(false)}
                       className="flex items-center justify-center rounded-lg border border-transparent bg-emerald-600 px-6 py-4 text-base font-semibold text-white shadow-lg hover:bg-emerald-700 font-[family-name:var(--font-quicksand)]"
                     >
                       Checkout

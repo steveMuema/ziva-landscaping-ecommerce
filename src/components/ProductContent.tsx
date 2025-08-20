@@ -28,7 +28,7 @@ export async function ProductContent({
   return (
     <>
       <ProductSection
-        product={product as Product}
+        product={product as unknown as Product}
         categoryName={category}
         subCategoryName={subCategory}
       />

@@ -32,7 +32,7 @@ async function ProductPageContent({ id, category, subCategory }: { id: string; c
   return (
     <>
       <ProductSection
-        product={product as Product}
+        product={product as unknown as Product}
         categoryName={category}
         subCategoryName={subCategory}
       />

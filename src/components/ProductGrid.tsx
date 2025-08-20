@@ -48,6 +48,14 @@ const ProductGridComponent = ({ products: initialProducts, categoryName, subCate
             whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.3 }}
           >
+            {product.stock < 1 && (
+              <span
+                className="absolute top-2 left-2 bg-red-500 text-white text-xs font-medium rounded-full px-2 py-1 z-10 font-[family-name:var(--font-quicksand)]"
+                aria-label="Out of Stock"
+              >
+                Out of Stock
+              </span>
+            )}
             <Link
               href={`/shop/${categoryName.toLowerCase().replace(/\s+/g, "-")}/${subCategoryName
                 .toLowerCase()
@@ -71,10 +79,10 @@ const ProductGridComponent = ({ products: initialProducts, categoryName, subCate
                 )}
               </div>
               <div className="p-2 sm:p-3 text-center">
-                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-1 sm:mb-2 font-[family-name:var(--font-quicksand)]">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 sm:mb-2 font-[family-name:var(--font-quicksand)]">
                   {product.name}
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600 mb-2 font-[family-name:var(--font-quicksand)]">
+                <p className="text-sm sm:text-base text-gray-600 mb-2 font-[family-name:var(--font-quicksand)]">
                   Kshs. {product.price.toFixed(2)}
                 </p>
               </div>

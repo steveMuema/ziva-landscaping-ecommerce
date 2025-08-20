@@ -49,6 +49,11 @@ export default async function CategoryPage({
         <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-900 font-[family-name:var(--font-quicksand)]">
           {category.name} 
         </h1>
+        <div className="mb-6">
+          <p className="text-gray-600 text-lg font-medium leading-relaxed font-[family-name:var(--font-quicksand)]">
+            {category.description}
+          </p>
+        </div>
         <Suspense fallback={<LoadingSkeleton count={category.subCategories.length || 4} />}>
           <SubCategoryGrid subCategories={sortedSubCategories as SubCategory[]} categoryName={category.name} />
         </Suspense>

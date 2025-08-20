@@ -63,7 +63,7 @@ const ProductActions = ({ productId, stock, quantity = 1 }: ProductActionsProps)
     <div className="flex flex-col space-y-4">
       <button
         onClick={handleToggleCart}
-        disabled={stock < effectiveQuantity || isCartLoading}
+        disabled={stock < 1 || isCartLoading}
         className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors duration-200 shadow-md hover:shadow-lg flex items-center justify-center space-x-2 font-[family-name:var(--font-quicksand)] ${
           isCartLoading
             ? "bg-gray-500 text-white cursor-wait"

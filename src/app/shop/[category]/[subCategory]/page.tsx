@@ -75,6 +75,11 @@ export default async function SubCategoryPage({
       <div className="min-h-screen bg-white flex flex-col">
         <main className="flex-grow">
           <div className="container mx-auto py-8 px-2 sm:px-4 md:px-6 lg:px-8">
+            <div className="mb-6">
+              <p className="text-gray-600 text-lg font-medium leading-relaxed font-[family-name:var(--font-quicksand)]">
+                {subCategory.description}
+              </p>
+            </div>
             <Breadcrumb path={breadcrumbPath} />
             <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-900 font-[family-name:var(--font-quicksand)]">
               {subCategory.name}

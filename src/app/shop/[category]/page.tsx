@@ -43,15 +43,15 @@ export default async function CategoryPage({
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto py-8 px-2 sm:px-4 md:px-6 lg:px-8 min-h-[400px]">
-        <Breadcrumb path={breadcrumbPath} />
-        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-900 font-[family-name:var(--font-quicksand)]">
-          {category.name} 
-        </h1>
         <div className="mb-6">
           <p className="text-gray-600 text-lg font-medium leading-relaxed font-[family-name:var(--font-quicksand)]">
             {category.description}
           </p>
         </div>
+        <Breadcrumb path={breadcrumbPath} />
+        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-900 font-[family-name:var(--font-quicksand)]">
+          {category.name} 
+        </h1>
         <Suspense fallback={<LoadingSkeleton count={category.subCategories.length || 4} />}>
           <SubCategoryGrid subCategories={sortedSubCategories as SubCategory[]} categoryName={category.name} />
         </Suspense>

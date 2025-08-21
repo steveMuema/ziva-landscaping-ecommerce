@@ -57,7 +57,7 @@ const SubCategoryGridComponent = ({ subCategories: initialSubCategories, categor
                 )}
               </div>
               <div className="p-2 sm:p-3 text-center">
-                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-1 sm:mb-2 font-[family-name:var(--font-quicksand)]">{subCategory.name}</h3>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 sm:mb-2 font-[family-name:var(--font-quicksand)]">{subCategory.name}</h3>
                 <p className="text-xs sm:text-sm text-gray-600 mb-2 font-[family-name:var(--font-quicksand)]">
                   {subCategory.products.length} products
                 </p>

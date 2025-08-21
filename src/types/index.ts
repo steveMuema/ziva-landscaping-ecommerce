@@ -1,6 +1,7 @@
 export interface Category {
   id: number;
   name: string;
+  description?: string | null;
   imageUrl?: string | null;
   subCategories: SubCategory[];
   createdAt: Date;
@@ -10,6 +11,7 @@ export interface Category {
 export interface SubCategory {
   id: number;
   name: string;
+  description?: string | null;
   categoryId: number;
   imageUrl?: string | null;
   category: Category;

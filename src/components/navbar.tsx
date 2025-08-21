@@ -331,22 +331,22 @@ export default function NavigationBar() {
           </p>
         )}
         {pathname === "/shop/landscaping/red-soil-and-manure" && (
-          <p className="flex h-10 items-center justify-center bg-yellow-500 px-4 text-sm font-bold text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
+          <p className="flex lg:h-10 sm:h-16 items-center justify-center bg-yellow-500 px-4 text-sm font-bold text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
             Available in Sacks, Pick ups, Lorries and Tippers. Depends on location. Call/WhatsApp for prices.
           </p>
         )}
         {pathname === "/shop/landscaping/lawn-care-and-lawn-services" && (
-          <p className="flex h-10 items-center justify-center bg-yellow-500 px-4 text-sm font-bold text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
+          <p className="flex lg:h-10 sm:h-16 items-center justify-center bg-yellow-500 px-4 text-sm font-bold text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
             Call/WhatsApp for prices.
           </p>
         )}
         {pathname === "/shop/home-decor-and-furnishing/wall-art" && (
-          <p className="flex h-10 items-center justify-center bg-yellow-500 px-4 text-sm font-bold text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
+          <p className="flex lg:h-10 sm:h-16 items-center justify-center bg-yellow-500 px-4 text-sm font-bold text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
             Call/message for prices. Art available in Pencil/Paint framed on Canvas or to customers preference.
           </p>
         )}
         {pathname === "/shop/home-decor-and-furnishing/carpets" && (
-          <p className="flex h-10 items-center justify-center bg-yellow-500 px-4 text-sm font-bold text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
+          <p className="flex lg:h-10 sm:h-16 items-center justify-center bg-yellow-500 px-4 text-sm font-bold text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
             Carpets available in size 5ft by 8ft, 6ft by 9ft, 7ft by 10ft,8ft by 11ft
           </p>
         )}

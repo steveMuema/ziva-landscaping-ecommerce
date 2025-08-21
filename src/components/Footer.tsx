@@ -26,7 +26,7 @@ export default function Footer() {
           {/* Social Links (Horizontal) */}
           <div className="flex space-x-6 mb-2">
             <a
-              href="https://facebook.com"
+              href="https://facebook.com/zivalandscapingco"
               target="_blank"
               rel="noopener noreferrer"
               className="text-emerald-800 hover:text-gray-800 transition-colors"
@@ -37,7 +37,7 @@ export default function Footer() {
               </svg>
             </a>
             <a
-              href="https://instagram.com"
+              href="https://instagram.com/zivalandscapingco"
               target="_blank"
               rel="noopener noreferrer"
               className="text-emerald-800 hover:text-gray-800 transition-colors"
@@ -48,7 +48,7 @@ export default function Footer() {
               </svg>
             </a>
             <a
-              href="https://x.com"
+              href="https://x.com/zivalandscapingco"
               target="_blank"
               rel="noopener noreferrer"
               className="text-emerald-800 hover:text-gray-800 transition-colors"
@@ -59,7 +59,7 @@ export default function Footer() {
                 </svg>
             </a>
             <a
-              href="https://pinterest.com"
+              href="https://pinterest.com/zivalandscapingco"
               target="_blank"
               rel="noopener noreferrer"
               className="text-emerald-800 hover:text-gray-800 transition-colors"
@@ -70,7 +70,7 @@ export default function Footer() {
                 </svg>
             </a>
             <a
-              href="https://youtube.com"
+              href="https://youtube.com/zivalandscapingco"
               target="_blank"
               rel="noopener noreferrer"
               className="text-emerald-800 hover:text-gray-800 transition-colors"

@@ -162,7 +162,7 @@ export default function NavigationBar() {
       <header className="relative bg-white">
         <div className="flex h-10 items-center space-x-6 mb-2 justify-center bg-[#044b3b] px-4 text-sm font-medium text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
           <a
-            href="https://facebook.com"
+            href="https://facebook.com/zivalandscapingco"
             target="_blank"
             rel="noopener noreferrer"
             className="text-white hover:text-gray-800 transition-colors"
@@ -173,7 +173,7 @@ export default function NavigationBar() {
             </svg>
           </a>
           <a
-            href="https://instagram.com"
+            href="https://instagram.com/zivalandscapingco"
             target="_blank"
             rel="noopener noreferrer"
             className="text-white hover:text-gray-800 transition-colors"
@@ -184,7 +184,7 @@ export default function NavigationBar() {
             </svg>
           </a>
           <a
-            href="https://x.com"
+            href="https://x.com/zivalandscapingco"
             target="_blank"
             rel="noopener noreferrer"
             className="text-white hover:text-gray-800 transition-colors"
@@ -195,7 +195,7 @@ export default function NavigationBar() {
               </svg>
           </a>
           <a
-            href="https://pinterest.com"
+            href="https://pinterest.com/zivalandscapingco"
             target="_blank"
             rel="noopener noreferrer"
             className="text-white hover:text-gray-800 transition-colors"
@@ -206,7 +206,7 @@ export default function NavigationBar() {
               </svg>
           </a>
           <a
-            href="https://youtube.com"
+            href="https://youtube.com/zivalandscapingco"
             target="_blank"
             rel="noopener noreferrer"
             className="text-white hover:text-gray-800 transition-colors"

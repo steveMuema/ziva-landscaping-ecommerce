@@ -7,7 +7,7 @@ import { Collection } from "@/types";
 const collections: Collection[] = [
   {
     id: 1,
-    image: "/landscaping.jpg",
+    image: "/landscape.jpeg",
     category: "/shop/landscaping",
     alt: "Landscaping",
     description: "Landscape design and Sustainability: Incorporating landscaping with functionality, sustainability and environment friendly. Crafting vibrant eco-friendly outdoor spaces by designing with drought resistant plants, edible landscape and organic practices",
@@ -52,7 +52,7 @@ const collections: Collection[] = [
 
 export default function PromoSection() {
   return (
-    <section className="w-full py-4 bg-white">
+    <section className="w-full bg-white">
       <div className="relative w-full max-w-7xl mx-auto">
         <Slideshow collections={collections} />
       </div>

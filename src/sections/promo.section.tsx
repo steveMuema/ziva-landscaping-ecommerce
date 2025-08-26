@@ -23,7 +23,7 @@ const collections: Collection[] = [
     id: 3,
     image: "/Rock Garden.jpg",
     category: "/shop/landscaping/lawn-designs",
-    alt: "Lawn Designs",
+    alt: "Landscape Designs",
     description: "Design your lawn with unique ideas.",
   },
   {

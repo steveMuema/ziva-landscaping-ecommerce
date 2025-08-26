@@ -27,7 +27,7 @@ const quicksand = Quicksand({
 
 export const metadata: Metadata = {
   title: "Ziva Landscaping CO. — SUSTAINABLE LIVING.",
-  description: "We Specialize In Landscaping, Landscape Supplies, Lawn Care & Lawn Services",
+  description: "Landscape design and Sustainability: Incorporating landscaping with functionality, sustainability and environment friendly. Crafting vibrant eco-friendly outdoor spaces by designing with drought resistant plants, edible landscape and organic practices",
 };
 
 export default function RootLayout({

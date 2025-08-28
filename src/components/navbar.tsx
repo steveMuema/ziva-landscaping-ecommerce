@@ -106,12 +106,12 @@ export default function NavigationBar() {
                       <Link
                         href={`/shop/${categorySlug}`}
                         className={`font-medium flex-1 text-left font-[family-name:var(--font-quicksand)] transition-colors
-    ${
-      pathname === `/shop/${categorySlug}`
-        ? "text-emerald-700 font-bold"
-        : "text-gray-700 hover:text-emerald-700 hover:font-bold"
-    }
-  `}
+                        ${
+                          pathname === `/shop/${categorySlug}`
+                            ? "text-emerald-700 font-bold"
+                            : "text-gray-700 hover:text-emerald-700 hover:font-bold"
+                        }
+                      `}
                         onClick={closeSidebar}
                       >
                         {category.name}
@@ -154,6 +154,20 @@ export default function NavigationBar() {
                 );
               })}
             </ul>
+            <hr className="mb-4 border-gray-200" />
+            <Link
+              href={`/shop/blog`}
+              className={`font-medium flex-1 text-left font-[family-name:var(--font-quicksand)] transition-colors
+              ${
+                pathname === `/shop/blog`
+                  ? "text-emerald-700 font-bold"
+                  : "text-gray-700 hover:text-emerald-700 hover:font-bold"
+              }
+            `}
+              onClick={closeSidebar}
+            >
+              Blog
+            </Link>
           </DialogPanel>
         </div>
       </Dialog>
@@ -328,6 +342,11 @@ export default function NavigationBar() {
         {pathname === "/shop/furniture-and-fittings" && (
           <p className="flex h-10 items-center justify-center bg-yellow-500 px-4 text-sm font-bold text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
             Furniture items have a lead time of 3-4 weeks from order placement date.
+          </p>
+        )}
+        {pathname === "/shop/landscaping" && (
+          <p className="flex h-10 items-center justify-center bg-yellow-500 px-4 text-sm font-bold text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
+            Call/WhatsApp for consultation.
           </p>
         )}
         {pathname === "/shop/landscaping/red-soil-and-manure" && (

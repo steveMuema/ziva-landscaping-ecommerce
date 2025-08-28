@@ -80,6 +80,14 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
       .join(" ");
   }
 
+  // Split description into paragraphs based on newlines or three spaces after a period
+  const descriptionParagraphs = product.description
+    ? product.description
+        .split(/\n|.\s\s\s/)
+        .filter((line) => line.trim() !== "")
+        .map((line) => line.replace(/^.\s\s\s/, "")) // Remove leading period and spaces if split on them
+    : ["No description available."];
+
   return (
     <div className="bg-white mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <Breadcrumb path={breadcrumbPath} />
@@ -95,9 +103,11 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
               </span>
             </div>
             <div className="mb-6">
-              <p className="text-gray-600 leading-relaxed">
-                {product.description || "No description available."}
-              </p>
+              {descriptionParagraphs.map((paragraph, index) => (
+                <p key={index} className="text-gray-600 leading-relaxed mb-4">
+                  {paragraph}
+                </p>
+              ))}
             </div>
             <div className="flex items-center space-x-2 mb-8">
               {product.stock > 0 ? (

@@ -69,7 +69,7 @@ ${urls.map(({ url, lastModified, changeFrequency, priority }) => `
   return new NextResponse(sitemap, {
     status: 200,
     headers: {
-      'Content-Type': 'application/xml',
+      'Content-Type': 'text/xml; charset=utf-8',
     },
   });
 }

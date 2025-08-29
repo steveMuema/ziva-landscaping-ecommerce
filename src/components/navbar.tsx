@@ -174,6 +174,7 @@ export default function NavigationBar() {
 
       {/* Header */}
       <header className="relative bg-white">
+        {/* Social Media Links */}
         <div className="flex h-10 items-center space-x-6 justify-center bg-[#044b3b] px-4 text-sm font-medium text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
           <a
             href="https://facebook.com/zivalandscapingco"

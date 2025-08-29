@@ -43,7 +43,7 @@ export async function GET() {
       });
 
       for (const product of subCategory.products) {
-        const productSlug = product.name.toLowerCase().replace(/\s+/g, '-');
+        const productSlug = product.id;
         urls.push({
           url: `${baseUrl}/shop/${categorySlug}/${subCategorySlug}/${productSlug}`,
           lastModified: product.updatedAt,

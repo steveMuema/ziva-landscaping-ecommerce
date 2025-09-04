@@ -345,7 +345,7 @@ export default function NavigationBar() {
             Furniture items have a lead time of 3-4 weeks from order placement date.
           </p>
         )}
-        {pathname === "/shop/landscaping/lawn-care" && (
+        {pathname === "/shop/landscaping/lawn-designs" && (
           <p className="flex h-10 items-center justify-center bg-yellow-500 px-4 text-sm font-bold text-white sm:px-2 lg:px-8 font-[family-name:var(--font-quicksand)]">
             Call/WhatsApp for consultation.
           </p>

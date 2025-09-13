@@ -109,6 +109,11 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
                 </p>
               ))}
             </div>
+            <div className="mb-6">
+                <p className="text-gray-600 leading-relaxed mb-4">
+                  {product.tags.join(", ") }
+                </p>
+            </div>
             <div className="flex items-center space-x-2 mb-8">
               {product.stock > 0 ? (
                 <>

@@ -36,6 +36,7 @@ model Product {
   price         Float
   imageUrl      String?
   stock         Int
+  tags          String[]    @default([])
   subCategoryId Int
   subCategory   SubCategory @relation(fields: [subCategoryId], references: [id])
   carts         Cart[]

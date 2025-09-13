@@ -29,6 +29,7 @@ export interface Product {
   stock: number;
   subCategoryId: number;
   subCategory: SubCategory;
+  tags: string[];
   createdAt: Date;
   updatedAt: Date;
 }

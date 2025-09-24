@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Product } from "@/types";
 import Breadcrumb from "@/components/Breadcrumb";
 import cloudinaryLoader from "@/lib/cloudinaryLoader";
@@ -14,6 +15,7 @@ interface ProductSectionProps {
 }
 
 const ProductSection = ({ product, categoryName, subCategoryName }: ProductSectionProps) => {
+  const router = useRouter();
   const { items } = useCart();
   const [quantity, setQuantity] = useState(() => {
     if (typeof window === "undefined") return 1;
@@ -55,6 +57,12 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
       if (newQuantity > product.stock) return product.stock;
       return newQuantity;
     });
+  };
+
+  const handleTagClick = (tag: string) => {
+    const categorySlug = categoryName.toLowerCase().replace(/\s+/g, "-");
+    const subCategorySlug = subCategoryName.toLowerCase().replace(/\s+/g, "-");
+    router.push(`/shop/${categorySlug}/${subCategorySlug}?tag=${encodeURIComponent(tag)}`);
   };
 
   const breadcrumbPath = [
@@ -109,10 +117,16 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
                 </p>
               ))}
             </div>
-            <div className="mb-6">
-                <p className="text-gray-600 leading-relaxed mb-4">
-                  {product.tags.join(", ") }
-                </p>
+            <div className="mb-6 flex flex-wrap gap-2">
+              {product.tags.map((tag) => (
+                <span
+                  key={tag}
+                  onClick={() => handleTagClick(tag)}
+                  className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-300"
+                >
+                  {tag}
+                </span>
+              ))}
             </div>
             <div className="flex items-center space-x-2 mb-8">
               {product.stock > 0 ? (

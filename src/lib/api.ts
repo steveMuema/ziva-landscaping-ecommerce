@@ -29,9 +29,9 @@ export async function getCategoryByName(name: string) {
   }
 }
 
-export async function getSubCategoryByNames(categoryName: string, subCategoryName: string) {
+export async function getSubCategoryByNames(categoryName: string, subCategoryName: string, tag?: string) {
   try {
-    console.log("Searching for - categoryName:", categoryName, "subCategoryName:", subCategoryName);
+    console.log("Searching for - categoryName:", categoryName, "subCategoryName:", subCategoryName, "tag:", tag);
     const category = await prisma.category.findFirst({
       where: { name: { equals: categoryName, mode: "insensitive" } },
       orderBy: { id: "asc" },
@@ -52,6 +52,7 @@ export async function getSubCategoryByNames(categoryName: string, subCategoryNam
       orderBy: { id: "asc" },
       include: {
         products: {
+          where: tag ? { tags: { has: tag } } : undefined,
           include: { subCategory: { include: { category: true } } },
         },
         category: {
@@ -76,6 +77,20 @@ export async function getProductsBySubCategory(subCategoryId: string) {
     return products;
   } catch (error) {
     console.error("Error fetching products by subcategory:", error);
+    return [];
+  }
+}
+
+export async function getProductsByTag(tag: string) {
+  try {
+    const products = await prisma.product.findMany({
+      where: { tags: { has: tag } },
+      orderBy: { id: "asc" },
+      include: { subCategory: { include: { category: true } } },
+    });
+    return products;
+  } catch (error) {
+    console.error("Error fetching products by tag:", error);
     return [];
   }
 }

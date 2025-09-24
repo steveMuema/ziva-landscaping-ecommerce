@@ -19,12 +19,17 @@ export const revalidate = 60; // Updated to 60 seconds for better caching
 
 export default async function SubCategoryPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ category: string; subCategory: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  // Await the params Promise
+  // Await both params and searchParams
   const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+
   console.log("Resolved Params (raw):", resolvedParams); // Debug raw params
+  console.log("Resolved Search Params:", resolvedSearchParams); // Debug search params
 
   const categoryName = resolvedParams.category
     ? capitalizeWords(resolvedParams.category.replace(/-/g, " "))
@@ -32,7 +37,9 @@ export default async function SubCategoryPage({
   const subCategoryName = resolvedParams.subCategory
     ? capitalizeWords(resolvedParams.subCategory.replace(/-/g, " "))
     : "";
-  console.log("Derived Names - categoryName:", categoryName, "subCategoryName:", subCategoryName); // Debug derived names
+  const tag = typeof resolvedSearchParams.tag === "string" ? resolvedSearchParams.tag : undefined;
+
+  console.log("Derived Names - categoryName:", categoryName, "subCategoryName:", subCategoryName, "tag:", tag); // Debug derived names
 
   if (!categoryName.trim() || !subCategoryName.trim()) {
     console.error("Invalid names detected - categoryName:", categoryName, "subCategoryName:", subCategoryName);
@@ -43,7 +50,7 @@ export default async function SubCategoryPage({
     );
   }
 
-  const subCategory = await getSubCategoryByNames(categoryName, subCategoryName);
+  const subCategory = await getSubCategoryByNames(categoryName, subCategoryName, tag);
   console.log("SubCategory fetched:", subCategory); // Debug API response
 
   // Sort according to id in ascending order
@@ -66,8 +73,9 @@ export default async function SubCategoryPage({
       href: `/shop/${resolvedParams.category.toLowerCase().replace(/\s+/g, "-")}/${resolvedParams.subCategory
         .toLowerCase()
         .replace(/\s+/g, "-")}`,
-      isCurrent: true
+      isCurrent: !tag, // Current only if no tag is selected
     },
+    ...(tag ? [{ name: tag, href: `#`, isCurrent: true }] : []), // Add tag to breadcrumb if present
   ];
 
   return (
@@ -82,7 +90,7 @@ export default async function SubCategoryPage({
             </div>
             <Breadcrumb path={breadcrumbPath} />
             <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-gray-900 font-[family-name:var(--font-quicksand)]">
-              {subCategory.name}
+              {subCategory.name}{tag ? ` - ${tag}` : ""}
             </h1>
             <Suspense fallback={<LoadingSkeleton count={subCategory.products.length || 4} />}>
               <ProductGridWithProviders

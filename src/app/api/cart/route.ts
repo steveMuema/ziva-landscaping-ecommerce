@@ -16,30 +16,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `Product with ID ${productId} does not exist` }, { status: 404 });
     }
 
-    const existingCartItem = await prisma.cart.findFirst({
-      where: { clientId, productId },
+    const item = await prisma.cart.upsert({
+      where: { // requires a unique input in Prisma; create a @@unique as above
+        clientId_productId: { clientId, productId },
+      },
+      update: { quantity: { increment: quantity } },
+      create: { clientId, productId, quantity },
+      include: {
+        product: { select: { id: true, name: true, price: true, imageUrl: true, description: true, stock: true, subCategoryId: true } }
+      }
     });
-
-    if (existingCartItem) {
-      const updatedItem = await prisma.cart.update({
-        where: { id: existingCartItem.id },
-        data: { quantity: existingCartItem.quantity + quantity },
-        include: {
-          product: {
-            select: {
-              id: true,
-              name: true,
-              price: true,
-              imageUrl: true,
-              description: true,
-              stock: true,
-              subCategoryId: true,
-            },
-          },
-        },
-      });
-      return NextResponse.json(updatedItem);
-    }
+    return NextResponse.json(item);
 
     const newItem = await prisma.cart.create({
       data: {

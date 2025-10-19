@@ -7,10 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
 model Category {
   id            Int           @id @default(autoincrement())
   name          String
-  description String?  
+  description   String?
   imageUrl      String?
   subCategories SubCategory[]
   createdAt     DateTime      @default(now())
@@ -18,15 +25,15 @@ model Category {
 }
 
 model SubCategory {
-  id         Int       @id @default(autoincrement())
-  name       String
+  id          Int       @id @default(autoincrement())
+  name        String
   description String?
-  categoryId Int
-  imageUrl   String?
-  category   Category  @relation(fields: [categoryId], references: [id])
-  products   Product[]
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  categoryId  Int
+  imageUrl    String?
+  category    Category  @relation(fields: [categoryId], references: [id])
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Product {
@@ -44,6 +51,8 @@ model Product {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   OrderItem     OrderItem[]
+
+   @@index([subCategoryId])
 }
 
 model Cart {
@@ -53,6 +62,8 @@ model Cart {
   quantity  Int
   product   Product  @relation(fields: [productId], references: [id])
   createdAt DateTime @default(now())
+
+  @@unique([clientId, productId])
 }
 
 model Wishlist {
@@ -61,6 +72,8 @@ model Wishlist {
   productId Int
   product   Product  @relation(fields: [productId], references: [id])
   createdAt DateTime @default(now())
+
+  @@unique([clientId, productId])
 }
 
 model Collection {
@@ -72,14 +85,17 @@ model Collection {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String          @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?         @unique
   emailVerified DateTime?
   password      String?
-  role          String    @default("user")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          String          @default("user")
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  Account       Account[]
+  Session       Session[]
+  Authenticator Authenticator[]
 }
 
 model Order {
@@ -96,7 +112,7 @@ model Order {
   city       String
   postalCode String
   subtotal   Float
-  status     String      @default("pending") // e.g., "pending", "processing", "completed", "cancelled"
+  status     OrderStatus @default(PENDING)
   orderItems OrderItem[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
@@ -111,4 +127,55 @@ model OrderItem {
   order     Order    @relation(fields: [orderId], references: [id])
   product   Product  @relation(fields: [productId], references: [id])
   createdAt DateTime @default(now())
+
+  @@unique([orderId, productId]) // one product per order line
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Optional; only if you want WebAuthn/passkeys later
+model Authenticator {
+  credentialID         String  @id
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+  user                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, credentialID])
 }

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
+const ORDER_STATUS = new Set(['PENDING','PROCESSING','COMPLETED','CANCELLED']);
+
 export async function POST(request: Request) {
   try {
     const { clientId, email, shippingData, items, subtotal } = await request.json();
@@ -51,8 +53,8 @@ export async function POST(request: Request) {
     }
 
     // Create order and update stock in a transaction
-    const order = await prisma.$transaction(async (tx) => {
-      const newOrder = await tx.order.create({
+    const [orderResult, ...decrementResults] = await prisma.$transaction([
+      prisma.order.create({
         data: {
           clientId,
           email,
@@ -68,7 +70,7 @@ export async function POST(request: Request) {
           subtotal,
           status: 'PENDING',
           orderItems: {
-            create: items.map((item: { productId: number; quantity: number; price: number }) => ({
+            create: items.map((item) => ({
               productId: item.productId,
               quantity: item.quantity,
               price: item.price,
@@ -79,34 +81,22 @@ export async function POST(request: Request) {
           orderItems: {
             include: {
               product: {
-                select: {
-                  id: true,
-                  name: true,
-                  price: true,
-                  imageUrl: true,
-                  description: true,
-                  stock: true,
-                  subCategoryId: true,
-                },
-              },
-            },
-          },
-        },
-      });
+                select: { id: true, name: true, price: true, imageUrl: true, description: true, stock: true, subCategoryId: true }
+              }
+            }
+          }
+        }
+      }),
+      ...items.map((item) =>
+        prisma.product.updateMany({
+          where: { id: item.productId, stock: { gte: item.quantity } },
+          data: { stock: { decrement: item.quantity } }
+        })
+      )
+    ]);
 
-      // Update product stock
-      for (const item of items) {
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: { decrement: item.quantity } },
-        });
-      }
-
-      return newOrder;
-    });
-
-    console.log('Order created with ID:', order.id);
-    return NextResponse.json({ orderId: order.id });
+    console.log('Order created with ID:', orderResult.id);
+    return NextResponse.json({ orderId: orderResult.id });
   } catch (error) {
     console.error('Error creating order:', error);
     return NextResponse.json(
@@ -168,18 +158,9 @@ export async function GET(request: Request) {
 export async function PUT(request: Request) {
   try {
     const { clientId, orderId, status } = await request.json();
-    if (!clientId || !orderId || !status) {
-      return NextResponse.json({ error: 'Missing required fields: clientId, orderId, or status' }, { status: 400 });
+    if (!ORDER_STATUS.has(status)) {
+      return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     }
-
-    const order = await prisma.order.findFirst({
-      where: { id: orderId, clientId },
-    });
-
-    if (!order) {
-      return NextResponse.json({ error: 'Order not found or unauthorized' }, { status: 404 });
-    }
-
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
       data: { status, updatedAt: new Date() },

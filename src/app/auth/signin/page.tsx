@@ -21,6 +21,7 @@ export default function SignIn() {
     const result = await signIn("credentials", {
       email,
       password,
+      redirect: false, 
       callbackUrl: "/admin",
     });
 
@@ -29,12 +30,10 @@ export default function SignIn() {
     console.log("Sign-in result:", result); // Debug output
     if (result?.error) {
       alert("Invalid credentials");
+    } else if (result?.ok && result.url) {
+      router.push(result.url);
     } else if (result?.ok) {
-      // Check for success and use result.url if provided
-      const redirectUrl = result.url || "/admin";
-      router.push(redirectUrl);
-    } else {
-      alert("Unexpected error during sign-in");
+      router.push("/admin");
     }
   };
 

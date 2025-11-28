@@ -56,9 +56,6 @@ export const authOptions: NextAuthOptions = {
       }
       throw new Error("Only admin users are allowed to sign in.");
     },
-    async redirect({ url, baseUrl }) {
-      return "/admin";
-    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;

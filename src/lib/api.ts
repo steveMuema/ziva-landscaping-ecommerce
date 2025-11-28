@@ -564,7 +564,7 @@ export async function updateOrder(clientId: string, orderId: number, status: str
     }
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
-      data: { status: { set: status as unknown as OrderStatus }, updatedAt: new Date() },
+      data: { status: status as import("@prisma/client").$Enums.OrderStatus, updatedAt: new Date() },
       include: {
         orderItems: {
           include: {

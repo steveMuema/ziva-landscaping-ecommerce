@@ -1,6 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import prisma, { OrderStatus } from "@/lib/prisma";
+import prisma  from "@/lib/prisma";
 import { Cart, Order } from "@/types";
+
+enum OrderStatus {
+  "PENDING",
+  "PROCESSING",
+  "COMPLETED",
+  "CANCELLED",
+}
+
+
 
 export async function getCategories() {
   try {
@@ -555,7 +564,7 @@ export async function updateOrder(clientId: string, orderId: number, status: str
     }
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
-      data: { status: status as OrderStatus, updatedAt: new Date() },
+      data: { status: { set: status as unknown as OrderStatus }, updatedAt: new Date() },
       include: {
         orderItems: {
           include: {

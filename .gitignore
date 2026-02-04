@@ -24,6 +24,9 @@
 .DS_Store
 *.pem
 
+# extracted Ziva Pics (run scripts/copy-ziva-pics.js after unzipping)
+.tmp-ziva-pics
+
 # debug
 npm-debug.log*
 yarn-debug.log*

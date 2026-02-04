@@ -8,7 +8,7 @@ const catalog: {
   subcategories: {
     name: string;
     description?: string;
-    products: { name: string; description?: string; price: number; stock: number; tags?: string[] }[];
+    products: { name: string; description?: string; price: number; stock: number; tags?: string[]; imageUrl?: string }[];
   }[];
 }[] = [
   {
@@ -40,19 +40,19 @@ const catalog: {
       {
         name: "Garden Furniture",
         products: [
-          { name: "Teak Garden Bench", description: "2-seater solid teak bench", price: 18500, stock: 8, tags: ["featured"] },
-          { name: "Metal Bistro Set", description: "Table and 2 chairs, powder-coated", price: 12500, stock: 10 },
-          { name: "Garden Lounge Chair", description: "Folding reclining chair", price: 4200, stock: 25 },
-          { name: "Umbrella Base", description: "Heavy-duty cast iron base", price: 3500, stock: 20 },
+          { name: "Teak Garden Bench", description: "2-seater solid teak bench", price: 18500, stock: 8, tags: ["featured"], imageUrl: "/product-images/furniture/furniture-5-seater-sofa.jpg" },
+          { name: "Metal Bistro Set", description: "Table and 2 chairs, powder-coated", price: 12500, stock: 10, imageUrl: "/product-images/furniture/furniture-bar-rack.jpg" },
+          { name: "Garden Lounge Chair", description: "Folding reclining chair", price: 4200, stock: 25, imageUrl: "/product-images/furniture/furniture-beds.jpg" },
+          { name: "Umbrella Base", description: "Heavy-duty cast iron base", price: 3500, stock: 20, imageUrl: "/product-images/furniture/furniture-carbinate.jpg" },
         ],
       },
       {
         name: "Planters & Pots",
         products: [
-          { name: "Terracotta Pot 12\"", description: "Classic terracotta, 12 inch", price: 1200, stock: 80 },
-          { name: "Ceramic Planter Set", description: "Set of 3 decorative planters", price: 4500, stock: 25 },
-          { name: "Hanging Basket", description: "Wire basket with coconut liner", price: 850, stock: 50 },
-          { name: "Window Box 60cm", description: "Plastic window box with drainage", price: 1800, stock: 35 },
+          { name: "Terracotta Pot 12\"", description: "Classic terracotta, 12 inch", price: 1200, stock: 80, imageUrl: "/product-images/furniture/furniture-handmade-wooden-shandalia.jpg" },
+          { name: "Ceramic Planter Set", description: "Set of 3 decorative planters", price: 4500, stock: 25, imageUrl: "/product-images/furniture/furniture-outdoor-kitchen-bar-counter.jpg" },
+          { name: "Hanging Basket", description: "Wire basket with coconut liner", price: 850, stock: 50, imageUrl: "/product-images/furniture/furniture-outdoor-seats.jpg" },
+          { name: "Window Box 60cm", description: "Plastic window box with drainage", price: 1800, stock: 35, imageUrl: "/product-images/furniture/furniture-shoe-and-handbag-carbinate_.jpg" },
         ],
       },
     ],
@@ -85,9 +85,9 @@ const catalog: {
       {
         name: "Seeds",
         products: [
-          { name: "Tomato Seeds Pack", description: "Hybrid tomato, 50 seeds", price: 350, stock: 100 },
-          { name: "Spinach Seeds 50g", description: "Leaf spinach, high yield", price: 280, stock: 80 },
-          { name: "Beans Climbing Pack", description: "Climbing beans, 30 seeds", price: 320, stock: 70 },
+          { name: "Tomato Seeds Pack", description: "Hybrid tomato, 50 seeds", price: 350, stock: 100, imageUrl: "/product-images/garden/garden-hass-avacado-ksh150_kg.jpg" },
+          { name: "Spinach Seeds 50g", description: "Leaf spinach, high yield", price: 280, stock: 80, imageUrl: "/product-images/garden/garden-pixie-oranges-ksh150_kg.jpg" },
+          { name: "Beans Climbing Pack", description: "Climbing beans, 30 seeds", price: 320, stock: 70, imageUrl: "/product-images/garden/garden-purple-passion-ksh400_kg.jpg" },
           { name: "Herb Seed Collection", description: "Basil, coriander, parsley mix", price: 450, stock: 60, tags: ["featured"] },
         ],
       },
@@ -130,17 +130,17 @@ const catalog: {
       {
         name: "Soil & Mulch",
         products: [
-          { name: "Potting Mix 50L", description: "Premium potting mix with compost", price: 1850, stock: 40 },
-          { name: "Compost 25kg", description: "Organic compost for beds", price: 950, stock: 50 },
-          { name: "Bark Mulch 50L", description: "Decorative bark mulch", price: 1200, stock: 35 },
-          { name: "Topsoil 50L", description: "Screened topsoil for lawns", price: 1100, stock: 45 },
+          { name: "Potting Mix 50L", description: "Premium potting mix with compost", price: 1850, stock: 40, imageUrl: "/product-images/landscaping/landscaping-new-bermuda-grass.jpg" },
+          { name: "Compost 25kg", description: "Organic compost for beds", price: 950, stock: 50, imageUrl: "/product-images/landscaping/landscaping-new-paspalum-grass.jpg" },
+          { name: "Bark Mulch 50L", description: "Decorative bark mulch", price: 1200, stock: 35, imageUrl: "/product-images/landscaping/landscaping-red-soil-and-manure-coco-peat-block-ksh-2000.jpg" },
+          { name: "Topsoil 50L", description: "Screened topsoil for lawns", price: 1100, stock: 45, imageUrl: "/product-images/landscaping/landscaping-red-soil-and-manure-goat-manure-lorry.jpg" },
         ],
       },
       {
         name: "Paving & Edging",
         products: [
-          { name: "Plastic Lawn Edging 5m", description: "Flexible lawn edging strip", price: 850, stock: 30 },
-          { name: "Steel Edging 1m", description: "Galvanised steel landscape edging", price: 1200, stock: 25 },
+          { name: "Plastic Lawn Edging 5m", description: "Flexible lawn edging strip", price: 850, stock: 30, imageUrl: "/product-images/landscaping/landscaping-red-soil-and-manure-organic-manure-tipper.jpg" },
+          { name: "Steel Edging 1m", description: "Galvanised steel landscape edging", price: 1200, stock: 25, imageUrl: "/product-images/landscaping/landscaping-replace-new-varigated-pemba.jpg" },
           { name: "Gravel 20kg", description: "Decorative gravel, 10mm", price: 650, stock: 60 },
         ],
       },
@@ -156,18 +156,18 @@ const catalog: {
       {
         name: "Indoor Plants",
         products: [
-          { name: "Snake Plant Pot", description: "Low-light air-purifying plant", price: 1800, stock: 25, tags: ["featured"] },
-          { name: "Peace Lily", description: "Elegant indoor plant, easy care", price: 1500, stock: 20 },
-          { name: "Pothos Hanging", description: "Trailing pothos in pot", price: 1200, stock: 30 },
-          { name: "Succulent Set", description: "Set of 3 small succulents", price: 950, stock: 40 },
+          { name: "Snake Plant Pot", description: "Low-light air-purifying plant", price: 1800, stock: 25, tags: ["featured"], imageUrl: "/product-images/furniture/furniture-shoe-carbinate.jpg" },
+          { name: "Peace Lily", description: "Elegant indoor plant, easy care", price: 1500, stock: 20, imageUrl: "/product-images/furniture/furniture-shoe-and-hand-bag-carbinate.jpg" },
+          { name: "Pothos Hanging", description: "Trailing pothos in pot", price: 1200, stock: 30, imageUrl: "/product-images/furniture/furniture-three-seater-cream_beige.jpg" },
+          { name: "Succulent Set", description: "Set of 3 small succulents", price: 950, stock: 40, imageUrl: "/product-images/furniture/furniture-two-seater-cream_beige.jpg" },
         ],
       },
       {
         name: "Home Décor",
         products: [
-          { name: "Decorative Vase Set", description: "Set of 2 ceramic vases", price: 3500, stock: 15 },
-          { name: "Wall Planter", description: "Mountable wall planter", price: 2200, stock: 20 },
-          { name: "Candle Holder Set", description: "Wood and metal candle holders", price: 1850, stock: 25 },
+          { name: "Decorative Vase Set", description: "Set of 2 ceramic vases", price: 3500, stock: 15, imageUrl: "/product-images/furniture/furniture-cheaster-drawer-2.jpg" },
+          { name: "Wall Planter", description: "Mountable wall planter", price: 2200, stock: 20, imageUrl: "/product-images/furniture/furniture-cheaster-drawer.jpg" },
+          { name: "Candle Holder Set", description: "Wood and metal candle holders", price: 1850, stock: 25, imageUrl: "/product-images/furniture/furniture-shoe-rack.jpg" },
           { name: "Indoor Herb Kit", description: "Basil, mint, rosemary starter kit", price: 1400, stock: 35 },
         ],
       },
@@ -228,8 +228,14 @@ async function main() {
               price: prod.price,
               stock: prod.stock,
               tags: prod.tags ?? [],
+              imageUrl: prod.imageUrl ?? null,
               subCategoryId: subCategory.id,
             },
+          });
+        } else if (prod.imageUrl != null) {
+          await prisma.product.update({
+            where: { id: existing.id },
+            data: { imageUrl: prod.imageUrl },
           });
         }
       }

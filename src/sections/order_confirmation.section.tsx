@@ -170,7 +170,7 @@ export default function OrderConfirmationSection() {
 
                     {/* Progress Steps */}
                     <div className="relative flex justify-between">
-                      {steps.map((step, index) => (
+                      {steps.map((step) => (
                         <div key={step.key} className="flex flex-col items-center">
                           {/* Step Circle */}
                           <div className={`w-3 h-3 rounded-full border-2 transition-all duration-300 ${

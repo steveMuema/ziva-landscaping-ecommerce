@@ -36,15 +36,6 @@ export default function ProductSlideshowSection({ products }: ProductSlideshowSe
 
   if (!products.length) return null;
 
-  const product = products[currentIndex];
-  const categorySlug = product.subCategory?.category?.name
-    ? slugify(product.subCategory.category.name)
-    : "shop";
-  const subCategorySlug = product.subCategory?.name
-    ? slugify(product.subCategory.name)
-    : "products";
-  const productHref = `/shop/${categorySlug}/${subCategorySlug}/${product.id}`;
-
   return (
     <section
       className="w-full overflow-hidden"

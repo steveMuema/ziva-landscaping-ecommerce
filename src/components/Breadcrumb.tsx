@@ -25,7 +25,7 @@ const Breadcrumb = ({ path }: BreadcrumbProps) => {
         <Link href={backHref} className="hover:underline line-clamp-2 max-w-[150px]">
           ..
         </Link>
-        {mobileItems.map((item, index) => (
+        {mobileItems.map((item) => (
           <React.Fragment key={item.href}>
             <span className="flex-shrink-0 ">/</span>
             <Link

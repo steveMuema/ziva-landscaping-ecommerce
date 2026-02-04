@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     }
 
     // Create order and update stock in a transaction
-    const [orderResult, ...decrementResults] = await prisma.$transaction([
+    const [orderResult] = await prisma.$transaction([
       prisma.order.create({
         data: {
           clientId,
@@ -173,7 +173,7 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const { clientId, orderId, status } = await request.json();
+    const { orderId, status } = await request.json();
     if (!ORDER_STATUS.has(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     }

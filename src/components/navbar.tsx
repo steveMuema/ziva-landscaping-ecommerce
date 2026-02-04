@@ -258,10 +258,10 @@ export default function NavigationBar() {
 
                 {/* Search */}
                 <div className="ml-4 flex md:ml-6">
-                  <a href="/shop" className="p-2 text-[var(--muted)] hover:text-[var(--foreground)]">
+                  <Link href="/shop" className="p-2 text-[var(--muted)] hover:text-[var(--foreground)]">
                     <span className="sr-only">Search</span>
                     <MagnifyingGlassIcon aria-hidden="true" className="size-6" />
-                  </a>
+                  </Link>
                 </div>
 
                 {/* Cart */}

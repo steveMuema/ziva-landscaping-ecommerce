@@ -36,7 +36,7 @@ Start the database:
 docker compose up -d
 ```
 
-Create `.env` from the example and ensure `DATABASE_URL` points at the Docker DB:
+Create `.env` from the example and ensure `DATABASE_URL` points at the Docker DB. **Never commit `.env`** (production credentials stay in your host’s env only; repo may be public).
 
 ```bash
 cp .env.example .env

@@ -4,6 +4,22 @@ This guide keeps your **fixed monthly cost at 0 KSH** so your 600 KSH budget can
 
 ---
 
+## Credentials and secrecy (repo may be public/forked)
+
+**Never put production credentials in the repo.** The repository may be public or a fork; assume anyone can read it.
+
+| Do | Don't |
+|----|--------|
+| Keep all secrets in **environment variables** (Vercel, Neon, etc.). | Commit `.env` or any file containing real API keys, passwords, or tokens. |
+| Use **Vercel → Settings → Environment Variables** for production. | Hardcode secrets in code or in `next.config.js` (only var names, not values). |
+| Copy `.env.example` to `.env` **locally only**; fill with dev values. `.env` is gitignored. | Put production values in `.env.example` (it is committed; use placeholders only). |
+| Generate a strong `NEXTAUTH_SECRET` per environment (e.g. `openssl rand -base64 32`). | Reuse the same secret across dev/staging/production. |
+| Use **GitHub Actions secrets** only if you add deploy steps; never log them. | Echo or log `process.env` or any credential in CI or app code. |
+
+**Check before every push:** run `git status` and ensure `.env` is not staged. If `.env` was ever committed, rotate all production secrets immediately and remove the file from history (e.g. `git filter-branch` or BFG).
+
+---
+
 ## Free tier stack (recommended)
 
 | Service        | Use              | Cost        | Notes |
@@ -75,7 +91,7 @@ Set these in **Vercel → Project → Settings → Environment Variables** for *
 | `MPESA_SHORTCODE` | For M-Pesa | Till or Paybill number |
 | `MPESA_PASSKEY` | For M-Pesa | From Daraja portal |
 
-**Important:** In production, set `NEXTAUTH_URL` and `NEXT_PUBLIC_SITE_URL` to your **real** public URL (e.g. `https://zivalandscaping.co.ke`). The M-Pesa callback URL will be `https://your-domain/api/mpesa/callback` — register this in the Daraja portal.
+**Important:** In production, set `NEXTAUTH_URL` and `NEXT_PUBLIC_SITE_URL` to your **real** public URL (e.g. `https://zivalandscaping.co.ke`). The M-Pesa callback URL will be `https://your-domain/api/mpesa/callback` — register this in the Daraja portal. **Add these only in Vercel (or your host); never commit production values.**
 
 ---
 
@@ -96,6 +112,7 @@ Set these in **Vercel → Project → Settings → Environment Variables** for *
 - [ ] If using M-Pesa: callback URL set in Daraja; one test STK push in sandbox/production
 - [ ] Cloudinary images load (if you use uploads)
 - [ ] Blog and Fiona chat open and respond
+- [ ] No `.env` or real credentials are committed; production uses only platform env vars
 
 ---
 

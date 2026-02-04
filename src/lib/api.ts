@@ -1,15 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import prisma  from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { Cart, Order } from "@/types";
-
-enum OrderStatus {
-  "PENDING",
-  "PROCESSING",
-  "COMPLETED",
-  "CANCELLED",
-}
-
-
 
 export async function getCategories() {
   try {

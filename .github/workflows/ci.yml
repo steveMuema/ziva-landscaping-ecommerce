@@ -15,6 +15,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Ensure no secrets committed
+        run: |
+          if git ls-files --error-unmatch .env 2>/dev/null; then echo "::error::.env must not be committed. Remove it and rotate any exposed secrets."; exit 1; fi
+          for f in .env.local .env.production .env.production.local; do if git ls-files "$f" 2>/dev/null | grep -q .; then echo "::error::$f must not be committed."; exit 1; fi; done
+          echo "No env secret files are tracked."
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:

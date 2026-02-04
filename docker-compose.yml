@@ -1,0 +1,19 @@
+# Dev PostgreSQL for Ziva Landscaping E-commerce
+# Run: docker compose up -d
+# Stop: docker compose down
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ziva-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ziva
+      POSTGRES_PASSWORD: ziva_dev_secret
+      POSTGRES_DB: ziva_landscaping
+    ports:
+      - "5434:5432"
+    volumes:
+      - ziva_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  ziva_postgres_data:

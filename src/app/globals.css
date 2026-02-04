@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --header-bg: #ffffff;
+  --header-fg: #374151;
+  --header-border: #e5e7eb;
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+  --muted: #6b7280;
+  --accent: #166534;
+  --accent-hover: #14532d;
+  --ziva-green: #166534;
+  --ziva-green-light: #22c55e;
+  --ziva-gold: #b45309;
+  --ziva-gold-light: #f59e0b;
+  --ziva-white: #ffffff;
+}
+
+[data-theme="dark"] {
+  --background: #0f1419;
+  --foreground: #e7e9ea;
+  --header-bg: #0f1419;
+  --header-fg: #e7e9ea;
+  --header-border: #2f3336;
+  --card-bg: #1a1f23;
+  --card-border: #2f3336;
+  --muted: #8b98a5;
+  --accent: #22c55e;
+  --accent-hover: #16a34a;
+  --ziva-green: #22c55e;
+  --ziva-green-light: #4ade80;
+  --ziva-gold: #f59e0b;
+  --ziva-gold-light: #fbbf24;
+  --ziva-white: #1a1f23;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-quicksand: var(--font-quicksand);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes crossfadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes crossfadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.slideshow-slide-enter {
+  animation: crossfadeIn 0.6s ease-out forwards;
+}
+
+.slideshow-slide-exit {
+  animation: crossfadeOut 0.6s ease-out forwards;
+}

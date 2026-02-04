@@ -1,0 +1,99 @@
+import type { Metadata } from "next";
+import { Geist, Geist_Mono, Quicksand } from "next/font/google";
+import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
+import { CartProvider } from "@/lib/cart";
+import { WishlistProvider } from "@/lib/wishlist";
+import { ProductProvider } from "@/lib/productContext";
+import { CartSidebarProvider } from "@/lib/cartSidebarContext";
+import { ThemeProvider } from "@/lib/themeContext";
+import NavigationBar from "@/components/navbar";
+import ChatAgent from "@/components/ChatAgent";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const quicksand = Quicksand({
+  variable: "--font-quicksand",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "Ziva Landscaping Co. — Sustainable Living | East Africa",
+  description:
+    "Landscape design and sustainability in East Africa. Eco-friendly outdoor spaces, drought-resistant plants, edible landscape, organic practices. Kenya, Tanzania, Uganda. BNB Ziva Homes.",
+  manifest: "/manifest.webmanifest",
+  themeColor: "#166534",
+  viewport: { width: "device-width", initialScale: 1 },
+  appleWebApp: { capable: true, title: "Ziva Landscaping" },
+  keywords: [
+    "Ziva Landscaping",
+    "landscaping Kenya",
+    "East Africa landscaping",
+    "sustainable landscaping",
+    "eco-friendly garden",
+    "Nairobi landscaping",
+    "drought resistant plants",
+    "organic landscaping",
+    "Ziva Homes",
+    "BNB",
+  ],
+  openGraph: {
+    title: "Ziva Landscaping Co. — Sustainable Living | East Africa",
+    description: "Eco-friendly landscaping and sustainable outdoor spaces across East Africa.",
+    locale: "en_KE",
+  },
+  robots: { index: true, follow: true },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="theme-color" content="#166534" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Ziva Landscaping" />
+        <meta name="google-site-verification" content="B89P2_oagqXB0lGJi_HMS_U1pWBcxsY25mvlezbRJns" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var t=document.documentElement.getAttribute('data-theme')||localStorage.getItem('ziva-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();`,
+          }}
+        />
+      </head>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${quicksand.variable} antialiased`}
+        suppressHydrationWarning
+      >
+        <ThemeProvider>
+          <CartSidebarProvider>
+            <ProductProvider>
+              <CartProvider>
+                <WishlistProvider>
+                  <NavigationBar />
+                  <ChatAgent />
+                <main>
+                  {children}
+                </main>
+                </WishlistProvider>
+              </CartProvider>
+            </ProductProvider>
+          </CartSidebarProvider>
+        </ThemeProvider>
+        <Analytics />
+      </body>
+    </html>
+  );
+}

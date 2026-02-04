@@ -1,0 +1,25 @@
+{
+  "name": "Ziva Landscaping Co.",
+  "short_name": "Ziva Landscaping",
+  "description": "Sustainable landscaping and outdoor living in East Africa. Eco-friendly gardens, plants, and landscaping materials.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#166534",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/Ziva_logo_3.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon",
+      "purpose": "any"
+    },
+    {
+      "src": "/Ziva_Logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

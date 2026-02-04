@@ -30,7 +30,7 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
   });
   const [loadingItems, setLoadingItems] = useState<Set<number>>(new Set());
   const { items, updateCart, clearCart } = useCart();
-  const { createOrder, loading, error } = useCreateOrder();
+  const { createOrder, loading, error, setError } = useCreateOrder();
   const router = useRouter();
   const clientId = typeof window !== "undefined" ? document.cookie
     .split('; ')

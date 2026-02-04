@@ -187,7 +187,7 @@ export function useCreateOrder() {
     }
   }, []);
 
-  return { createOrder, loading, error };
+  return { createOrder, loading, error, setError };
 }
 
 // Hook to update order status

@@ -5,6 +5,8 @@ import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/authOptions";
 import { PlusIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminBlogPage() {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== "admin") {

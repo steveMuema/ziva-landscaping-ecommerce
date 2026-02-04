@@ -15,7 +15,7 @@ const capitalizeWords = (str: string) => {
     .join(" ");
 };
 
-export const revalidate = 60; // Updated to 60 seconds for better caching
+export const dynamic = "force-dynamic";
 
 export default async function SubCategoryPage({
   params,

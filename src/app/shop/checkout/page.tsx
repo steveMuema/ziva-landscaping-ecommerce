@@ -4,7 +4,8 @@ import CheckoutSection from '@/sections/checkout.section';
 import { getCart } from '@/lib/api'; // From api.ts
 import { Cart } from '@/types'; // From index.ts
 
-export const revalidate = 60; // Updated to 60 seconds for better caching                                                                                   
+export const dynamic = "force-dynamic";
+
 async function fetchCartData(): Promise<Cart[]> {
   try {
     const cookieStore = await cookies();

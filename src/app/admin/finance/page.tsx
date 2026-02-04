@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminFinancePage() {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== "admin") {

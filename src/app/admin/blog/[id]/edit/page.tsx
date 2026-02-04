@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
 import { authOptions } from "@/lib/authOptions";
 import BlogPostForm from "../../new/BlogPostForm";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminBlogEditPage({
   params,
 }: {

@@ -8,6 +8,8 @@ const inputClass =
   "w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
 const labelClass = "mb-1 block text-sm font-medium text-slate-700";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProductsPage() {
   const products = await prisma.product.findMany({
     include: { subCategory: { include: { category: true } } },

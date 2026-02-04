@@ -7,6 +7,8 @@ import { getProductById } from "@/lib/api";
 import { Product } from "@/types";
 import { Suspense } from "react";
 
+export const dynamic = "force-dynamic";
+
 // Define the expected props structure for Next.js 15 dynamic route
 type PageProps = {
   params: Promise<{

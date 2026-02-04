@@ -8,7 +8,7 @@ import { SubCategoryGrid } from "@/components/SubCategoryGrid";
 import { SubCategory } from "@/types";
 import Footer from "@/components/Footer";
 
-export const revalidate = 10;
+export const dynamic = "force-dynamic";
 
 function slugFromParam(param: string) {
   return param.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");

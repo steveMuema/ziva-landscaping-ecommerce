@@ -14,6 +14,8 @@ function slugFromTitle(title: string) {
     .replace(/\s+/g, "-");
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminBlogNewPage() {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== "admin") {

@@ -2,6 +2,8 @@
 import { getCategories } from '@/lib/api';
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://zivalandscaping.co.ke';
   const categories = await getCategories();

@@ -3,6 +3,8 @@ import { revalidatePath } from "next/cache";
 import { uploadImage } from "@/lib/cloudinary";
 import { PlusIcon } from "@heroicons/react/24/outline";
 
+export const dynamic = "force-dynamic";
+
 export default async function SubCategoriesPage() {
   const subCategories = await prisma.subCategory.findMany({
     include: { category: true },

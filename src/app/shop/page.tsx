@@ -6,7 +6,7 @@ import { CategoryGrid } from "@/components/CategoryGrid";
 import { Category } from "@/types";
 import Footer from "@/components/Footer";
 
-export const revalidate = 10;
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Shop | Ziva Landscaping Co. — East Africa",

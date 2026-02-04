@@ -134,7 +134,7 @@ export default async function ProductsPage() {
                         <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-slate-100">
                           <Image
                             src={prod.imageUrl}
-                            alt=""
+                            alt={prod.name}
                             fill
                             className="object-cover"
                             sizes="40px"

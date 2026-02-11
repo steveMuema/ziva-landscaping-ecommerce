@@ -17,8 +17,8 @@ export default async function BlogPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
-      <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 max-w-4xl">
+    <div className="flex flex-col flex-1 min-h-full bg-[var(--background)]">
+      <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 max-w-4xl flex-1">
         <h1 className="text-3xl font-bold text-[var(--foreground)] mb-2 font-[family-name:var(--font-quicksand)]">
           Blog
         </h1>

@@ -148,16 +148,17 @@ model Authenticator {
 model Order {
   id             Int           @id @default(autoincrement())
   clientId       String
-  email          String
-  fullname       String
   phone          String
+  location       String        // Delivery area / address — only phone and location collected at payment
+  email          String?
+  fullname       String?
   company        String?
-  country        String
-  state          String
-  address        String
+  country        String?
+  state          String?
+  address        String?
   apartment      String?
-  city           String
-  postalCode     String
+  city           String?
+  postalCode     String?
   subtotal       Float
   status        OrderStatus   @default(PENDING)
   currency       String        @default("KSH")
@@ -203,4 +204,11 @@ model BlogPost {
 
   @@index([slug])
   @@index([published, publishedAt])
+}
+
+model Setting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
 }

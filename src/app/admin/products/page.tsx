@@ -8,7 +8,25 @@ const inputClass =
   "w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
 const labelClass = "mb-1 block text-sm font-medium text-slate-700";
 
+const LOW_STOCK_THRESHOLD = 5;
+
 export const dynamic = "force-dynamic";
+
+async function updateProductStock(formData: FormData) {
+  "use server";
+  const productId = parseInt(formData.get("productId") as string, 10);
+  const stock = parseInt(formData.get("stock") as string, 10);
+  if (isNaN(productId) || isNaN(stock) || stock < 0) return;
+  await prisma.product.update({
+    where: { id: productId },
+    data: { stock },
+  });
+  revalidatePath("/admin/products");
+  revalidatePath("/admin");
+  revalidatePath("/shop");
+  revalidatePath("/shop", "layout");
+  revalidatePath("/");
+}
 
 export default async function ProductsPage() {
   const products = await prisma.product.findMany({
@@ -110,9 +128,16 @@ export default async function ProductsPage() {
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-100 px-5 py-4">
-          <h2 className="font-semibold text-slate-900">All products</h2>
-          <p className="text-sm text-slate-500">{products.length} total</p>
+        <div className="border-b border-slate-100 px-5 py-4 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className="font-semibold text-slate-900">All products</h2>
+            <p className="text-sm text-slate-500">{products.length} total · Stock management: set new value and click Update</p>
+          </div>
+          {products.filter((p) => p.stock <= LOW_STOCK_THRESHOLD).length > 0 && (
+            <p className="text-sm text-amber-700 font-medium">
+              {products.filter((p) => p.stock === 0).length} out of stock · {products.filter((p) => p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD).length} low stock (≤{LOW_STOCK_THRESHOLD})
+            </p>
+          )}
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-200">
@@ -152,7 +177,31 @@ export default async function ProductsPage() {
                   <td className="px-5 py-3 text-right font-medium text-slate-900">
                     {Number(prod.price).toLocaleString()} KSH
                   </td>
-                  <td className="px-5 py-3 text-right text-sm text-slate-600">{prod.stock}</td>
+                  <td className="px-5 py-3">
+                    <form action={updateProductStock} className="flex items-center justify-end gap-2">
+                      <input type="hidden" name="productId" value={prod.id} />
+                      <input
+                        type="number"
+                        name="stock"
+                        min={0}
+                        defaultValue={prod.stock}
+                        className={`w-20 rounded-lg border px-2 py-1.5 text-right text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
+                          prod.stock === 0
+                            ? "border-red-300 bg-red-50 text-red-900"
+                            : prod.stock <= LOW_STOCK_THRESHOLD
+                              ? "border-amber-300 bg-amber-50 text-amber-900"
+                              : "border-slate-300 text-slate-900"
+                        }`}
+                        aria-label={`Stock for ${prod.name}`}
+                      />
+                      <button
+                        type="submit"
+                        className="rounded-lg bg-slate-100 px-2 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200"
+                      >
+                        Update
+                      </button>
+                    </form>
+                  </td>
                   <td className="px-5 py-3">
                     {prod.tags.length > 0 ? (
                       <div className="flex flex-wrap gap-1">

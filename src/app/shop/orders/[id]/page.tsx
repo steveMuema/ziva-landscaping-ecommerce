@@ -6,11 +6,13 @@ import Footer from '@/components/Footer';
 export default function OrderPage() {
  
   return (
-    <>
-      <Suspense fallback={<div>Loading...</div>}>
-        <OrderConfirmationSection/>
-      </Suspense>
+    <div className="flex flex-col flex-1 min-h-full">
+      <div className="flex-1">
+        <Suspense fallback={<div className="text-[var(--muted)] p-8">Loading...</div>}>
+          <OrderConfirmationSection />
+        </Suspense>
+      </div>
       <Footer />
-    </>
+    </div>
   );
 }

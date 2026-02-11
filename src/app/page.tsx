@@ -20,8 +20,12 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <PromoSection />
-      <Footer />
+      <div className="flex flex-col flex-1 min-h-full">
+        <div className="flex-1">
+          <PromoSection />
+        </div>
+        <Footer />
+      </div>
     </>
   );
 }

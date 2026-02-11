@@ -6,6 +6,7 @@ import { WishlistProvider } from "@/lib/wishlist";
 import { getProductById } from "@/lib/api";
 import { Product } from "@/types";
 import { Suspense } from "react";
+import { normalizeSlug, slugToName } from "@/lib/slug";
 
 export const dynamic = "force-dynamic";
 
@@ -22,24 +23,34 @@ type PageProps = {
 // Server component to handle product fetching and rendering
 async function ProductPageContent({ id, category, subCategory }: { id: string; category: string; subCategory: string }) {
   const product = await getProductById(id);
+  const categorySlug = normalizeSlug(category);
+  const subCategorySlug = normalizeSlug(subCategory);
+  const categoryName = slugToName(categorySlug);
+  const subCategoryName = slugToName(subCategorySlug);
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center text-gray-500 py-8">Product not found</div>
+      <div className="flex flex-col flex-1 min-h-full bg-[var(--background)]">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center text-[var(--muted)] py-8">Product not found</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <>
-      <ProductSection
-        product={product as unknown as Product}
-        categoryName={category}
-        subCategoryName={subCategory}
-      />
+    <div className="flex flex-col flex-1 min-h-full bg-[var(--background)]">
+      <div className="flex-1">
+        <ProductSection
+          product={product as unknown as Product}
+          categoryName={categoryName}
+          subCategoryName={subCategoryName}
+          categorySlug={categorySlug}
+          subCategorySlug={subCategorySlug}
+        />
+      </div>
       <Footer />
-    </>
+    </div>
   );
 }
 
@@ -53,8 +64,8 @@ export default async function ProductPage({ params }: PageProps) {
         <WishlistProvider>
           <Suspense
             fallback={
-              <div className="min-h-screen bg-white flex items-center justify-center">
-                <div className="text-center text-gray-500 py-8">Loading product...</div>
+              <div className="flex flex-col flex-1 min-h-full bg-[var(--background)] items-center justify-center">
+                <div className="text-center text-[var(--muted)] py-8">Loading product...</div>
               </div>
             }
           >

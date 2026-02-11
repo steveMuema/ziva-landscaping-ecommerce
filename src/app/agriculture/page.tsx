@@ -32,13 +32,13 @@ export default async function AgriculturePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="container mx-auto py-8 px-2 sm:px-4 md:px-6 lg:px-8 min-h-[400px]">
+    <div className="flex flex-col flex-1 min-h-full bg-[var(--background)]">
+      <div className="container mx-auto py-8 px-2 sm:px-4 md:px-6 lg:px-8 min-h-[400px] flex-1">
         <Breadcrumb path={breadcrumbPath} />
-        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2 text-gray-900 font-[family-name:var(--font-quicksand)]">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2 text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">
           Agriculture
         </h1>
-        <p className="text-center text-gray-600 mb-6 sm:mb-8 font-[family-name:var(--font-quicksand)] max-w-2xl mx-auto">
+        <p className="text-center text-[var(--muted)] mb-6 sm:mb-8 font-[family-name:var(--font-quicksand)] max-w-2xl mx-auto">
           Sustainable agriculture and landscaping solutions for East Africa.
         </p>
         <Suspense fallback={<LoadingSkeleton count={4} />}>

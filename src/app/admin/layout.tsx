@@ -15,6 +15,7 @@ import {
   Bars3Icon,
   XMarkIcon,
   HomeIcon,
+  Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
 
 const navItems = [
@@ -24,6 +25,7 @@ const navItems = [
   { href: "/admin/products", label: "Products", icon: CubeIcon },
   { href: "/admin/finance", label: "Finance", icon: CurrencyDollarIcon },
   { href: "/admin/blog", label: "Blog", icon: DocumentTextIcon },
+  { href: "/admin/settings", label: "Settings", icon: Cog6ToothIcon },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

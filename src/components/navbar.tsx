@@ -15,10 +15,12 @@ import {
   ChevronUpIcon,
   SunIcon,
   MoonIcon,
+  ArrowRightOnRectangleIcon,
 } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/lib/cart";
 import { useCartSidebar } from "@/lib/cartSidebarContext";
 import { useTheme } from "@/lib/themeContext";
@@ -54,9 +56,12 @@ export default function NavigationBar() {
     ],
   });
   const pathname = usePathname();
+  const { data: session, status } = useSession();
   const { items } = useCart();
   const { cartOpen, setCartOpen } = useCartSidebar();
   const { theme, toggleTheme } = useTheme();
+  const isSignedIn = status === "authenticated" && !!session?.user;
+  const isAdmin = isSignedIn && session?.user?.role === "admin";
 
   useEffect(() => {
     getCategories().then((data) =>
@@ -172,6 +177,36 @@ export default function NavigationBar() {
             >
               Blog
             </Link>
+            <hr className="my-4 border-[var(--header-border)]" />
+            {isSignedIn ? (
+              <div className="space-y-2">
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    className="block font-medium text-[var(--foreground)] hover:text-[var(--accent)] font-[family-name:var(--font-quicksand)]"
+                    onClick={closeSidebar}
+                  >
+                    Admin
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  onClick={() => { closeSidebar(); signOut({ callbackUrl: "/" }); }}
+                  className="flex items-center gap-2 font-medium text-[var(--header-fg)] hover:text-[var(--foreground)] font-[family-name:var(--font-quicksand)]"
+                >
+                  <ArrowRightOnRectangleIcon className="size-5" aria-hidden />
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/auth/signin"
+                className="block font-medium text-[var(--header-fg)] hover:text-[var(--foreground)] font-[family-name:var(--font-quicksand)]"
+                onClick={closeSidebar}
+              >
+                Sign in
+              </Link>
+            )}
           </DialogPanel>
         </div>
       </Dialog>
@@ -238,9 +273,27 @@ export default function NavigationBar() {
 
               <div className="ml-auto flex items-center">
                 <div className="hidden md:flex md:flex-1 md:items-center md:justify-end md:space-x-6">
-                  <Link href="/auth/signin" className="text-base font-medium text-[var(--header-fg)] hover:text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">
-                    Sign in
-                  </Link>
+                  {isSignedIn ? (
+                    <>
+                      {isAdmin && (
+                        <Link href="/admin" className="text-base font-medium text-[var(--header-fg)] hover:text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">
+                          Admin
+                        </Link>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => signOut({ callbackUrl: "/" })}
+                        className="flex items-center gap-2 text-base font-medium text-[var(--header-fg)] hover:text-[var(--foreground)] font-[family-name:var(--font-quicksand)]"
+                      >
+                        <ArrowRightOnRectangleIcon className="size-5" aria-hidden />
+                        Sign out
+                      </button>
+                    </>
+                  ) : (
+                    <Link href="/auth/signin" className="text-base font-medium text-[var(--header-fg)] hover:text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">
+                      Sign in
+                    </Link>
+                  )}
                   <span aria-hidden="true" className="h-6 w-px bg-[var(--header-border)]" />
                   <button
                     type="button"

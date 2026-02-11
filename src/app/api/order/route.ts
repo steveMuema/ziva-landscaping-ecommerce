@@ -9,9 +9,9 @@ const DOWN_PAYMENT_RATIO = 0.5;
 
 export async function POST(request: Request) {
   try {
-    const { clientId, email, shippingData, items, subtotal, paymentMethod, amountPaid, mpesaReceiptNo } = await request.json();
-    if (!clientId || !email || !shippingData || !items || subtotal == null) {
-      return NextResponse.json({ error: 'Missing required fields: clientId, email, shippingData, items, or subtotal' }, { status: 400 });
+    const { clientId, phone, location, items, subtotal, paymentMethod, amountPaid, mpesaReceiptNo } = await request.json();
+    if (!clientId || !phone || !location || !items || subtotal == null) {
+      return NextResponse.json({ error: 'Missing required fields: clientId, phone, location, items, or subtotal' }, { status: 400 });
     }
 
     const requiredAmount = subtotal < PRICING_THRESHOLD_KSH ? subtotal : Math.round(subtotal * DOWN_PAYMENT_RATIO * 100) / 100;
@@ -22,22 +22,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `M-Pesa payment required: KSH ${requiredAmount.toFixed(2)} (${subtotal < PRICING_THRESHOLD_KSH ? 'full' : '50% down'})` }, { status: 400 });
     }
 
-    // Validate shippingData fields
-    if (
-      !shippingData.fullname ||
-      !shippingData.phone ||
-      !shippingData.country ||
-      !shippingData.state ||
-      !shippingData.address ||
-      !shippingData.city ||
-      !shippingData.postalCode
-    ) {
-      return NextResponse.json({ error: 'Missing required shipping fields' }, { status: 400 });
-    }
-
-    // Validate email format
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
+    const locationTrimmed = String(location).trim();
+    if (!locationTrimmed) {
+      return NextResponse.json({ error: 'Location is required' }, { status: 400 });
     }
 
     // Validate items
@@ -64,21 +51,13 @@ export async function POST(request: Request) {
       }
     }
 
-    // Create order and update stock in a transaction
+    // Create order and update stock in a transaction (only phone + location collected at payment)
     const [orderResult] = await prisma.$transaction([
       prisma.order.create({
         data: {
           clientId,
-          email,
-          fullname: shippingData.fullname,
-          phone: shippingData.phone,
-          company: shippingData.company || null,
-          country: shippingData.country,
-          state: shippingData.state,
-          address: shippingData.address,
-          apartment: shippingData.apartment || null,
-          city: shippingData.city,
-          postalCode: shippingData.postalCode,
+          phone: String(phone).trim(),
+          location: locationTrimmed,
           subtotal,
           currency: 'KSH',
           paymentMethod: method,

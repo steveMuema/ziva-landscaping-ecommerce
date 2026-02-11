@@ -7,8 +7,8 @@ import { WishlistProvider } from "@/lib/wishlist";
 import { ProductProvider } from "@/lib/productContext";
 import { CartSidebarProvider } from "@/lib/cartSidebarContext";
 import { ThemeProvider } from "@/lib/themeContext";
-import NavigationBar from "@/components/navbar";
-import ChatAgent from "@/components/ChatAgent";
+import { SessionProvider } from "@/components/SessionProvider";
+import RootLayoutContent from "@/components/RootLayoutContent";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,8 +30,6 @@ export const metadata: Metadata = {
   description:
     "Landscape design and sustainability in East Africa. Eco-friendly outdoor spaces, drought-resistant plants, edible landscape, organic practices. Kenya, Tanzania, Uganda. BNB Ziva Homes.",
   manifest: "/manifest.webmanifest",
-  themeColor: "#166534",
-  viewport: { width: "device-width", initialScale: 1 },
   appleWebApp: { capable: true, title: "Ziva Landscaping" },
   keywords: [
     "Ziva Landscaping",
@@ -51,6 +49,12 @@ export const metadata: Metadata = {
     locale: "en_KE",
   },
   robots: { index: true, follow: true },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#166534",
 };
 
 export default function RootLayout({
@@ -77,21 +81,19 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${quicksand.variable} antialiased`}
         suppressHydrationWarning
       >
+        <SessionProvider>
         <ThemeProvider>
           <CartSidebarProvider>
             <ProductProvider>
               <CartProvider>
                 <WishlistProvider>
-                  <NavigationBar />
-                  <ChatAgent />
-                <main>
-                  {children}
-                </main>
+                  <RootLayoutContent>{children}</RootLayoutContent>
                 </WishlistProvider>
               </CartProvider>
             </ProductProvider>
           </CartSidebarProvider>
         </ThemeProvider>
+        </SessionProvider>
         <Analytics />
       </body>
     </html>

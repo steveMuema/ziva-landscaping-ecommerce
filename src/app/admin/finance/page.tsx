@@ -44,6 +44,7 @@ export default async function AdminFinancePage() {
   }
 
   function formatAddress(order: (typeof orders)[0]) {
+    if (order.location) return order.location;
     const parts = [
       order.address,
       order.apartment,
@@ -52,7 +53,7 @@ export default async function AdminFinancePage() {
       order.postalCode,
       order.country,
     ].filter(Boolean);
-    return parts.join(", ");
+    return parts.join(", ") || "—";
   }
 
   function mapsUrl(order: (typeof orders)[0]) {
@@ -60,11 +61,56 @@ export default async function AdminFinancePage() {
     return `https://www.google.com/maps/search/?api=1&query=${q}`;
   }
 
+  // Last 14 days: revenue and order count per day for the graph
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dailyData: { date: string; revenue: number; count: number }[] = [];
+  for (let d = 13; d >= 0; d--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - d);
+    const dateStr = date.toISOString().slice(0, 10);
+    const dayStart = new Date(date);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(date);
+    dayEnd.setHours(23, 59, 59, 999);
+    const dayOrders = orders.filter(
+      (o) => o.createdAt >= dayStart && o.createdAt <= dayEnd
+    );
+    dailyData.push({
+      date: dateStr,
+      revenue: dayOrders.reduce((sum, o) => sum + Number(o.subtotal), 0),
+      count: dayOrders.length,
+    });
+  }
+  const maxRevenue = Math.max(1, ...dailyData.map((d) => d.revenue));
+  const totalRevenue = orders.reduce((sum, o) => sum + Number(o.subtotal), 0);
+  const totalPaid = orders.reduce((sum, o) => sum + (o.amountPaid ?? 0), 0);
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900">Finance</h1>
-        <p className="mt-1 text-sm text-slate-500">{orders.length} orders</p>
+        <p className="mt-1 text-sm text-slate-500">{orders.length} orders · KSH {totalRevenue.toLocaleString("en-KE", { minimumFractionDigits: 0 })} total · KSH {totalPaid.toLocaleString("en-KE", { minimumFractionDigits: 0 })} received</p>
+      </div>
+
+      {/* Revenue graph - last 14 days */}
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 mb-4">Revenue (last 14 days)</h2>
+        <div className="flex items-end gap-1 sm:gap-2 h-48">
+          {dailyData.map((d) => (
+            <div key={d.date} className="flex-1 flex flex-col items-center gap-1 min-w-0">
+              <div
+                className="w-full bg-emerald-500 rounded-t min-h-[2px] transition-all"
+                style={{ height: `${(d.revenue / maxRevenue) * 100}%` }}
+                title={`${d.date}: KSH ${d.revenue.toLocaleString("en-KE")} · ${d.count} orders`}
+              />
+              <span className="text-[10px] sm:text-xs text-slate-500 truncate w-full text-center" title={d.date}>
+                {d.date.slice(5)}
+              </span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-2 text-xs text-slate-400">Hover bar for details. KSH per day.</p>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm">

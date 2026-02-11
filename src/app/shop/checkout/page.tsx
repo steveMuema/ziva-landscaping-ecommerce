@@ -26,9 +26,11 @@ export default async function CheckoutPage() {
   const cartItems = await fetchCartData();
 
   return (
-    <>
-      <CheckoutSection cartItems={cartItems} />
+    <div className="flex flex-col flex-1 min-h-full">
+      <div className="flex-1">
+        <CheckoutSection cartItems={cartItems} />
+      </div>
       <Footer />
-    </>
+    </div>
   );
 }

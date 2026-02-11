@@ -144,18 +144,8 @@ export function useCreateOrder() {
 
   const createOrder = useCallback(async (data: {
     clientId: string;
-    email: string;
-    shippingData: {
-      fullname: string;
-      phone: string;
-      company: string;
-      country: string;
-      state: string;
-      address: string;
-      apartment: string;
-      city: string;
-      postalCode: string;
-    };
+    phone: string;
+    location: string;
     items: { productId: number; quantity: number; price: number }[];
     subtotal: number;
     paymentMethod?: 'MPESA' | 'CASH' | 'PAY_ON_DELIVERY';

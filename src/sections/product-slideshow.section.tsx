@@ -66,7 +66,7 @@ export default function ProductSlideshowSection({ products }: ProductSlideshowSe
                 fill
                 className="object-cover"
                 sizes="100vw"
-                loader={p.imageUrl ? cloudinaryLoader : undefined}
+                loader={p.imageUrl?.startsWith("https://res.cloudinary.com") ? cloudinaryLoader : undefined}
                 priority={i === 0}
                 fetchPriority={i === 0 ? "high" : "low"}
               />

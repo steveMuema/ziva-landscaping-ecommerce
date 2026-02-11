@@ -14,7 +14,7 @@ export default function OrderConfirmationSection() {
 
   if (!orderId || isNaN(orderId)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="bg-red-100 text-red-700 p-4 rounded-lg text-sm font-[family-name:var(--font-quicksand)]">
           Invalid order ID
         </div>
@@ -24,10 +24,10 @@ export default function OrderConfirmationSection() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
         <div className="text-center">
-          <ArrowPathIcon className="h-12 w-12 animate-spin text-gray-600 mx-auto mb-4" />
-          <p className="text-lg text-gray-600 font-[family-name:var(--font-quicksand)]">
+          <ArrowPathIcon className="h-12 w-12 animate-spin text-[var(--muted)] mx-auto mb-4" />
+          <p className="text-lg text-[var(--muted)] font-[family-name:var(--font-quicksand)]">
             Loading your order details...
           </p>
         </div>
@@ -37,7 +37,7 @@ export default function OrderConfirmationSection() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="text-center">
           <div className="bg-red-100 text-red-700 p-6 rounded-xl max-w-md">
             <h2 className="text-xl font-semibold mb-2 font-[family-name:var(--font-quicksand)]">
@@ -52,7 +52,7 @@ export default function OrderConfirmationSection() {
 
   if (!order) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="text-center">
           <div className="bg-red-100 text-red-700 p-6 rounded-xl max-w-md">
             <h2 className="text-xl font-semibold mb-2 font-[family-name:var(--font-quicksand)]">
@@ -68,7 +68,7 @@ export default function OrderConfirmationSection() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--background)]">
       <div className="flex flex-col lg:flex-row min-h-screen">
         {/* Left Side - Interior Design Image */}
         <div className="lg:w-1/2 relative">
@@ -82,14 +82,14 @@ export default function OrderConfirmationSection() {
         </div>
 
         {/* Right Side - Order Details */}
-        <div className="lg:w-1/2 bg-white">
+        <div className="lg:w-1/2 bg-[var(--card-bg)]">
           <div className="p-8 lg:p-12 h-full">
             {/* Success Message */}
             <div className="mb-8">
-              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 font-[family-name:var(--font-quicksand)]">
+              <h1 className="text-3xl lg:text-4xl font-bold text-[var(--foreground)] mb-4 font-[family-name:var(--font-quicksand)]">
                 Thanks for ordering
               </h1>
-              <p className="text-gray-600 font-[family-name:var(--font-quicksand)]">
+              <p className="text-[var(--muted)] font-[family-name:var(--font-quicksand)]">
                 We appreciate your order, we're currently processing it. So hang tight and we'll send you confirmation very soon!
               </p>
             </div>
@@ -160,7 +160,7 @@ export default function OrderConfirmationSection() {
                 return (
                   <div className="relative">
                     {/* Progress Bar Background */}
-                    <div className="absolute top-6 left-0 right-0 h-1 bg-gray-200 rounded-full"></div>
+                    <div className="absolute top-6 left-0 right-0 h-1 bg-[var(--card-border)] rounded-full"></div>
                     
                     {/* Progress Bar Fill */}
                     <div 
@@ -177,8 +177,8 @@ export default function OrderConfirmationSection() {
                             step.completed 
                               ? `${progressColor} border-transparent` 
                               : step.active 
-                                ? `bg-white ${progressColor.replace('bg-', 'border-')} border-2` 
-                                : 'bg-white border-gray-300'
+                                ? `bg-[var(--card-bg)] ${progressColor.replace('bg-', 'border-')} border-2` 
+                                : 'bg-[var(--card-bg)] border-[var(--card-border)]'
                           }`}></div>
                           
                           {/* Step Label */}
@@ -191,7 +191,7 @@ export default function OrderConfirmationSection() {
                                   ? 'text-red-500'
                                   : step.completed || step.active
                                   ? 'text-yellow-500'
-                                  : 'text-gray-400'
+                                  : 'text-[var(--muted)]'
                               }`}
                             >
                               {step.label}
@@ -209,7 +209,7 @@ export default function OrderConfirmationSection() {
                             ? 'text-green-500'
                             : order.status === 'CANCELLED'
                             ? 'text-red-500'
-                            : 'text-gray-600'
+                            : 'text-[var(--muted)]'
                         }`}
                       >
                         {order.status === 'PENDING' && 'Your order has been placed and is awaiting confirmation.'}
@@ -228,26 +228,26 @@ export default function OrderConfirmationSection() {
             <div className="space-y-6 mb-8">
               {order.orderItems.map((item) => (
                 <div key={item.id} className="flex items-center space-x-4">
-                  <div className="relative w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                  <div className="relative w-16 h-16 bg-[var(--muted-bg)] rounded-lg overflow-hidden flex-shrink-0">
                     <Image
                       src={item.product.imageUrl || "/images/placeholder-landscaping.jpg"}
                       alt={item.product.name}
                       width={64}
                       height={64}
-                      loader={cloudinaryLoader}
+                      loader={(item.product.imageUrl || "").startsWith("https://res.cloudinary.com") ? cloudinaryLoader : undefined}
                       className="object-cover w-full h-full"
                     />
                   </div>
                   <div className="flex-grow min-w-0">
-                    <h3 className="font-semibold text-gray-900 font-[family-name:var(--font-quicksand)] truncate">
+                    <h3 className="font-semibold text-[var(--foreground)] font-[family-name:var(--font-quicksand)] truncate">
                       {item.product.name}
                     </h3>
-                    <p className="text-gray-500 text-sm font-[family-name:var(--font-quicksand)]">
+                    <p className="text-[var(--muted)] text-sm font-[family-name:var(--font-quicksand)]">
                       Qty: {item.quantity}
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <p className="font-semibold text-gray-900 font-[family-name:var(--font-quicksand)]">
+                    <p className="font-semibold text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">
                       KSh {(item.price * item.quantity).toFixed(2)}
                     </p>
                   </div>
@@ -258,27 +258,25 @@ export default function OrderConfirmationSection() {
             {/* Order Summary */}
             <div className="border-t border-gray-200 pt-6 mb-8">
               <div className="flex justify-between items-center mb-6">
-                <span className="text-lg font-semibold text-gray-900 font-[family-name:var(--font-quicksand)]">
+                <span className="text-lg font-semibold text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">
                   Subtotal
                 </span>
-                <span className="text-lg font-semibold text-gray-900 font-[family-name:var(--font-quicksand)]">
+                <span className="text-lg font-semibold text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">
                   KSh {order.subtotal.toFixed(2)}
                 </span>
               </div>
             </div>
 
-            {/* Shipping Address */}
+            {/* Contact & delivery */}
             <div className="border-t border-gray-200 pt-6 mb-8">
               <div className="grid grid-cols-1 gap-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 font-[family-name:var(--font-quicksand)]">
-                    Shipping Address
+                  <h3 className="text-lg font-semibold text-[var(--foreground)] mb-3 font-[family-name:var(--font-quicksand)]">
+                    Contact & delivery
                   </h3>
-                  <div className="text-gray-600 space-y-1 font-[family-name:var(--font-quicksand)]">
-                    <p className="font-medium text-gray-900">{order.fullname}</p>
-                    <p>{order.address}{order.apartment && `, ${order.apartment}`}</p>
-                    <p>{order.city}, {order.state} {order.postalCode}</p>
-                    <p>{order.country}</p>
+                  <div className="text-[var(--muted)] space-y-1 font-[family-name:var(--font-quicksand)]">
+                    <p><span className="font-medium text-[var(--foreground)]">Phone:</span> {order.phone}</p>
+                    <p><span className="font-medium text-[var(--foreground)]">Location:</span> {order.location || [order.address, order.apartment, order.city, order.state, order.postalCode, order.country].filter(Boolean).join(", ") || "—"}</p>
                   </div>
                 </div>
               </div>

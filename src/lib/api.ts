@@ -31,10 +31,11 @@ export async function getAgricultureCategories() {
 
 function slugify(name: string) {
   return name
+    .replace(/\s*&\s*/g, "-and-")
     .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
     .trim()
-    .replace(/\s+/g, "-");
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]/g, "");
 }
 
 /** Find category by URL slug (e.g. "landscaping", "lawn-care-and-lawn-services") */
@@ -44,7 +45,7 @@ export async function getCategoryBySlug(slug: string) {
       orderBy: { id: "asc" },
       include: { subCategories: { include: { products: true } } },
     });
-    const normalizedSlug = slug.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
+    const normalizedSlug = slug.replace(/&/g, "and").toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
     return categories.find((c) => slugify(c.name) === normalizedSlug) ?? null;
   } catch (error) {
     console.error("Error fetching category by slug:", error);
@@ -68,7 +69,6 @@ export async function getCategoryByName(name: string) {
 
 export async function getSubCategoryByNames(categoryName: string, subCategoryName: string, tag?: string) {
   try {
-    console.log("Searching for - categoryName:", categoryName, "subCategoryName:", subCategoryName, "tag:", tag);
     const category = await prisma.category.findFirst({
       where: { name: { equals: categoryName, mode: "insensitive" } },
       orderBy: { id: "asc" },

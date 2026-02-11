@@ -21,7 +21,7 @@ function SignInForm() {
   useEffect(() => {
     const err = searchParams.get("error");
     if (err === "CredentialsSignin") {
-      setError("Invalid email or password. Check the default credentials below if this is local dev.");
+      setError("Invalid email or password.");
     }
   }, [searchParams]);
 
@@ -43,52 +43,44 @@ function SignInForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold mb-4 text-gray-900">Admin Sign In</h2>
+        <form onSubmit={handleSubmit} className="bg-[var(--card-bg)] p-6 rounded-lg shadow-md border border-[var(--card-border)]">
+          <h2 className="text-2xl font-bold mb-4 text-[var(--foreground)]">Sign in</h2>
           {error && (
-            <p className="mb-4 p-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded" role="alert">
+            <p className="mb-4 p-2 bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-sm rounded" role="alert">
               {error}
             </p>
           )}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <label className="block text-sm font-medium text-[var(--foreground)]">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-gray-900"
+              className="mt-1 block w-full p-2 border border-[var(--card-border)] rounded-md text-[var(--foreground)] bg-[var(--background)]"
               required
               autoComplete="email"
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <label className="block text-sm font-medium text-[var(--foreground)]">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-gray-900"
+              className="mt-1 block w-full p-2 border border-[var(--card-border)] rounded-md text-[var(--foreground)] bg-[var(--background)]"
               required
               autoComplete="current-password"
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700"
+            className="w-full bg-[var(--accent)] text-white p-2 rounded-md hover:opacity-90"
           >
             Sign In
           </button>
         </form>
-        {process.env.NODE_ENV === "development" && (
-          <p className="mt-4 p-3 bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded">
-            <strong>Default dev credentials</strong> (from seed):<br />
-            Email: <code className="bg-amber-100 px-1 rounded">admin@zivalandscaping.co.ke</code><br />
-            Password: <code className="bg-amber-100 px-1 rounded">securepassword123</code><br />
-            Run <code className="bg-amber-100 px-1 rounded">npx prisma db seed</code> if you haven’t.
-          </p>
-        )}
       </div>
     </div>
   );
@@ -97,8 +89,8 @@ function SignInForm() {
 export default function SignIn() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md animate-pulse h-64" />
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-[var(--card-bg)] p-6 rounded-lg shadow-md animate-pulse h-64 border border-[var(--card-border)]" />
       </div>
     }>
       <SignInForm />

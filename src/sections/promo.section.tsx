@@ -110,6 +110,7 @@ function Slideshow({ collections }: { collections: Collection[] }) {
                     src={collection.image}
                     alt={collection.alt}
                     className="w-full h-full object-cover"
+                    style={{ width: "auto", height: "auto" }}
                     width={800}
                     height={400}
                   />

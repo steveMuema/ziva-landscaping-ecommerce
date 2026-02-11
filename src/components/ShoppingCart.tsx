@@ -118,7 +118,7 @@ const ShoppingCart = ({ open, setOpen }: ShoppingCartProps) => {
                                       width={96}
                                       height={96}
                                       className="size-full object-cover"
-                                      loader={cloudinaryLoader}
+                                      loader={product.imageUrl?.startsWith("https://res.cloudinary.com") ? cloudinaryLoader : undefined}
                                     />
                                   ) : (
                                     <div className="size-full bg-gray-200 flex items-center justify-center">

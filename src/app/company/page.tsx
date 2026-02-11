@@ -25,7 +25,8 @@ export const metadata: Metadata = {
 
 export default function CompanyPage() {
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="flex flex-col flex-1 min-h-full bg-[var(--background)]">
+      <div className="flex-1">
       {/* Hero: BNB / Ziva Homes */}
       <section className="border-b border-[var(--card-border)] bg-[var(--card-bg)] py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
@@ -55,7 +56,7 @@ export default function CompanyPage() {
       </section>
 
       <AboutUsSection />
-
+      </div>
       <Footer />
     </div>
   );

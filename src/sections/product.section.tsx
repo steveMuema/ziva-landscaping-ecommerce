@@ -7,14 +7,19 @@ import Breadcrumb from "@/components/Breadcrumb";
 import cloudinaryLoader from "@/lib/cloudinaryLoader";
 import ProductActions from "@/components/ProductActions";
 import { useCart } from "@/lib/cart";
+import { slugify } from "@/lib/slug";
 
 interface ProductSectionProps {
   product: Product;
   categoryName: string;
   subCategoryName: string;
+  categorySlug?: string;
+  subCategorySlug?: string;
 }
 
-const ProductSection = ({ product, categoryName, subCategoryName }: ProductSectionProps) => {
+const ProductSection = ({ product, categoryName, subCategoryName, categorySlug, subCategorySlug }: ProductSectionProps) => {
+  const catSlug = categorySlug ?? slugify(categoryName);
+  const subSlug = subCategorySlug ?? slugify(subCategoryName);
   const router = useRouter();
   const { items } = useCart();
   const [quantity, setQuantity] = useState(() => {
@@ -60,24 +65,14 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
   };
 
   const handleTagClick = (tag: string) => {
-    const categorySlug = categoryName.toLowerCase().replace(/\s+/g, "-");
-    const subCategorySlug = subCategoryName.toLowerCase().replace(/\s+/g, "-");
-    router.push(`/shop/${categorySlug}/${subCategorySlug}?tag=${encodeURIComponent(tag)}`);
+    router.push(`/shop/${catSlug}/${subSlug}?tag=${encodeURIComponent(tag)}`);
   };
 
   const breadcrumbPath = [
     { name: "Home", href: "/" },
     { name: "Shop", href: "/shop" },
-    {
-      name: capitalizeWords(categoryName.replace(/-/g, " ")),
-      href: `/shop/${categoryName.toLowerCase().replace(/\s+/g, "-")}`,
-    },
-    {
-      name: capitalizeWords(subCategoryName.replace(/-/g, " ")),
-      href: `/shop/${categoryName.toLowerCase().replace(/\s+/g, "-")}/${subCategoryName
-        .toLowerCase()
-        .replace(/\s+/g, "-")}`,
-    },
+    { name: categoryName, href: `/shop/${catSlug}` },
+    { name: subCategoryName, href: `/shop/${catSlug}/${subSlug}` },
     { name: product.name, href: "#", isCurrent: true },
   ];
 
@@ -97,22 +92,22 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
     : ["No description available."];
 
   return (
-    <div className="bg-white mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="bg-[var(--background)] mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <Breadcrumb path={breadcrumbPath} />
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
         <div className="space-y-8 w-full lg:w-1/2 order-2 lg:order-1">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4 font-[family-name:var(--font-quicksand)]">
+            <h1 className="text-4xl font-bold text-[var(--foreground)] mb-4 font-[family-name:var(--font-quicksand)]">
               {product.name}
             </h1>
             <div className="flex items-center space-x-4 mb-6">
-              <span className="text-2xl font-bold text-gray-900">
+              <span className="text-2xl font-bold text-[var(--foreground)]">
                 Kshs. {product.price.toFixed(2)}
               </span>
             </div>
             <div className="mb-6">
               {descriptionParagraphs.map((paragraph, index) => (
-                <p key={index} className="text-gray-600 leading-relaxed mb-4">
+                <p key={index} className="text-[var(--muted)] leading-relaxed mb-4">
                   {paragraph}
                 </p>
               ))}
@@ -122,7 +117,7 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
                 <span
                   key={tag}
                   onClick={() => handleTagClick(tag)}
-                  className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-300"
+                  className="inline-block bg-[var(--muted-bg)] rounded-full px-3 py-1 text-sm font-medium text-[var(--foreground)] cursor-pointer hover:opacity-80"
                 >
                   {tag}
                 </span>
@@ -132,7 +127,7 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
               {product.stock > 0 ? (
                 <>
                   <svg
-                    className="w-5 h-5 text-green-600"
+                    className="w-5 h-5 text-[var(--accent)]"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     aria-hidden="true"
@@ -143,12 +138,12 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-green-600 font-medium">
+                  <span className="text-[var(--accent)] font-medium">
                     in stock and ready to ship
                   </span>
                 </>
               ) : (
-                <span className="text-red-600 font-medium">Out of stock</span>
+                <span className="text-red-500 font-medium">Out of stock</span>
               )}
             </div>
             <div className="space-y-4">
@@ -156,16 +151,16 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
                 <button
                   onClick={() => handleQuantityChange(-1)}
                   disabled={quantity <= 1}
-                  className="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
+                  className="w-10 h-10 flex items-center justify-center bg-[var(--muted-bg)] text-[var(--foreground)] rounded-full hover:opacity-80 disabled:opacity-50"
                   aria-label="Decrease quantity"
                 >
                   <span className="text-xl">-</span>
                 </button>
-                <span className="text-lg font-medium w-12 text-gray-900 text-center">{quantity}</span>
+                <span className="text-lg font-medium w-12 text-[var(--foreground)] text-center">{quantity}</span>
                 <button
                   onClick={() => handleQuantityChange(1)}
                   disabled={quantity >= product.stock}
-                  className="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400"
+                  className="w-10 h-10 flex items-center justify-center bg-[var(--muted-bg)] text-[var(--foreground)] rounded-full hover:opacity-80 disabled:opacity-50"
                   aria-label="Increase quantity"
                 >
                   <span className="text-xl">+</span>
@@ -173,11 +168,11 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
               </div>
               <ProductActions productId={product.id} stock={product.stock} quantity={quantity} />
             </div>
-            <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+            <div className="flex items-center justify-between pt-6 border-t border-[var(--card-border)]">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 border border-gray-300 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 border border-[var(--card-border)] rounded-full flex items-center justify-center">
                   <svg
-                    className="w-4 h-4 text-gray-600"
+                    className="w-4 h-4 text-[var(--accent)]"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                     aria-hidden="true"
@@ -189,13 +184,13 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
                     />
                   </svg>
                 </div>
-                <span className="text-gray-700 font-medium">Quality Guaranteed</span>
+                <span className="text-[var(--foreground)] font-medium">Quality Guaranteed</span>
               </div>
             </div>
           </div>
         </div>
         <div className="relative w-full lg:w-1/2 order-1 lg:order-2">
-          <div className="aspect-square bg-gray-100 rounded-2xl overflow-hidden shadow-lg">
+          <div className="aspect-square bg-[var(--muted-bg)] rounded-2xl overflow-hidden shadow-lg">
             {product.imageUrl ? (
               <Image
                 src={product.imageUrl}
@@ -203,11 +198,11 @@ const ProductSection = ({ product, categoryName, subCategoryName }: ProductSecti
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                loader={cloudinaryLoader}
+                loader={product.imageUrl?.startsWith("https://res.cloudinary.com") ? cloudinaryLoader : undefined}
               />
             ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-500 text-sm">No Image</span>
+              <div className="w-full h-full bg-[var(--card-border)] flex items-center justify-center">
+                <span className="text-[var(--muted)] text-sm">No Image</span>
               </div>
             )}
           </div>

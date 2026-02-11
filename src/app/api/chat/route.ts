@@ -1,6 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getProductById } from "@/lib/api";
 
 export const maxDuration = 30;
+
+/** Human-sounding WhatsApp intro: exact product when on product page, else page or home. */
+export async function getWhatsAppIntro(pathname: string): Promise<string> {
+  const path = (pathname ?? "/").replace(/\/$/, "") || "/";
+  const segments = path.split("/").filter(Boolean);
+
+  // Product page: /shop/category/subcategory/id
+  if (segments[0] === "shop" && segments.length === 4) {
+    const id = segments[3];
+    const product = await getProductById(id);
+    const name = product?.name;
+    if (name) {
+      return `Hi! I was looking at "${name}" on your site and had a quick question — would someone be able to help?`;
+    }
+  }
+
+  if (path === "/" || path === "") {
+    return "Hi! I was browsing Ziva Landscaping and had a few questions. Is someone around to chat?";
+  }
+
+  if (path === "/shop") {
+    return "Hi! I'm on your shop page and had a question about your products — could someone help me out?";
+  }
+
+  if (segments[0] === "shop" && segments.length === 2) {
+    const category = segments[1].replace(/-/g, " ");
+    return `Hi! I'm looking at your ${category} section and had a question — would someone be able to help?`;
+  }
+
+  if (segments[0] === "shop" && segments.length === 3) {
+    return "Hi! I'm browsing your products and had a quick question — is someone available to help?";
+  }
+
+  if (path === "/agriculture") {
+    return "Hi! I was on your Agriculture page and had a question — could someone get back to me?";
+  }
+
+  if (path === "/company") {
+    return "Hi! I was reading about Ziva and had a question — would someone have a moment to chat?";
+  }
+
+  if (path.startsWith("/blog")) {
+    return "Hi! I was on your blog and had a question — could someone help?";
+  }
+
+  return "Hi! I'm on your site and had a quick question — would someone be able to help?";
+}
 
 function getContextResponse(pathname: string, message: string): string {
   const m = message.toLowerCase().trim();
@@ -49,8 +97,9 @@ export async function POST(request: NextRequest) {
     const pathname = (body.pathname as string) ?? "/";
 
     const reply = getContextResponse(pathname, message);
+    const whatsappIntro = await getWhatsAppIntro(pathname);
 
-    return NextResponse.json({ reply });
+    return NextResponse.json({ reply, whatsappIntro });
   } catch {
     return NextResponse.json(
       { reply: "Sorry, something went wrong. I'm Fiona—try asking: Where is the shop? Or use the menu to explore." },

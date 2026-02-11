@@ -17,6 +17,7 @@ export default function ChatAgent() {
   const [loading, setLoading] = useState(false);
   const [introFetched, setIntroFetched] = useState(false);
   const [introLoading, setIntroLoading] = useState(false);
+  const [whatsappIntro, setWhatsappIntro] = useState<string | null>(null);
   const listEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -31,7 +32,8 @@ export default function ChatAgent() {
 
   useEffect(() => {
     setIntroFetched(false);
-    setMessages([]); // New page = fresh context when they open
+    setMessages([]);
+    setWhatsappIntro(null); // New page = fresh WhatsApp intro
   }, [pathname]);
 
   // When panel opens, fetch context-aware intro (page/product) as first message
@@ -47,7 +49,9 @@ export default function ChatAgent() {
       .then((res) => res.json())
       .then((data) => {
         const reply = (data.reply as string)?.trim();
+        const intro = (data.whatsappIntro as string)?.trim();
         if (reply) setMessages([{ role: "assistant", text: reply }]);
+        if (intro) setWhatsappIntro(intro);
       })
       .catch(() => {})
       .finally(() => setIntroLoading(false));
@@ -94,13 +98,11 @@ export default function ChatAgent() {
   if (pathname?.startsWith("/admin") || pathname?.startsWith("/auth")) return null;
 
   function openWhatsAppWithContext() {
-    const title = typeof document !== "undefined" ? document.title : "";
-    const path = pathname ?? "/";
-    const intro = [
-      "Hi, I'm on Ziva Landscaping.",
-      path !== "/" ? `Page: ${title || path}` : "Home page.",
-      "I'd like to inquire.",
-    ].join(" ");
+    const intro =
+      whatsappIntro ||
+      (pathname === "/" || !pathname
+        ? "Hi! I was browsing Ziva Landscaping and had a few questions. Is someone around to chat?"
+        : "Hi! I'm on your site and had a quick question — would someone be able to help?");
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(intro)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   }
@@ -211,7 +213,7 @@ export default function ChatAgent() {
               >
                 <Image src="/whatsapp.svg" alt="" width={22} height={22} />
                 <span>+254 757 133 726</span>
-                <span className="ml-auto text-xs text-[var(--muted)]">Opens with this page</span>
+                <span className="ml-auto text-xs text-[var(--muted)]">Opens with your message</span>
               </button>
             </div>
           </div>

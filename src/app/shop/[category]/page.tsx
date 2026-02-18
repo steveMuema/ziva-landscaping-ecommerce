@@ -68,7 +68,7 @@ export default async function CategoryPage({
           {categoryName}
         </h1>
         <Suspense fallback={<LoadingSkeleton count={category.subCategories.length || 4} />}>
-          <SubCategoryGrid subCategories={sortedSubCategories as SubCategory[]} categoryName={categoryName} />
+          <SubCategoryGrid subCategories={sortedSubCategories as unknown as SubCategory[]} categoryName={categoryName} />
         </Suspense>
       </div>
       <Footer />

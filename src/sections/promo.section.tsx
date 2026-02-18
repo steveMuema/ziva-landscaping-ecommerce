@@ -65,7 +65,7 @@ const textStagger = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: 0.1 + i * 0.12, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { delay: 0.1 + i * 0.12, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const },
   }),
 };
 
@@ -103,7 +103,9 @@ function Slideshow({ collections }: { collections: Collection[] }) {
     const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
     emblaApi.on("select", onSelect);
     onSelect();
-    return () => emblaApi.off("select", onSelect);
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
   }, [emblaApi]);
 
   useEffect(() => {

@@ -542,6 +542,18 @@ export async function createOrder(data: {
       }
     }
 
+    const location =
+      [
+        data.shippingData.address,
+        data.shippingData.apartment,
+        data.shippingData.city,
+        data.shippingData.state,
+        data.shippingData.postalCode,
+        data.shippingData.country,
+      ]
+        .filter(Boolean)
+        .join(", ") || data.shippingData.address || "—";
+
     const order = await prisma.$transaction(async (tx) => {
       const newOrder = await tx.order.create({
         data: {
@@ -549,6 +561,7 @@ export async function createOrder(data: {
           email: data.email,
           fullname: data.shippingData.fullname,
           phone: data.shippingData.phone,
+          location,
           company: data.shippingData.company || null,
           country: data.shippingData.country,
           state: data.shippingData.state,

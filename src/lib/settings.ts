@@ -3,19 +3,9 @@ import { SETTING_KEYS } from "@/lib/setting-keys";
 
 export { SETTING_KEYS };
 
-function getSettingModel() {
-  const model = (prisma as { setting?: typeof prisma.category })["setting"];
-  if (!model) {
-    throw new Error(
-      "Prisma client missing 'setting' model. Run: npx prisma generate"
-    );
-  }
-  return model;
-}
-
 /** Get a single setting value from DB. Returns null if not set. */
 export async function getSetting(key: string): Promise<string | null> {
-  const row = await getSettingModel().findUnique({
+  const row = await prisma.setting.findUnique({
     where: { key },
   });
   return row?.value ?? null;
@@ -24,7 +14,7 @@ export async function getSetting(key: string): Promise<string | null> {
 /** Get multiple settings. Returns record of key -> value (null if not set). */
 export async function getSettings(keys: string[]): Promise<Record<string, string | null>> {
   if (keys.length === 0) return {};
-  const rows = await getSettingModel().findMany({
+  const rows = await prisma.setting.findMany({
     where: { key: { in: keys } },
   });
   const map: Record<string, string | null> = {};
@@ -35,12 +25,13 @@ export async function getSettings(keys: string[]): Promise<Record<string, string
 
 /** Set a setting (upsert). */
 export async function setSetting(key: string, value: string): Promise<void> {
-  await getSettingModel().upsert({
+  await prisma.setting.upsert({
     where: { key },
     create: { key, value },
     update: { value },
   });
 }
+
 
 /** Get value for use in server code: DB setting wins over env. Masked values (••••) are treated as unset so env is used. */
 export async function getConfigValue(key: string, envKey?: string): Promise<string | null> {

@@ -81,7 +81,9 @@ export default async function AdminFinancePage({
   const resolvedSearchParams = await searchParams;
   const daysParam = resolvedSearchParams?.days;
   const daysNum = typeof daysParam === "string" ? parseInt(daysParam, 10) : DEFAULT_DAYS;
-  const chartDays = VALID_DAYS.includes(daysNum) ? daysNum : DEFAULT_DAYS;
+  const chartDays: (typeof VALID_DAYS)[number] = (VALID_DAYS as readonly number[]).includes(daysNum)
+    ? (daysNum as (typeof VALID_DAYS)[number])
+    : DEFAULT_DAYS;
 
   // Daily data: revenue + profit (last N days)
   const today = new Date();

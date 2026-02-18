@@ -16,7 +16,7 @@ async function getCloudinaryConfig(): Promise<{
     SETTING_KEYS.CLOUDINARY_API_KEY,
     SETTING_KEYS.CLOUDINARY_API_SECRET,
   ] as const;
-  const fromDb = await getSettings(keys);
+  const fromDb = await getSettings([...keys]);
   return {
     cloud_name: (fromDb[SETTING_KEYS.CLOUDINARY_CLOUD_NAME] ?? process.env.CLOUDINARY_CLOUD_NAME) ?? "",
     api_key: (fromDb[SETTING_KEYS.CLOUDINARY_API_KEY] ?? process.env.CLOUDINARY_API_KEY) ?? "",

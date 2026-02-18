@@ -6,7 +6,7 @@ const ALL_KEYS = Object.values(SETTING_KEYS).filter(
   (k) => k !== SETTING_KEYS.GOOGLE_CREDENTIALS
 );
 
-const MASKED_KEYS = new Set([
+const MASKED_KEYS = new Set<string>([
   SETTING_KEYS.MPESA_CONSUMER_KEY,
   SETTING_KEYS.MPESA_CONSUMER_SECRET,
   SETTING_KEYS.MPESA_SHORTCODE,
@@ -64,7 +64,7 @@ export async function PATCH(request: NextRequest) {
     } catch {
       return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
     }
-    const allowed = new Set(ALL_KEYS);
+    const allowed = new Set<string>(ALL_KEYS as readonly string[]);
     for (const [key, value] of Object.entries(body)) {
       if (!allowed.has(key)) continue;
       if (typeof value !== "string") continue;

@@ -73,10 +73,10 @@ export function ProductPieChart({ slices }: { slices: Slice[] }) {
             align="right"
             verticalAlign="middle"
             wrapperStyle={{ fontSize: 11 }}
-            formatter={(value, entry: { payload?: { fullName?: string } }) => (
+            formatter={(value, entry) => (
               <span
                 className="text-slate-700 truncate max-w-[140px] inline-block"
-                title={entry?.payload?.fullName ?? value}
+                title={(entry?.payload as { fullName?: string } | undefined)?.fullName ?? value}
               >
                 {value}
               </span>

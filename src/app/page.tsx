@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import PromoSection from "@/sections/promo.section";
+import AboutUsSection from "@/sections/aboutus.section";
 
 export const revalidate = 60;
 
@@ -23,6 +24,7 @@ export default async function Home() {
       <div className="flex flex-col flex-1 min-h-full">
         <div className="flex-1">
           <PromoSection />
+          <AboutUsSection />
         </div>
         <Footer />
       </div>

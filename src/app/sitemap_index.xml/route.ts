@@ -1,5 +1,6 @@
 // app/sitemap.xml/route.ts
 import { getCategories } from '@/lib/api';
+import { slugify } from '@/lib/slug';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -38,9 +39,30 @@ export async function GET() {
     priority: 0.8,
   });
 
-  // Add category, subcategory, and product URLs
+  urls.push({
+    url: `${baseUrl}/blog`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly',
+    priority: 0.8,
+  });
+
+  urls.push({
+    url: `${baseUrl}/privacy`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly',
+    priority: 0.5,
+  });
+
+  urls.push({
+    url: `${baseUrl}/terms`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly',
+    priority: 0.5,
+  });
+
+  // Add category, subcategory, and product URLs (slugify matches app routes)
   for (const category of categories) {
-    const categorySlug = category.name.toLowerCase().replace(/\s+/g, '-');
+    const categorySlug = slugify(category.name);
     urls.push({
       url: `${baseUrl}/shop/${categorySlug}`,
       lastModified: new Date(),
@@ -49,7 +71,7 @@ export async function GET() {
     });
 
     for (const subCategory of category.subCategories) {
-      const subCategorySlug = subCategory.name.toLowerCase().replace(/\s+/g, '-');
+      const subCategorySlug = slugify(subCategory.name);
       urls.push({
         url: `${baseUrl}/shop/${categorySlug}/${subCategorySlug}`,
         lastModified: new Date(),
@@ -58,9 +80,8 @@ export async function GET() {
       });
 
       for (const product of subCategory.products) {
-        const productSlug = product.id;
         urls.push({
-          url: `${baseUrl}/shop/${categorySlug}/${subCategorySlug}/${productSlug}`,
+          url: `${baseUrl}/shop/${categorySlug}/${subCategorySlug}/${product.id}`,
           lastModified: product.updatedAt,
           changeFrequency: 'daily',
           priority: 0.6,

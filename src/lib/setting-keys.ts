@@ -1,11 +1,50 @@
-/** Setting keys used for Google API and M-Pesa. Safe to import in client components. */
+/** Setting keys used for Google (credentials only), M-Pesa, site, socials, and contact. Safe to import in client components. */
 export const SETTING_KEYS = {
-  GOOGLE_API_KEY: "GOOGLE_API_KEY",
+  /** Encrypted Google credentials JSON (service account). Server-only; used for address autocomplete. */
+  GOOGLE_CREDENTIALS: "GOOGLE_CREDENTIALS",
   MPESA_CONSUMER_KEY: "MPESA_CONSUMER_KEY",
   MPESA_CONSUMER_SECRET: "MPESA_CONSUMER_SECRET",
   MPESA_SHORTCODE: "MPESA_SHORTCODE",
   MPESA_PASSKEY: "MPESA_PASSKEY",
   MPESA_ENV: "MPESA_ENV",
+  // Cloudinary (image uploads: logo, parallax, etc.)
+  CLOUDINARY_CLOUD_NAME: "CLOUDINARY_CLOUD_NAME",
+  CLOUDINARY_API_KEY: "CLOUDINARY_API_KEY",
+  CLOUDINARY_API_SECRET: "CLOUDINARY_API_SECRET",
+  // Site & contact
+  SITE_COMPANY_NAME: "SITE_COMPANY_NAME",
+  SITE_TAGLINE: "SITE_TAGLINE",
+  SITE_EMAIL: "SITE_EMAIL",
+  SITE_PHONE_WHATSAPP: "SITE_PHONE_WHATSAPP",
+  SITE_STORES_JSON: "SITE_STORES_JSON",
+  /** Logo URL (navbar). Upload or paste URL. Stored as string. */
+  SITE_LOGO_URL: "SITE_LOGO_URL",
+  /** Parallax / hero image URL. Used on company page and optional hero sections. */
+  SITE_PARALLAX_IMAGE_URL: "SITE_PARALLAX_IMAGE_URL",
+  // Social links (full URL or username; empty = hide)
+  SOCIAL_FACEBOOK: "SOCIAL_FACEBOOK",
+  SOCIAL_INSTAGRAM: "SOCIAL_INSTAGRAM",
+  SOCIAL_TWITTER: "SOCIAL_TWITTER",
+  SOCIAL_PINTEREST: "SOCIAL_PINTEREST",
+  SOCIAL_YOUTUBE: "SOCIAL_YOUTUBE",
+  SOCIAL_LINKEDIN: "SOCIAL_LINKEDIN",
 } as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[keyof typeof SETTING_KEYS];
+
+/** Keys returned by public /api/site-settings (no secrets). */
+export const PUBLIC_SITE_KEYS = [
+  SETTING_KEYS.SITE_COMPANY_NAME,
+  SETTING_KEYS.SITE_TAGLINE,
+  SETTING_KEYS.SITE_EMAIL,
+  SETTING_KEYS.SITE_PHONE_WHATSAPP,
+  SETTING_KEYS.SITE_STORES_JSON,
+  SETTING_KEYS.SITE_LOGO_URL,
+  SETTING_KEYS.SITE_PARALLAX_IMAGE_URL,
+  SETTING_KEYS.SOCIAL_FACEBOOK,
+  SETTING_KEYS.SOCIAL_INSTAGRAM,
+  SETTING_KEYS.SOCIAL_TWITTER,
+  SETTING_KEYS.SOCIAL_PINTEREST,
+  SETTING_KEYS.SOCIAL_YOUTUBE,
+  SETTING_KEYS.SOCIAL_LINKEDIN,
+] as const;

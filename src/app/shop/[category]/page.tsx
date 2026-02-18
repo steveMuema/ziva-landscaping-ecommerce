@@ -6,7 +6,6 @@ import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { SubCategoryGrid } from "@/components/SubCategoryGrid";
 import { SubCategory } from "@/types";
 import Footer from "@/components/Footer";
-
 export const dynamic = "force-dynamic";
 
 export const viewport = {
@@ -15,8 +14,14 @@ export const viewport = {
   themeColor: "#166534",
 };
 
+/** Normalize URL param to match getCategoryBySlug (handles & and strips invalid chars). */
 function slugFromParam(param: string) {
-  return param.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
+  return param
+    .replace(/&/g, "and")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]/g, "");
 }
 
 export default async function CategoryPage({

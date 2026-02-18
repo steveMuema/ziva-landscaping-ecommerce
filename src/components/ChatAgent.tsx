@@ -4,8 +4,18 @@ import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { ChatBubbleLeftRightIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { SETTING_KEYS } from "@/lib/setting-keys";
 
-const WHATSAPP_NUMBER = "254757133726";
+const DEFAULT_WHATSAPP = "254757133726";
+
+/** Normalize to digits with country code for wa.me (e.g. 254712345678). */
+function normalizeWhatsApp(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length === 9 && (digits.startsWith("7") || digits.startsWith("1"))) return "254" + digits;
+  if (digits.length >= 10 && digits.startsWith("254")) return digits.slice(0, 12);
+  if (digits.length >= 9) return "254" + digits.slice(-9);
+  return value || DEFAULT_WHATSAPP;
+}
 
 type Message = { role: "user" | "assistant"; text: string };
 
@@ -18,8 +28,23 @@ export default function ChatAgent() {
   const [introFetched, setIntroFetched] = useState(false);
   const [introLoading, setIntroLoading] = useState(false);
   const [whatsappIntro, setWhatsappIntro] = useState<string | null>(null);
+  const [whatsappNumber, setWhatsappNumber] = useState<string>(DEFAULT_WHATSAPP);
+  const [whatsappDisplay, setWhatsappDisplay] = useState<string>("+254 757 133 726");
   const listEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fetch("/api/site-settings")
+      .then((r) => r.json())
+      .then((data) => {
+        const raw = (data[SETTING_KEYS.SITE_PHONE_WHATSAPP] ?? "").trim();
+        if (raw) {
+          setWhatsappNumber(normalizeWhatsApp(raw));
+          setWhatsappDisplay(raw);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const scrollToBottom = () => listEndRef.current?.scrollIntoView({ behavior: "smooth" });
   useEffect(() => {
@@ -103,7 +128,7 @@ export default function ChatAgent() {
       (pathname === "/" || !pathname
         ? "Hi! I was browsing Ziva Landscaping and had a few questions. Is someone around to chat?"
         : "Hi! I'm on your site and had a quick question — would someone be able to help?");
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(intro)}`;
+    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(intro)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   }
 
@@ -212,7 +237,7 @@ export default function ChatAgent() {
                 className="flex w-full items-center gap-2 rounded-xl border border-[var(--card-border)] bg-[var(--background)] px-3 py-2.5 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--card-border)]/30 transition-colors"
               >
                 <Image src="/whatsapp.svg" alt="" width={22} height={22} />
-                <span>+254 757 133 726</span>
+                <span>{whatsappDisplay}</span>
                 <span className="ml-auto text-xs text-[var(--muted)]">Opens with your message</span>
               </button>
             </div>

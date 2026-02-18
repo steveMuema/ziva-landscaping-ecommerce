@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export default function AboutUsSection() {
     return (
-    <section className="bg-[var(--background)] border-2 border-[var(--card-border)] py-20 px-4 sm:px-6 lg:px-8" aria-labelledby="about-heading">
+    <section className="relative z-10 bg-[var(--background)] border-2 border-[var(--card-border)] py-20 px-4 sm:px-6 lg:px-8" aria-labelledby="about-heading">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <span id="about-heading" className="inline-flex items-center px-4 py-2 bg-[var(--accent)]/10 text-[var(--accent)] text-sm font-[family-name:var(--font-quicksand)] font-medium rounded-full mb-6">
@@ -14,8 +14,8 @@ export default function AboutUsSection() {
           </span>
         </div>
 
-        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:items-center mb-20">
-          <div className="order-1">
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:gap-16 lg:items-start mb-20">
+          <div className="order-1 min-w-0 w-full">
             <h2 className="text-3xl font-bold text-[var(--foreground)] mb-6 font-[family-name:var(--font-quicksand)]">Our mission</h2>
             <p className="text-lg text-[var(--muted)] leading-relaxed mb-6 font-[family-name:var(--font-quicksand)] font-medium">
               At Ziva landscaping Co. We're dedicated to crafting vibrant,eco-friendly outdoor spaces that promote well-being and delight the senses .We achieve this by: </p>
@@ -75,64 +75,53 @@ export default function AboutUsSection() {
           </div>
           
           {/* Image Grid */}
-          <div className="grid grid-cols-2 gap-4 order-2">
-            <div className="space-y-4">
-              <div className="rounded-2xl h-48 flex items-center justify-center shadow-lg">
+          <div className="grid grid-cols-2 gap-4 order-2 w-full min-w-0">
+            <div className="space-y-4 min-w-0">
+              <div className="rounded-2xl h-48 flex items-center justify-center shadow-lg overflow-hidden">
                 {/* <div className="text-center text-white">
                   <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3"> */}
                     <Image
                       src='/image-4.jpg'
-                      alt="No description"
+                      alt="Landscaping and sustainable outdoor space"
                       className="rounded-2xl w-full h-full object-cover"
                       width={800}
                       height={400}
                     />
-                  {/* </div>
-                  <p className="font-medium">Team Collaboration</p>
-                </div> */}
               </div>
-              <div className="rounded-2xl h-80 flex items-center justify-center shadow-lg">
+              <div className="rounded-2xl h-80 flex items-center justify-center shadow-lg overflow-hidden">
                 {/* <div className="text-center text-white">
                   <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2"> */}
                     <Image
                       src='/image-1.jpg'
-                      alt="No description"
+                      alt="Eco-friendly outdoor design"
                       className="rounded-2xl w-full h-full object-cover"
                       width={400}
                       height={400}
                     />
-                  {/* </div>
-                  <p className="text-sm font-medium">Task Management</p>
-                </div> */}
               </div>
             </div>
-            <div className="space-y-4 pt-8">
-              <div className="rounded-2xl h-80 flex items-center justify-center shadow-lg">
+            <div className="space-y-4 pt-8 min-w-0">
+              <div className="rounded-2xl h-80 flex items-center justify-center shadow-lg overflow-hidden">
                 {/* <div className="text-center text-white">
                   <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2"> */}
                     <Image
                       src='/image-2.jpg'
-                      alt="No description"
+                      alt="Sustainable landscaping"
                       className="rounded-2xl w-full h-full object-cover"
                       width={400}
                       height={600}
                     />
-                  {/* </div> */}
-                  {/* <p className="text-sm font-medium">Video Meetings</p>
-                </div> */}
               </div>
-              <div className="rounded-full h-48 flex items-center justify-center shadow-lg">
+              <div className="rounded-2xl h-48 flex items-center justify-center shadow-lg overflow-hidden">
                 {/* <div className="text-center text-white">
                   <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3"> */}
                     <Image
                       src='/image-3.jpg'
-                      alt="No description"
-                      className=" rounded-2xl w-full h-full object-cover"
+                      alt="Garden and outdoor living"
+                      className="rounded-2xl w-full h-full object-cover"
                       width={400}
                       height={400}
                     />
-                  {/* </div>
-                </div> */}
               </div>
             </div>
           </div>

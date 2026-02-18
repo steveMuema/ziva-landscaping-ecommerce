@@ -2,70 +2,92 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import Link from "next/link";
+import { ProductPieChart } from "@/components/admin/ProductPieChart";
+import { SalesProfitLineChart } from "@/components/admin/SalesProfitLineChart";
+import { RevenueBarChart } from "@/components/admin/RevenueBarChart";
+import { RevenueRangeSelect } from "@/components/admin/RevenueRangeSelect";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminFinancePage() {
+const fmt = (n: number) =>
+  Number(n).toLocaleString("en-KE", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+const VALID_DAYS = [7, 14, 30] as const;
+const DEFAULT_DAYS = 14;
+
+export default async function AdminFinancePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user?.role !== "admin") {
+  if (!session || (session.user as { role?: string })?.role !== "admin") {
     redirect("/auth/signin");
   }
 
-  const orders = await prisma.order.findMany({
-    include: {
+  const allOrders = await prisma.order.findMany({
+    select: {
+      status: true,
+      subtotal: true,
+      costTotal: true,
+      transportFee: true,
+      amountPaid: true,
+      createdAt: true,
+      completedAt: true,
       orderItems: {
-        include: {
-          product: {
-            select: { id: true, name: true, price: true },
-          },
-        },
+        select: { quantity: true, productId: true, product: { select: { name: true } } },
       },
     },
     orderBy: { createdAt: "desc" },
   });
 
-  async function recordCashPayment(formData: FormData) {
-    "use server";
-    const orderId = parseInt(formData.get("orderId") as string, 10);
-    const amount = parseFloat(formData.get("amount") as string);
-    if (isNaN(orderId) || isNaN(amount) || amount < 0) return;
-    const order = await prisma.order.findUnique({ where: { id: orderId } });
-    if (!order) return;
-    await prisma.order.update({
-      where: { id: orderId },
-      data: {
-        amountPaid: amount,
-        paymentMethod: "CASH",
-        status: amount >= order.subtotal ? "COMPLETED" : "PROCESSING",
-      },
-    });
-    revalidatePath("/admin/finance");
-  }
+  // Only PROCESSING and COMPLETED count as sales; PENDING and CANCELLED do not
+  const orders = allOrders.filter((o) => o.status === "PROCESSING" || o.status === "COMPLETED");
 
-  function formatAddress(order: (typeof orders)[0]) {
-    if (order.location) return order.location;
-    const parts = [
-      order.address,
-      order.apartment,
-      order.city,
-      order.state,
-      order.postalCode,
-      order.country,
-    ].filter(Boolean);
-    return parts.join(", ") || "—";
-  }
+  const totalRevenue = orders.reduce((sum, o) => sum + Number(o.subtotal), 0);
+  const totalCost = orders.reduce((sum, o) => sum + (o.costTotal ?? 0), 0);
+  const totalTransport = orders.reduce((sum, o) => sum + (o.transportFee ?? 0), 0);
+  const totalProfit = totalRevenue - totalCost - totalTransport;
+  const totalPaid = orders.reduce((sum, o) => sum + (o.amountPaid ?? 0), 0);
 
-  function mapsUrl(order: (typeof orders)[0]) {
-    const q = encodeURIComponent(formatAddress(order));
-    return `https://www.google.com/maps/search/?api=1&query=${q}`;
-  }
+  // Average TAT (order to delivery): completedAt - createdAt for completed orders
+  const completedWithTat = orders.filter((o) => o.completedAt != null);
+  const tatHours =
+    completedWithTat.length > 0
+      ? completedWithTat.reduce((sum, o) => sum + (o.completedAt!.getTime() - o.createdAt.getTime()) / (1000 * 60 * 60), 0) / completedWithTat.length
+      : 0;
+  const tatDays = tatHours / 24;
+  const tatLabel = tatHours < 24 ? `${tatHours.toFixed(1)}h` : `${tatDays.toFixed(1)} days`;
 
-  // Last 14 days: revenue and order count per day for the graph
+  // Top products by quantity ordered (for pie) — sales only
+  const productMap = new Map<number, { name: string; quantity: number }>();
+  for (const order of orders) {
+    for (const item of order.orderItems) {
+      const name = item.product?.name ?? `Product #${item.productId}`;
+      const existing = productMap.get(item.productId);
+      if (existing) existing.quantity += item.quantity;
+      else productMap.set(item.productId, { name, quantity: item.quantity });
+    }
+  }
+  const productTotals = [...productMap.entries()]
+    .map(([id, { name, quantity }]) => ({ productId: id, productName: name, quantity }))
+    .sort((a, b) => b.quantity - a.quantity)
+    .slice(0, 10);
+  const totalQty = productTotals.reduce((s, p) => s + p.quantity, 0);
+  const pieSlices = totalQty > 0 ? productTotals.map((p) => ({ productName: p.productName, quantity: p.quantity, percent: (p.quantity / totalQty) * 100 })) : [];
+
+  // Days for revenue/profit charts: from ?days=7|14|30
+  const resolvedSearchParams = await searchParams;
+  const daysParam = resolvedSearchParams?.days;
+  const daysNum = typeof daysParam === "string" ? parseInt(daysParam, 10) : DEFAULT_DAYS;
+  const chartDays = VALID_DAYS.includes(daysNum) ? daysNum : DEFAULT_DAYS;
+
+  // Daily data: revenue + profit (last N days)
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const dailyData: { date: string; revenue: number; count: number }[] = [];
-  for (let d = 13; d >= 0; d--) {
+  const dailyData: { date: string; revenue: number; profit: number; count: number }[] = [];
+  for (let d = chartDays - 1; d >= 0; d--) {
     const date = new Date(today);
     date.setDate(date.getDate() - d);
     const dateStr = date.toISOString().slice(0, 10);
@@ -73,131 +95,99 @@ export default async function AdminFinancePage() {
     dayStart.setHours(0, 0, 0, 0);
     const dayEnd = new Date(date);
     dayEnd.setHours(23, 59, 59, 999);
-    const dayOrders = orders.filter(
-      (o) => o.createdAt >= dayStart && o.createdAt <= dayEnd
+    const dayOrders = orders.filter((o) => o.createdAt >= dayStart && o.createdAt <= dayEnd);
+    const revenue = dayOrders.reduce((sum, o) => sum + Number(o.subtotal), 0);
+    const profit = dayOrders.reduce(
+      (sum, o) => sum + Number(o.subtotal) - (o.costTotal ?? 0) - (o.transportFee ?? 0),
+      0
     );
-    dailyData.push({
-      date: dateStr,
-      revenue: dayOrders.reduce((sum, o) => sum + Number(o.subtotal), 0),
-      count: dayOrders.length,
-    });
+    dailyData.push({ date: dateStr, revenue, profit, count: dayOrders.length });
   }
-  const maxRevenue = Math.max(1, ...dailyData.map((d) => d.revenue));
-  const totalRevenue = orders.reduce((sum, o) => sum + Number(o.subtotal), 0);
-  const totalPaid = orders.reduce((sum, o) => sum + (o.amountPaid ?? 0), 0);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Finance</h1>
-        <p className="mt-1 text-sm text-slate-500">{orders.length} orders · KSH {totalRevenue.toLocaleString("en-KE", { minimumFractionDigits: 0 })} total · KSH {totalPaid.toLocaleString("en-KE", { minimumFractionDigits: 0 })} received</p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Finance</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Revenue, cost, transport, profit, and TAT. Update order status on Orders.
+          </p>
+        </div>
+        <Link
+          href="/admin/orders"
+          className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+        >
+          Manage orders →
+        </Link>
       </div>
 
-      {/* Revenue graph - last 14 days */}
+      {/* Summary cards + TAT */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Revenue</p>
+          <p className="mt-1 text-lg font-bold text-slate-900">KSH {fmt(totalRevenue)}</p>
+          <p className="text-xs text-slate-400">Sale total</p>
+        </div>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Cost</p>
+          <p className="mt-1 text-lg font-bold text-slate-900">KSH {fmt(totalCost)}</p>
+          <p className="text-xs text-slate-400">Goods cost</p>
+        </div>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Transport</p>
+          <p className="mt-1 text-lg font-bold text-slate-900">KSH {fmt(totalTransport)}</p>
+          <p className="text-xs text-slate-400">Delivery</p>
+        </div>
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Profit</p>
+          <p className={`mt-1 text-lg font-bold ${totalProfit >= 0 ? "text-emerald-800" : "text-red-700"}`}>
+            KSH {fmt(totalProfit)}
+          </p>
+          <p className="text-xs text-slate-500">Revenue − cost − transport</p>
+        </div>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Received</p>
+          <p className="mt-1 text-lg font-bold text-slate-900">KSH {fmt(totalPaid)}</p>
+          <p className="text-xs text-slate-400">Payments received</p>
+        </div>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Sales</p>
+          <p className="mt-1 text-lg font-bold text-slate-900">{orders.length}</p>
+          <p className="text-xs text-slate-400">Processing + completed (pending excluded)</p>
+        </div>
+        <div className="rounded-xl border border-violet-200 bg-violet-50/50 p-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wide text-violet-600">Avg TAT</p>
+          <p className="mt-1 text-lg font-bold text-violet-800">
+            {completedWithTat.length === 0 ? "—" : tatLabel}
+          </p>
+          <p className="text-xs text-slate-500">Order → delivery ({completedWithTat.length} completed)</p>
+        </div>
+      </div>
+
+      {/* Sales & profit line chart */}
       <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 mb-4">Revenue (last 14 days)</h2>
-        <div className="flex items-end gap-1 sm:gap-2 h-48">
-          {dailyData.map((d) => (
-            <div key={d.date} className="flex-1 flex flex-col items-center gap-1 min-w-0">
-              <div
-                className="w-full bg-emerald-500 rounded-t min-h-[2px] transition-all"
-                style={{ height: `${(d.revenue / maxRevenue) * 100}%` }}
-                title={`${d.date}: KSH ${d.revenue.toLocaleString("en-KE")} · ${d.count} orders`}
-              />
-              <span className="text-[10px] sm:text-xs text-slate-500 truncate w-full text-center" title={d.date}>
-                {d.date.slice(5)}
-              </span>
-            </div>
-          ))}
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Sales & profit over time</h2>
+          <RevenueRangeSelect currentDays={chartDays} />
         </div>
-        <p className="mt-2 text-xs text-slate-400">Hover bar for details. KSH per day.</p>
+        <SalesProfitLineChart data={dailyData} />
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">#</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Address</th>
-                <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">KSH</th>
-                <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">Paid</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Status</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
-              {orders.map((order) => {
-                const paid = order.amountPaid ?? 0;
-                const balance = Math.max(0, order.subtotal - paid);
-                const isCash = order.paymentMethod === "CASH" || !order.paymentMethod;
-                return (
-                  <tr key={order.id} className="hover:bg-slate-50/50">
-                    <td className="px-5 py-3 font-mono text-sm font-medium text-slate-900">{order.id}</td>
-                    <td className="px-5 py-3 text-sm text-slate-700 max-w-xs">
-                      <a
-                        href={mapsUrl(order)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[var(--accent)] hover:underline truncate block"
-                        title={formatAddress(order)}
-                      >
-                        {formatAddress(order) || "—"}
-                      </a>
-                    </td>
-                    <td className="px-5 py-3 text-right font-medium text-slate-900">
-                      {Number(order.subtotal).toLocaleString("en-KE", { minimumFractionDigits: 0 })}
-                    </td>
-                    <td className="px-5 py-3 text-right font-medium text-slate-900">
-                      {paid.toLocaleString("en-KE", { minimumFractionDigits: 0 })}
-                    </td>
-                    <td className="px-5 py-3">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          order.status === "COMPLETED"
-                            ? "bg-emerald-100 text-emerald-800"
-                            : order.status === "PROCESSING"
-                              ? "bg-amber-100 text-amber-800"
-                              : "bg-slate-100 text-slate-800"
-                        }`}
-                      >
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3">
-                      {isCash && balance > 0 && (
-                        <form action={recordCashPayment} className="flex items-center gap-2">
-                          <input type="hidden" name="orderId" value={order.id} />
-                          <input
-                            type="number"
-                            name="amount"
-                            step="0.01"
-                            min="0"
-                            placeholder="0"
-                            className="w-20 rounded-lg border border-slate-300 px-2 py-1.5 text-sm text-slate-900 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                          />
-                          <button
-                            type="submit"
-                            className="rounded-lg bg-emerald-600 px-2.5 py-1.5 text-sm font-medium text-white hover:bg-emerald-700"
-                            title="Save payment"
-                          >
-                            ✓
-                          </button>
-                        </form>
-                      )}
-                      {isCash && balance === 0 && paid > 0 && (
-                        <span className="text-emerald-600">✓</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Revenue bar chart */}
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Revenue by day</h2>
+            <RevenueRangeSelect currentDays={chartDays} />
+          </div>
+          <RevenueBarChart data={dailyData} />
         </div>
-        {orders.length === 0 && (
-          <p className="px-5 py-12 text-center text-sm text-slate-500">No orders yet.</p>
-        )}
+
+        {/* Pie: most ordered products */}
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 mb-4">Most ordered products (top 10)</h2>
+          <ProductPieChart slices={pieSlices} />
+        </div>
       </div>
     </div>
   );

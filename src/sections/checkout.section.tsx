@@ -6,6 +6,7 @@ import { useCart } from '@/lib/cart';
 import { useCreateOrder } from '@/lib/order';
 import cloudinaryLoader from "@/lib/cloudinaryLoader";
 import { useRouter } from 'next/navigation';
+import { AddressAutocomplete } from '@/components/AddressAutocomplete';
 
 const PRICING_THRESHOLD_KSH = 10000;
 const DOWN_PAYMENT_RATIO = 0.5;
@@ -117,7 +118,7 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8 p-2 overflow-x-hidden">
+    <div className="min-h-screen bg-[var(--background)] p-4 py-4 sm:p-6 sm:py-6 lg:p-8 lg:py-8 overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
         {error && (
           <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-lg text-sm">
@@ -149,13 +150,12 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
                   <label htmlFor="location" className="block text-sm font-medium text-[var(--foreground)] font-[family-name:var(--font-quicksand)] mb-2">
                     Delivery location
                   </label>
-                  <input
-                    type="text"
+                  <AddressAutocomplete
                     id="location"
                     value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-[var(--card-border)] rounded-lg text-[var(--foreground)] bg-[var(--background)] focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] transition-colors duration-200"
+                    onChange={setLocation}
                     placeholder="Area, address, or landmark for delivery"
+                    className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-[var(--card-border)] rounded-lg text-[var(--foreground)] bg-[var(--background)] focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] transition-colors duration-200"
                   />
                 </div>
               </div>

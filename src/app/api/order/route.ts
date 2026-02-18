@@ -32,13 +32,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Items must be a non-empty array' }, { status: 400 });
     }
 
-    // Validate products and stock
+    // Validate products and stock; compute cost total from product cost (or 10% below price)
+    let costTotal = 0;
     for (const item of items) {
       if (!item.productId || !item.quantity || !item.price) {
         return NextResponse.json({ error: `Invalid item data: ${JSON.stringify(item)}` }, { status: 400 });
       }
       const product = await prisma.product.findUnique({
         where: { id: item.productId },
+        select: { id: true, price: true, cost: true, stock: true },
       });
       if (!product) {
         return NextResponse.json({ error: `Product not found: ID ${item.productId}` }, { status: 404 });
@@ -49,7 +51,10 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
+      const unitCost = product.cost != null ? Number(product.cost) : Number(product.price) * 0.9;
+      costTotal += unitCost * item.quantity;
     }
+    costTotal = Math.round(costTotal * 100) / 100;
 
     // Create order and update stock in a transaction (only phone + location collected at payment)
     const [orderResult] = await prisma.$transaction([
@@ -59,6 +64,7 @@ export async function POST(request: Request) {
           phone: String(phone).trim(),
           location: locationTrimmed,
           subtotal,
+          costTotal,
           currency: 'KSH',
           paymentMethod: method,
           amountPaid: paid,

@@ -2,14 +2,17 @@ import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 import { getSettings, setSetting, SETTING_KEYS } from "@/lib/settings";
 
-const ALL_KEYS = Object.values(SETTING_KEYS);
+const ALL_KEYS = Object.values(SETTING_KEYS).filter(
+  (k) => k !== SETTING_KEYS.GOOGLE_CREDENTIALS
+);
 
 const MASKED_KEYS = new Set([
-  SETTING_KEYS.GOOGLE_API_KEY,
   SETTING_KEYS.MPESA_CONSUMER_KEY,
   SETTING_KEYS.MPESA_CONSUMER_SECRET,
   SETTING_KEYS.MPESA_SHORTCODE,
   SETTING_KEYS.MPESA_PASSKEY,
+  SETTING_KEYS.CLOUDINARY_API_KEY,
+  SETTING_KEYS.CLOUDINARY_API_SECRET,
 ]);
 
 function mask(value: string | null): string {
@@ -65,7 +68,9 @@ export async function PATCH(request: NextRequest) {
     for (const [key, value] of Object.entries(body)) {
       if (!allowed.has(key)) continue;
       if (typeof value !== "string") continue;
-      await setSetting(key, value.trim());
+      const trimmed = value.trim();
+      if (MASKED_KEYS.has(key) && (trimmed === "" || trimmed.includes("••••"))) continue;
+      await setSetting(key, trimmed);
     }
     const values = await getSettings(ALL_KEYS);
     const result: Record<string, string> = {};

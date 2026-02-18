@@ -5,6 +5,7 @@ import { useEffect, useMemo, memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import cloudinaryLoader from "@/lib/cloudinaryLoader";
+import { slugify } from "@/lib/slug";
 
 interface CategoryGridProps {
   categories: Category[];
@@ -39,7 +40,7 @@ const CategoryGridComponent = ({ categories: initialCategories }: CategoryGridPr
             whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.3 }}
           >
-            <Link href={`/shop/${category.name.toLowerCase().replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-")}`}>
+            <Link href={`/shop/${slugify(category.name)}`}>
               <div className="relative w-full h-32 sm:h-40 md:h-48">
                   {category.imageUrl ? (
                       <Image

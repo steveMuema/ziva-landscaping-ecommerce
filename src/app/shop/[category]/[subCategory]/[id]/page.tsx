@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Footer from "@/components/Footer";
 import ProductSection from "@/sections/product.section";
 import { ProductProvider } from "@/lib/productContext";
@@ -10,7 +11,6 @@ import { normalizeSlug, slugToName } from "@/lib/slug";
 
 export const dynamic = "force-dynamic";
 
-// Define the expected props structure for Next.js 15 dynamic route
 type PageProps = {
   params: Promise<{
     category: string;
@@ -19,6 +19,46 @@ type PageProps = {
   }>;
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
+
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://zivalandscaping.co.ke";
+const siteName = "Ziva Landscaping Co.";
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id, category, subCategory } = await params;
+  const product = await getProductById(id);
+  if (!product) {
+    return { title: `Product not found | ${siteName}` };
+  }
+  const title = `${product.name} | ${siteName}`;
+  const description =
+    (product.description?.trim() && product.description.length > 160)
+      ? product.description.slice(0, 157) + "..."
+      : (product.description?.trim() ?? `Shop ${product.name} at ${siteName}. Sustainable landscaping and eco-friendly outdoor solutions.`);
+  const canonicalUrl = `${baseUrl}/shop/${encodeURIComponent(category)}/${encodeURIComponent(subCategory)}/${id}`;
+  const images = product.imageUrl
+    ? [{ url: product.imageUrl, width: 1200, height: 630, alt: product.name }]
+    : [];
+  return {
+    title,
+    description,
+    openGraph: {
+      title: product.name,
+      description,
+      url: canonicalUrl,
+      siteName,
+      type: "website",
+      images,
+      locale: "en_KE",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description,
+      images: product.imageUrl ? [product.imageUrl] : undefined,
+    },
+    alternates: { canonical: canonicalUrl },
+  };
+}
 
 // Server component to handle product fetching and rendering
 async function ProductPageContent({ id, category, subCategory }: { id: string; category: string; subCategory: string }) {

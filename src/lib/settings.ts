@@ -42,10 +42,26 @@ export async function setSetting(key: string, value: string): Promise<void> {
   });
 }
 
-/** Get value for use in server code: DB setting wins over env. */
+/** Get value for use in server code: DB setting wins over env. Masked values (••••) are treated as unset so env is used. */
 export async function getConfigValue(key: string, envKey?: string): Promise<string | null> {
   const fromDb = await getSetting(key);
-  if (fromDb != null && fromDb.trim() !== "") return fromDb.trim();
+  const dbTrimmed = fromDb != null ? fromDb.trim() : "";
+  const looksMasked = dbTrimmed !== "" && dbTrimmed.includes("••••");
+  if (dbTrimmed !== "" && !looksMasked) return dbTrimmed;
   if (envKey && process.env[envKey]) return process.env[envKey] ?? null;
   return null;
+}
+
+/** Decrypt and return Google credentials JSON (service account or OAuth client). Server-only. Returns null if not set or decryption fails. */
+export async function getGoogleCredentials(): Promise<Record<string, unknown> | null> {
+  const { decrypt } = await import("@/lib/encryption");
+  const raw = await getSetting(SETTING_KEYS.GOOGLE_CREDENTIALS);
+  if (!raw?.trim()) return null;
+  try {
+    const plain = decrypt(raw);
+    const parsed = JSON.parse(plain) as Record<string, unknown>;
+    return parsed;
+  } catch {
+    return null;
+  }
 }

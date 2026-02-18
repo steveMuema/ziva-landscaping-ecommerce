@@ -16,7 +16,7 @@ export default async function AdminSettingsPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900">Settings</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Google API key and M-Pesa (Daraja) credentials. Stored in the database; environment variables are used as fallback for M-Pesa.
+          Site, contact, social links, Google credentials, and M-Pesa.
         </p>
       </div>
       <SettingsForm />

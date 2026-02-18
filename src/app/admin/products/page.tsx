@@ -2,7 +2,8 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { uploadImage } from "@/lib/cloudinary";
 import Image from "next/image";
-import { PlusIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
 
 const inputClass =
   "w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
@@ -44,9 +45,12 @@ export default async function ProductsPage() {
     if (!name) return;
     const description = (formData.get("description") as string)?.trim() || null;
     const price = parseFloat(formData.get("price") as string);
+    const costRaw = formData.get("cost") as string;
+    const cost = costRaw !== "" && costRaw != null ? parseFloat(costRaw) : null;
     const stock = parseInt(formData.get("stock") as string, 10);
     const subCategoryId = parseInt(formData.get("subCategoryId") as string, 10);
     if (isNaN(price) || isNaN(stock) || isNaN(subCategoryId)) return;
+    const costPrice = cost != null && !isNaN(cost) ? cost : Math.round(price * 0.9 * 100) / 100;
     const imageFile = formData.get("image") as File | null;
     let imageUrl: string | null = null;
     if (imageFile && imageFile.size > 0) {
@@ -55,7 +59,7 @@ export default async function ProductsPage() {
     const tagsRaw = (formData.get("tags") as string)?.trim() || "";
     const tags = tagsRaw ? tagsRaw.split(",").map((t) => t.trim()).filter(Boolean) : [];
     await prisma.product.create({
-      data: { name, description, price, stock, subCategoryId, imageUrl, tags },
+      data: { name, description, price, cost: costPrice, stock, subCategoryId, imageUrl, tags },
     });
     revalidatePath("/admin/products");
     revalidatePath("/admin");
@@ -79,8 +83,12 @@ export default async function ProductsPage() {
             <input id="prod-name" type="text" name="name" placeholder="Product name" className={inputClass} required />
           </div>
           <div>
-            <label htmlFor="prod-price" className={labelClass}>Price (KSH)</label>
+            <label htmlFor="prod-price" className={labelClass}>Selling price (KSH)</label>
             <input id="prod-price" type="number" name="price" step="0.01" min="0" placeholder="0.00" className={inputClass} required />
+          </div>
+          <div>
+            <label htmlFor="prod-cost" className={labelClass}>Cost (KSH, optional — default 10% below price)</label>
+            <input id="prod-cost" type="number" name="cost" step="0.01" min="0" placeholder="Auto" className={inputClass} />
           </div>
           <div>
             <label htmlFor="prod-stock" className={labelClass}>Stock</label>
@@ -145,9 +153,11 @@ export default async function ProductsPage() {
               <tr>
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Product</th>
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Category</th>
-                <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">Price</th>
+                <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">Selling price</th>
+                <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">Cost</th>
                 <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">Stock</th>
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Tags</th>
+                <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
@@ -176,6 +186,9 @@ export default async function ProductsPage() {
                   </td>
                   <td className="px-5 py-3 text-right font-medium text-slate-900">
                     {Number(prod.price).toLocaleString()} KSH
+                  </td>
+                  <td className="px-5 py-3 text-right text-slate-600">
+                    {prod.cost != null ? `${Number(prod.cost).toLocaleString()} KSH` : "—"}
                   </td>
                   <td className="px-5 py-3">
                     <form action={updateProductStock} className="flex items-center justify-end gap-2">
@@ -217,6 +230,15 @@ export default async function ProductsPage() {
                     ) : (
                       <span className="text-slate-400">—</span>
                     )}
+                  </td>
+                  <td className="px-5 py-3 text-right">
+                    <Link
+                      href={`/admin/products/${prod.id}/edit`}
+                      className="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                    >
+                      <PencilSquareIcon className="h-4 w-4" />
+                      Edit
+                    </Link>
                   </td>
                 </tr>
               ))}

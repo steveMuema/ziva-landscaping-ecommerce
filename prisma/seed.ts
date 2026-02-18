@@ -375,31 +375,46 @@ async function main() {
         });
         const productImage =
           prod.imageUrl ?? (existing?.imageUrl ?? null) ?? pickImage(imageFolder);
+        const costPrice = Math.round(prod.price * 0.9 * 100) / 100; // 10% less than selling price
         if (!existing) {
           await prisma.product.create({
             data: {
               name: prod.name,
               description: prod.description ?? null,
               price: prod.price,
+              cost: costPrice,
               stock: prod.stock,
               tags: prod.tags ?? [],
               imageUrl: productImage,
               subCategoryId: subCategory.id,
             },
           });
-        } else if (productImage && !existing.imageUrl) {
+        } else {
+          const updateData: { imageUrl?: string; cost: number } = { cost: costPrice };
+          if (productImage && !existing.imageUrl) updateData.imageUrl = productImage;
+          else if (prod.imageUrl != null) updateData.imageUrl = prod.imageUrl;
           await prisma.product.update({
             where: { id: existing.id },
-            data: { imageUrl: productImage },
-          });
-        } else if (prod.imageUrl != null) {
-          await prisma.product.update({
-            where: { id: existing.id },
-            data: { imageUrl: prod.imageUrl },
+            data: updateData,
           });
         }
       }
     }
+  }
+
+  // Set cost = 10% less than price for any product that still has null cost
+  const productsWithoutCost = await prisma.product.findMany({
+    where: { cost: null },
+  });
+  for (const p of productsWithoutCost) {
+    const costPrice = Math.round(Number(p.price) * 0.9 * 100) / 100;
+    await prisma.product.update({
+      where: { id: p.id },
+      data: { cost: costPrice },
+    });
+  }
+  if (productsWithoutCost.length > 0) {
+    console.log(`Set cost (10% below price) for ${productsWithoutCost.length} product(s).`);
   }
 
   // Ensure any product still without an image gets one from its category's folder

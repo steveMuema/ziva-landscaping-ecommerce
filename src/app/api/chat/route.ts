@@ -4,7 +4,7 @@ import { getProductById } from "@/lib/api";
 export const maxDuration = 30;
 
 /** Human-sounding WhatsApp intro: exact product when on product page, else page or home. */
-export async function getWhatsAppIntro(pathname: string): Promise<string> {
+async function getWhatsAppIntro(pathname: string): Promise<string> {
   const path = (pathname ?? "/").replace(/\/$/, "") || "/";
   const segments = path.split("/").filter(Boolean);
 

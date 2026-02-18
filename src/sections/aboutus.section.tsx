@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export default function AboutUsSection() {
     return (
-    <section className="relative z-10 bg-[var(--background)] border-2 border-[var(--card-border)] py-20 px-4 sm:px-6 lg:px-8" aria-labelledby="about-heading">
+    <section className="relative z-10 bg-white/82 dark:bg-slate-900/82 backdrop-blur-md border-2 border-[var(--card-border)]/80 py-20 px-4 sm:px-6 lg:px-8" aria-labelledby="about-heading">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <span id="about-heading" className="inline-flex items-center px-4 py-2 bg-[var(--accent)]/10 text-[var(--accent)] text-sm font-[family-name:var(--font-quicksand)] font-medium rounded-full mb-6">

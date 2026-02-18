@@ -56,7 +56,7 @@ export function OrderStatusSelect({ orderId, currentStatus, canComplete = true, 
             disabled={opt.value === "COMPLETED" && !canComplete}
           >
             {opt.label}
-            {opt.value === "COMPLETED" && !canComplete ? " (need payment)" : ""}
+            {opt.value === "COMPLETED" && !canComplete ? " (need receipt/ref)" : ""}
           </option>
         ))}
       </select>

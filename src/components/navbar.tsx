@@ -224,7 +224,7 @@ export default function NavigationBar() {
       </Dialog>
 
       {/* Header — user nav only; socials are in footer */}
-      <header className="relative bg-[var(--header-bg)] border-b border-[var(--header-border)]">
+      <header className="bg-[var(--header-bg)] border-b border-[var(--header-border)]">
         <nav aria-label="Main" className="mx-auto max-w-full px-1 sm:px-2 lg:px-1">
           <div className="border-b border-[var(--header-border)]">
             <div className="flex h-14 sm:h-16 md:h-20 items-center gap-1 min-w-0">

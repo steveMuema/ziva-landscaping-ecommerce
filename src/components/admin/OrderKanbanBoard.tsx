@@ -67,9 +67,8 @@ function mapsUrl(order: OrderForBoard) {
 }
 
 function canCompleteOrder(order: OrderForBoard): boolean {
-  const isCash = order.paymentMethod === "CASH";
   const hasRef = order.mpesaReceiptNo != null && String(order.mpesaReceiptNo).trim() !== "";
-  return isCash || hasRef;
+  return hasRef;
 }
 
 function DraggableCard({
@@ -125,14 +124,14 @@ function DraggableCard({
           {order.paymentMethod === "CASH" ? "Cash" : `M-Pesa ${order.mpesaReceiptNo ?? ""}`}
         </p>
       )}
-      {!canComplete && order.paymentMethod !== "CASH" && (
+      {!canComplete && (
         <div className="pointer-events-auto mt-1" onClick={(e) => e.stopPropagation()}>
           <form action={setPaymentRef} className="flex gap-1">
             <input type="hidden" name="orderId" value={order.id} />
             <input
               type="text"
               name="paymentRef"
-              placeholder="M-Pesa receipt no."
+              placeholder={order.paymentMethod === "CASH" ? "Cash receipt no." : "M-Pesa receipt no."}
               className="flex-1 min-w-0 rounded border border-slate-300 px-1.5 py-1 text-xs"
             />
             <button type="submit" className="rounded bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200">
@@ -190,17 +189,25 @@ function DraggableCard({
       </div>
       {isCash && balance > 0 && (
         <div className="pointer-events-auto" onClick={(e) => e.stopPropagation()}>
-          <form action={recordCashPayment} className="mt-2 flex gap-1">
+          <form action={recordCashPayment} className="mt-2 space-y-1">
             <input type="hidden" name="orderId" value={order.id} />
+            <div className="flex gap-1">
+              <input
+                type="number"
+                name="amount"
+                step="0.01"
+                min="0"
+                placeholder="Amount"
+                className="flex-1 min-w-0 rounded border border-slate-300 px-1.5 py-1 text-xs"
+              />
+              <button type="submit" className="rounded bg-emerald-600 px-2 py-1 text-xs font-medium text-white hover:bg-emerald-700">Pay</button>
+            </div>
             <input
-              type="number"
-              name="amount"
-              step="0.01"
-              min="0"
-              placeholder="Amount"
-              className="flex-1 min-w-0 rounded border border-slate-300 px-1.5 py-1 text-xs"
+              type="text"
+              name="receiptNo"
+              placeholder="Receipt no. (required to complete)"
+              className="w-full rounded border border-slate-300 px-1.5 py-1 text-xs"
             />
-            <button type="submit" className="rounded bg-emerald-600 px-2 py-1 text-xs font-medium text-white hover:bg-emerald-700">Pay</button>
           </form>
         </div>
       )}

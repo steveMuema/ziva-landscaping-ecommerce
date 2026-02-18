@@ -46,14 +46,13 @@ export default async function AdminOrdersPage() {
         select: { paymentMethod: true, mpesaReceiptNo: true },
       });
       if (!order) return { ok: false, error: "Order not found" };
-      const isCash = order.paymentMethod === "CASH";
       const hasPaymentRef =
         order.mpesaReceiptNo != null && String(order.mpesaReceiptNo).trim() !== "";
-      if (!isCash && !hasPaymentRef) {
+      if (!hasPaymentRef) {
         return {
           ok: false,
           error:
-            "Cannot complete: add a payment reference (e.g. M-Pesa receipt) or record as Cash payment first.",
+            "Cannot complete without a payment reference. Add M-Pesa receipt number or cash receipt number.",
         };
       }
     }
@@ -93,19 +92,25 @@ export default async function AdminOrdersPage() {
     "use server";
     const orderId = parseInt(formData.get("orderId") as string, 10);
     const amount = parseFloat(formData.get("amount") as string);
+    const receiptNo = (formData.get("receiptNo") as string)?.trim() || null;
     if (isNaN(orderId) || isNaN(amount) || amount < 0) return;
-    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    const order = await prisma.order.findUnique({ where: { id: orderId }, select: { subtotal: true, mpesaReceiptNo: true } });
     if (!order) return;
-    const newStatus = amount >= order.subtotal ? "COMPLETED" : "PROCESSING";
-    const data: { amountPaid: number; paymentMethod: "CASH"; status: "COMPLETED" | "PROCESSING"; completedAt?: Date } = {
+    const effectiveReceipt = receiptNo || order.mpesaReceiptNo;
+    const hasReceipt = effectiveReceipt != null && String(effectiveReceipt).trim() !== "";
+    const canComplete = amount >= order.subtotal && hasReceipt;
+    const newStatus = canComplete ? "COMPLETED" : "PROCESSING";
+    const data: { amountPaid: number; paymentMethod: "CASH"; status: "COMPLETED" | "PROCESSING"; mpesaReceiptNo?: string | null; completedAt?: Date } = {
       amountPaid: amount,
       paymentMethod: "CASH",
       status: newStatus,
     };
+    if (receiptNo != null) data.mpesaReceiptNo = receiptNo || null;
     if (newStatus === "COMPLETED") data.completedAt = new Date();
     await prisma.order.update({ where: { id: orderId }, data });
     revalidatePath("/admin/orders");
     revalidatePath("/admin/finance");
+    revalidatePath("/admin/payments");
   }
 
   async function setPaymentRef(formData: FormData) {
@@ -115,10 +120,11 @@ export default async function AdminOrdersPage() {
     if (isNaN(orderId)) return;
     await prisma.order.update({
       where: { id: orderId },
-      data: { mpesaReceiptNo: ref, paymentMethod: ref ? "MPESA" : undefined },
+      data: { mpesaReceiptNo: ref },
     });
     revalidatePath("/admin/orders");
     revalidatePath("/admin/finance");
+    revalidatePath("/admin/payments");
   }
 
   const serializableOrders = orders.map((o) => ({

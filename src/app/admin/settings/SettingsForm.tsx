@@ -111,8 +111,10 @@ export default function SettingsForm() {
     setMessage(null);
     setSaving(true);
     const body: Record<string, string> = {};
+    const keysToAlwaysSend = [SETTING_KEYS.SITE_LOGO_URL, SETTING_KEYS.SITE_PARALLAX_IMAGE_URL];
     for (const [key, value] of Object.entries(form)) {
-      if (value.trim() === "") continue;
+      const isEmpty = value.trim() === "";
+      if (isEmpty && !keysToAlwaysSend.includes(key)) continue;
       if (key === SETTING_KEYS.SITE_STORES_JSON) {
         const lines = value.trim().split("\n").map((s) => s.trim()).filter(Boolean);
         body[key] = JSON.stringify(lines);
@@ -439,6 +441,9 @@ export default function SettingsForm() {
           <h2 className="font-semibold text-slate-900">Logo & images</h2>
           <p className="mt-1 text-sm text-slate-500">
             Logo is shown in the navbar. Parallax/hero image is used on the Company page and optional hero sections. Upload stores the image on Cloudinary and saves the URL here; you can also paste any image URL.
+          </p>
+          <p className="mt-1 text-xs font-medium text-amber-700">
+            These are only saved when you click &quot;Save settings&quot; at the bottom of this page.
           </p>
         </div>
         <div className="p-5 space-y-6">

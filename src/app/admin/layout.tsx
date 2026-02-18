@@ -11,6 +11,7 @@ import {
   CubeIcon,
   ClipboardDocumentListIcon,
   CurrencyDollarIcon,
+  BanknotesIcon,
   DocumentTextIcon,
   ArrowRightOnRectangleIcon,
   Bars3Icon,
@@ -26,6 +27,7 @@ const navItems = [
   { href: "/admin/products", label: "Products", icon: CubeIcon },
   { href: "/admin/orders", label: "Orders", icon: ClipboardDocumentListIcon },
   { href: "/admin/finance", label: "Finance", icon: CurrencyDollarIcon },
+  { href: "/admin/payments", label: "Payments", icon: BanknotesIcon },
   { href: "/admin/blog", label: "Blog", icon: DocumentTextIcon },
   { href: "/admin/settings", label: "Settings", icon: Cog6ToothIcon },
 ];

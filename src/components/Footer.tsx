@@ -66,7 +66,7 @@ export default function Footer() {
   ].filter((x) => x.href);
 
   return (
-    <footer className="bg-[var(--card-bg)] text-[var(--foreground)] border-t border-[var(--card-border)] relative overflow-x-hidden">
+    <footer className="bg-[var(--card-bg)]/85 backdrop-blur-md text-[var(--foreground)] border-t border-[var(--card-border)]/80 relative overflow-x-hidden">
       <div className="container mx-auto max-w-full px-4 sm:px-6 lg:px-8 py-5">
         <div className="flex flex-col items-start mb-6">
           <div className="ml-0 flex">

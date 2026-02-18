@@ -72,7 +72,7 @@ const textStagger = {
 export default function PromoSection() {
   return (
     <section
-      className="w-full bg-[var(--background)]"
+      className="w-full bg-white/82 dark:bg-slate-900/82 backdrop-blur-md"
       aria-label="Collections by category"
       style={{ minHeight: `${PROMO_MIN_HEIGHT_VH}vh` }}
     >
@@ -216,7 +216,7 @@ function Slide({
         </div>
 
         {/* Text — right on desktop, bottom on mobile */}
-        <div className="flex flex-col justify-center w-full md:w-1/2 py-8 px-6 sm:py-10 sm:px-8 md:py-12 md:px-14 lg:px-16 bg-[var(--card-bg)] border-t md:border-t-0 md:border-l border-[var(--card-border)]">
+        <div className="flex flex-col justify-center w-full md:w-1/2 py-8 px-6 sm:py-10 sm:px-8 md:py-12 md:px-14 lg:px-16 bg-[var(--card-bg)]/85 backdrop-blur-md border-t md:border-t-0 md:border-l border-[var(--card-border)]/80">
           <motion.div
             className="flex flex-col"
             initial="hidden"

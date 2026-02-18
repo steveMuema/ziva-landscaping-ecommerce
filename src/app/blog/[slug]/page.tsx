@@ -46,9 +46,22 @@ export default async function BlogPostPage({ params }: Props) {
   if (!post) notFound();
 
   const recentForSidebar = recentPosts.map((p) => ({ id: p.id, title: p.title, slug: p.slug }));
+  const featuredUrl = getFeaturedImageUrl(post.imageUrl);
+  const bgStyle = {
+    backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.3)), url(${featuredUrl})`,
+    backgroundAttachment: "fixed",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] flex flex-col">
+    <div className="relative min-h-screen flex flex-col">
+      <div
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={bgStyle}
+        aria-hidden
+      />
+      <div className="relative z-10 flex flex-col flex-1 min-h-screen bg-white/82 dark:bg-slate-900/82 backdrop-blur-md">
       <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 max-w-6xl flex-1">
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-12">
           <main className="flex-1 min-w-0">
@@ -62,7 +75,7 @@ export default async function BlogPostPage({ params }: Props) {
             <article>
               <div className="rounded-2xl overflow-hidden border border-[var(--card-border)] aspect-[21/9] min-h-[200px] relative bg-[var(--muted-bg)] mb-8">
                 <Image
-                  src={getFeaturedImageUrl(null)}
+                  src={featuredUrl}
                   alt=""
                   fill
                   className="object-cover"
@@ -96,6 +109,7 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
       </div>
       <Footer />
+      </div>
     </div>
   );
 }

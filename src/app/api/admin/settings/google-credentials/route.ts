@@ -2,7 +2,7 @@ import { config as loadEnv } from "dotenv";
 import path from "path";
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
-import { getSetting, setSetting, getGoogleCredentials } from "@/lib/settings";
+import { setSetting, getGoogleCredentials } from "@/lib/settings";
 import { SETTING_KEYS } from "@/lib/setting-keys";
 import { encrypt } from "@/lib/encryption";
 

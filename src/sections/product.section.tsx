@@ -76,13 +76,6 @@ const ProductSection = ({ product, categoryName, subCategoryName, categorySlug, 
     { name: product.name, href: "#", isCurrent: true },
   ];
 
-  function capitalizeWords(str: string) {
-    return str
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  }
-
   // Split description into paragraphs based on newlines or three spaces after a period
   const descriptionParagraphs = product.description
     ? product.description

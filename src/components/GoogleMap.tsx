@@ -140,7 +140,6 @@ export default function GoogleMap({ addresses = [], height = "280px", zoom = 12,
     markersRef.current = [];
 
     const bounds = new maps.LatLngBounds();
-    let hasBounds = false;
     const geocoder = new maps.Geocoder();
 
     addresses.forEach((address) => {
@@ -155,7 +154,6 @@ export default function GoogleMap({ addresses = [], height = "280px", zoom = 12,
         });
         markersRef.current.push(marker);
         bounds.extend({ lat: loc.lat(), lng: loc.lng() });
-        hasBounds = true;
         (mapRef.current as { fitBounds: (b: unknown, o?: object) => void })?.fitBounds(bounds, { top: 40, right: 40, bottom: 40, left: 40 });
       });
     });

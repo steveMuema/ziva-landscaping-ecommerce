@@ -35,10 +35,9 @@ export default function SettingsForm() {
   const [saving, setSaving] = useState(false);
   const [credentialsUploaded, setCredentialsUploaded] = useState<boolean | null>(null);
   const [credentialsPreview, setCredentialsPreview] = useState<string | null>(null);
-  const [credentialsParsed, setCredentialsParsed] = useState(false);
   const [credentialsUploading, setCredentialsUploading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [profile, setProfile] = useState<{ name: string; email: string } | null>(null);
+  const [, setProfile] = useState<{ name: string; email: string } | null>(null);
   const [profileForm, setProfileForm] = useState({ name: "", email: "", currentPassword: "", newPassword: "" });
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMessage, setProfileMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -52,12 +51,10 @@ export default function SettingsForm() {
       .then((data) => {
         setCredentialsUploaded(!!data.uploaded);
         setCredentialsPreview(data.preview?.trim() ?? null);
-        setCredentialsParsed(!!data.parsed);
       })
       .catch(() => {
         setCredentialsUploaded(false);
         setCredentialsPreview(null);
-        setCredentialsParsed(false);
       });
   };
 
@@ -135,7 +132,7 @@ export default function SettingsForm() {
       }
       const data = await res.json();
       if (data.settings) setSettings(data.settings);
-      setForm((prev) => {
+      setForm(() => {
         const next: Record<string, string> = {};
         for (const key of Object.values(SETTING_KEYS)) {
           next[key] = data.settings?.[key] ?? (key === SETTING_KEYS.MPESA_ENV ? "sandbox" : "");
@@ -250,7 +247,6 @@ export default function SettingsForm() {
                     }
                     setCredentialsUploaded(true);
                     setCredentialsPreview(data.preview?.trim() ?? null);
-                    setCredentialsParsed(!!data.parsed);
                     setMessage({ type: "success", text: "Credentials file uploaded and stored encrypted." });
                   } catch {
                     setMessage({ type: "error", text: "Upload failed." });
@@ -285,7 +281,6 @@ export default function SettingsForm() {
                         }
                         setCredentialsUploaded(false);
                         setCredentialsPreview(null);
-                        setCredentialsParsed(false);
                         setMessage({ type: "success", text: "Credentials file removed." });
                       } catch {
                         setMessage({ type: "error", text: "Remove failed." });

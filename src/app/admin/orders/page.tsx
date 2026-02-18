@@ -121,11 +121,6 @@ export default async function AdminOrdersPage() {
     revalidatePath("/admin/finance");
   }
 
-  const byStatus = COLUMNS.reduce((acc, col) => {
-    acc[col.status] = orders.filter((o) => o.status === col.status);
-    return acc;
-  }, {} as Record<string, (typeof orders)[0][]>);
-
   const serializableOrders = orders.map((o) => ({
     id: o.id,
     status: o.status,

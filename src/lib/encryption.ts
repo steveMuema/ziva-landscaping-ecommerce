@@ -10,6 +10,8 @@ function getEncryptionKey(): Buffer {
   let raw = process.env.ENCRYPTION_KEY;
   if (!raw || raw.length < 32) {
     try {
+      // Sync .env load when ENCRYPTION_KEY not already set (e.g. in some server contexts)
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dotenv.config is sync
       require("dotenv").config({ path: path.resolve(process.cwd(), ".env") });
       raw = process.env.ENCRYPTION_KEY ?? "";
     } catch {

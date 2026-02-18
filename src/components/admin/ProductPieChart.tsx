@@ -33,7 +33,7 @@ export function ProductPieChart({ slices }: { slices: Slice[] }) {
     );
   }
 
-  const data = slices.map((s, i) => ({
+  const data = slices.map((s) => ({
     name: s.productName.length > 20 ? s.productName.slice(0, 18) + "…" : s.productName,
     value: s.quantity,
     fullName: s.productName,

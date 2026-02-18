@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { DEFAULT_BLOG_IMAGE } from "./BlogSidebar";
 
 export function getFeaturedImageUrl(imageUrl: string | null | undefined): string {
@@ -18,11 +19,14 @@ export function FeaturedImage({
 }) {
   const url = getFeaturedImageUrl(src);
   return (
-    <img
+    <Image
       src={url}
       alt={alt}
+      width={800}
+      height={450}
       className={className}
-      {...(priority ? { fetchPriority: "high" as const } : {})}
+      sizes="(max-width: 768px) 100vw, 800px"
+      priority={priority}
     />
   );
 }

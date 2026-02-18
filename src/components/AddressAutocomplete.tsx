@@ -116,6 +116,7 @@ export function AddressAutocomplete({
             <li
               key={s.placeId ?? `${s.text}-${i}`}
               role="option"
+              aria-selected={false}
               className="px-3 py-2 text-sm text-[var(--foreground)] cursor-pointer hover:bg-[var(--muted-bg)] focus:bg-[var(--muted-bg)] outline-none"
               onMouseDown={(e) => {
                 e.preventDefault();

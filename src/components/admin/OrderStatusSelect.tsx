@@ -4,10 +4,10 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 const STATUS_OPTIONS = [
-  { value: "PENDING", label: "Pending", className: "bg-slate-100 text-slate-700" },
-  { value: "PROCESSING", label: "Processing", className: "bg-amber-100 text-amber-800" },
-  { value: "COMPLETED", label: "Completed", className: "bg-emerald-100 text-emerald-800" },
-  { value: "CANCELLED", label: "Cancelled", className: "bg-red-100 text-red-800" },
+  { value: "PENDING", label: "Pending", className: "bg-slate-100 text-slate-700 dark:bg-slate-600 dark:text-slate-200" },
+  { value: "PROCESSING", label: "Processing", className: "bg-amber-100 text-amber-800 dark:bg-amber-500/30 dark:text-amber-200" },
+  { value: "COMPLETED", label: "Completed", className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/30 dark:text-emerald-200" },
+  { value: "CANCELLED", label: "Cancelled", className: "bg-red-100 text-red-800 dark:bg-red-500/30 dark:text-red-200" },
 ] as const;
 
 type Status = (typeof STATUS_OPTIONS)[number]["value"];
@@ -61,7 +61,7 @@ export function OrderStatusSelect({ orderId, currentStatus, canComplete = true, 
         ))}
       </select>
       {error && (
-        <p className="absolute left-0 top-full z-10 mt-1 w-64 rounded border border-red-200 bg-red-50 px-2 py-1.5 text-xs text-red-800 shadow-sm">
+        <p className="absolute left-0 top-full z-10 mt-1 w-64 rounded border border-red-200 bg-red-50 px-2 py-1.5 text-xs text-red-800 shadow-sm dark:border-red-800 dark:bg-red-950/50 dark:text-red-200">
           {error}
         </p>
       )}

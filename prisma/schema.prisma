@@ -147,31 +147,43 @@ model Authenticator {
 }
 
 model Order {
-  id             Int           @id @default(autoincrement())
-  clientId       String
-  phone          String
-  location       String        // Delivery area / address — only phone and location collected at payment
-  email          String?
-  fullname       String?
-  company        String?
-  country        String?
-  state          String?
-  address        String?
-  apartment      String?
-  city           String?
-  postalCode     String?
-  subtotal       Float
-  costTotal      Float?        // Total cost of goods (for profit calculation)
-  transportFee   Float?        // Delivery/transport cost
-  status        OrderStatus   @default(PENDING)
-  currency       String        @default("KSH")
-  paymentMethod  PaymentMethod?
-  amountPaid     Float         @default(0)
-  mpesaReceiptNo String?
-  completedAt    DateTime?     // Set when status becomes COMPLETED (for TAT)
-  createdAt      DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  orderItems     OrderItem[]
+  id              Int                @id @default(autoincrement())
+  clientId        String
+  phone           String
+  location        String             // Delivery area / address — only phone and location collected at payment
+  email           String?
+  fullname        String?
+  company         String?
+  country         String?
+  state           String?
+  address         String?
+  apartment       String?
+  city            String?
+  postalCode      String?
+  subtotal        Float
+  costTotal       Float?             // Total cost of goods (for profit calculation)
+  transportFee    Float?             // Delivery/transport cost
+  status         OrderStatus        @default(PENDING)
+  currency        String             @default("KSH")
+  paymentMethod   PaymentMethod?
+  amountPaid      Float              @default(0)
+  completedAt     DateTime?          // Set when status becomes COMPLETED (for TAT)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  orderItems      OrderItem[]
+  orderPaymentRefs OrderPaymentRef[]
+}
+
+model OrderPaymentRef {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  value     String   // M-Pesa receipt no., cash receipt no., or other ref
+  amount    Float?   // amount for this ref (KSH); sum of all ref amounts must be >= order subtotal to complete
+  createdAt DateTime @default(now())
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([value])
 }
 
 model OrderItem {
@@ -216,4 +228,13 @@ model Setting {
   key       String   @unique
   value     String
   updatedAt DateTime @updatedAt
+}
+
+model PageView {
+  id        Int      @id @default(autoincrement())
+  path      String   // e.g. /, /shop, /shop/lawn-care
+  createdAt DateTime @default(now())
+
+  @@index([path])
+  @@index([createdAt])
 }

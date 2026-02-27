@@ -256,13 +256,21 @@ export default function OrderConfirmationSection() {
             </div>
 
             {/* Order Summary */}
-            <div className="border-t border-gray-200 pt-6 mb-8">
-              <div className="flex justify-between items-center mb-6">
+            <div className="border-t border-gray-200 pt-6 mb-8 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">Subtotal</span>
+                <span className="text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">KSh {order.subtotal.toFixed(2)}</span>
+              </div>
+              {order.transportFee != null && order.transportFee > 0 && (
+                <div className="flex justify-between items-center">
+                  <span className="text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">Delivery</span>
+                  <span className="text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">KSh {Number(order.transportFee).toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                <span className="text-lg font-semibold text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">Total</span>
                 <span className="text-lg font-semibold text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">
-                  Subtotal
-                </span>
-                <span className="text-lg font-semibold text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">
-                  KSh {order.subtotal.toFixed(2)}
+                  KSh {(order.subtotal + (Number(order.transportFee) || 0)).toFixed(2)}
                 </span>
               </div>
             </div>

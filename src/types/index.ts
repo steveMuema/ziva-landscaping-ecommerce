@@ -26,10 +26,13 @@ export interface Order {
   city?: string | null;
   postalCode?: string | null;
   subtotal: number;
+  /** Delivery / transport fee (KSH). Set at checkout from site settings. */
+  transportFee?: number | null;
   currency?: string;
   paymentMethod?: PaymentMethod | null;
   amountPaid?: number;
-  mpesaReceiptNo?: string | null;
+  /** Multiple payment refs (M-Pesa receipt numbers, cash receipt numbers, etc.) */
+  orderPaymentRefs?: { value: string }[];
   status: string;
   orderItems: {
     id: number;

@@ -13,6 +13,7 @@ const MASKED_KEYS = new Set<string>([
   SETTING_KEYS.MPESA_PASSKEY,
   SETTING_KEYS.CLOUDINARY_API_KEY,
   SETTING_KEYS.CLOUDINARY_API_SECRET,
+  SETTING_KEYS.GEMINI_API_KEY,
 ]);
 
 function mask(value: string | null): string {

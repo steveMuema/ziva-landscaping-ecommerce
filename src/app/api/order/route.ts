@@ -1,25 +1,20 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
+import { getSetting } from "@/lib/settings";
+import { SETTING_KEYS } from "@/lib/setting-keys";
 
 const ORDER_STATUS = new Set(['PENDING','PROCESSING','COMPLETED','CANCELLED']);
 
 const PRICING_THRESHOLD_KSH = 10_000;
 const DOWN_PAYMENT_RATIO = 0.5;
+const DEFAULT_DELIVERY_FEE_KSH = 400;
 
 export async function POST(request: Request) {
   try {
     const { clientId, phone, location, items, subtotal, paymentMethod, amountPaid, mpesaReceiptNo } = await request.json();
     if (!clientId || !phone || !location || !items || subtotal == null) {
       return NextResponse.json({ error: 'Missing required fields: clientId, phone, location, items, or subtotal' }, { status: 400 });
-    }
-
-    const requiredAmount = subtotal < PRICING_THRESHOLD_KSH ? subtotal : Math.round(subtotal * DOWN_PAYMENT_RATIO * 100) / 100;
-    const paid = typeof amountPaid === 'number' ? amountPaid : 0;
-    const method = paymentMethod === 'MPESA' || paymentMethod === 'CASH' || paymentMethod === 'PAY_ON_DELIVERY' ? paymentMethod : 'CASH';
-
-    if (method === 'MPESA' && paid < requiredAmount) {
-      return NextResponse.json({ error: `M-Pesa payment required: KSH ${requiredAmount.toFixed(2)} (${subtotal < PRICING_THRESHOLD_KSH ? 'full' : '50% down'})` }, { status: 400 });
     }
 
     const locationTrimmed = String(location).trim();
@@ -56,7 +51,23 @@ export async function POST(request: Request) {
     }
     costTotal = Math.round(costTotal * 100) / 100;
 
+    const deliveryFeeRaw = await getSetting(SETTING_KEYS.DELIVERY_FEE_KSH);
+    const transportFee = (() => {
+      const n = deliveryFeeRaw != null ? parseFloat(deliveryFeeRaw) : NaN;
+      return !Number.isNaN(n) && n >= 0 ? Math.round(n * 100) / 100 : DEFAULT_DELIVERY_FEE_KSH;
+    })();
+
+    const totalWithDelivery = subtotal + transportFee;
+    const requiredAmount = totalWithDelivery < PRICING_THRESHOLD_KSH ? totalWithDelivery : Math.round(totalWithDelivery * DOWN_PAYMENT_RATIO * 100) / 100;
+    const paid = typeof amountPaid === 'number' ? amountPaid : 0;
+    const method = paymentMethod === 'MPESA' || paymentMethod === 'CASH' || paymentMethod === 'PAY_ON_DELIVERY' ? paymentMethod : 'CASH';
+
+    if (method === 'MPESA' && paid < requiredAmount) {
+      return NextResponse.json({ error: `M-Pesa payment required: KSH ${requiredAmount.toFixed(2)} (${totalWithDelivery < PRICING_THRESHOLD_KSH ? 'full' : '50% down'} incl. delivery)` }, { status: 400 });
+    }
+
     // Create order and update stock in a transaction (only phone + location collected at payment)
+    const receiptNo = typeof mpesaReceiptNo === 'string' ? mpesaReceiptNo.trim() || null : null;
     const [orderResult] = await prisma.$transaction([
       prisma.order.create({
         data: {
@@ -65,10 +76,10 @@ export async function POST(request: Request) {
           location: locationTrimmed,
           subtotal,
           costTotal,
+          transportFee,
           currency: 'KSH',
           paymentMethod: method,
           amountPaid: paid,
-          mpesaReceiptNo: mpesaReceiptNo || null,
           status: 'PENDING',
           orderItems: {
             create: items.map((item) => ({
@@ -95,6 +106,10 @@ export async function POST(request: Request) {
         })
       )
     ]);
+
+    if (receiptNo) {
+      await prisma.orderPaymentRef.create({ data: { orderId: orderResult.id, value: receiptNo, amount: paid } });
+    }
 
     revalidatePath("/admin/finance");
     return NextResponse.json({ orderId: orderResult.id });
@@ -134,6 +149,7 @@ export async function GET(request: Request) {
             },
           },
         },
+        orderPaymentRefs: { orderBy: { createdAt: "asc" }, select: { value: true } },
       },
     });
 

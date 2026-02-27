@@ -1,47 +1,33 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import * as React from "react";
+import { ThemeProvider as NextThemesProvider, useTheme as useNextTheme } from "next-themes";
 
-type Theme = "light" | "dark";
+type Theme = "light" | "dark" | "cyan" | "blue";
 
-const ThemeContext = createContext<{
-  theme: Theme;
-  setTheme: (t: Theme) => void;
-  toggleTheme: () => void;
-} | null>(null);
-
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    const existing = document.documentElement.getAttribute("data-theme") as Theme | null;
-    const stored = localStorage.getItem("ziva-theme") as Theme | null;
-    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initial = (existing || stored) ?? (systemDark ? "dark" : "light");
-    setThemeState(initial);
-    document.documentElement.setAttribute("data-theme", initial);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("ziva-theme", theme);
-  }, [theme, mounted]);
-
-  const setTheme = (t: Theme) => setThemeState(t);
-  const toggleTheme = () => setThemeState((prev) => (prev === "light" ? "dark" : "light"));
-
+export function ThemeProvider({ children, ...props }: React.ComponentProps<typeof NextThemesProvider>) {
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+    <NextThemesProvider
+      attribute="data-theme"
+      defaultTheme="light"
+      enableSystem={false}
+      themes={['light', 'dark', 'cyan', 'blue']}
+      {...props}
+    >
       {children}
-    </ThemeContext.Provider>
+    </NextThemesProvider>
   );
 }
 
 export function useTheme() {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error("useTheme must be used within ThemeProvider");
-  return ctx;
+  const { theme, setTheme } = useNextTheme();
+
+  return {
+    theme: (theme || "light") as Theme,
+    setTheme: (t: Theme) => setTheme(t),
+    toggleTheme: () => {
+      // Legacy stub for any components historically toggling light/dark
+      setTheme(theme === "light" ? "dark" : "light");
+    }
+  };
 }

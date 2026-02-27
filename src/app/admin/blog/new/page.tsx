@@ -30,6 +30,8 @@ export default async function AdminBlogNewPage() {
     const excerpt = (formData.get("excerpt") as string) || null;
     const content = formData.get("content") as string;
     const published = formData.get("published") === "on";
+    const imageUrlRaw = (formData.get("imageUrl") as string)?.trim();
+    const imageUrl = imageUrlRaw || null;
     const existing = await prisma.blogPost.findUnique({ where: { slug } });
     const finalSlug = existing ? `${slug}-${Date.now()}` : slug;
     await prisma.blogPost.create({
@@ -40,6 +42,7 @@ export default async function AdminBlogNewPage() {
         content: content || "<p></p>",
         published,
         publishedAt: published ? new Date() : null,
+        imageUrl,
       },
     });
     revalidatePath("/admin/blog");

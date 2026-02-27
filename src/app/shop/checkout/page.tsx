@@ -1,5 +1,4 @@
 import { cookies } from 'next/headers';
-import Footer from '@/components/Footer';
 import CheckoutSection from '@/sections/checkout.section';
 import { getCart } from '@/lib/api'; // From api.ts
 import { Cart } from '@/types'; // From index.ts
@@ -25,12 +24,5 @@ async function fetchCartData(): Promise<Cart[]> {
 export default async function CheckoutPage() {
   const cartItems = await fetchCartData();
 
-  return (
-    <div className="flex flex-col flex-1 min-h-full">
-      <div className="flex-1">
-        <CheckoutSection cartItems={cartItems} />
-      </div>
-      <Footer />
-    </div>
-  );
+  return <CheckoutSection cartItems={cartItems} />;
 }

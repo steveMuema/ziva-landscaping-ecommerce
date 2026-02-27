@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-// import { Cart } from '@/types';
+import { Cart } from '@/types';
 
 export async function POST(request: Request) {
   try {
@@ -27,28 +27,6 @@ export async function POST(request: Request) {
       }
     });
     return NextResponse.json(item);
-
-    const newItem = await prisma.cart.create({
-      data: {
-        clientId,
-        productId,
-        quantity,
-      },
-      include: {
-        product: {
-          select: {
-            id: true,
-            name: true,
-            price: true,
-            imageUrl: true,
-            description: true,
-            stock: true,
-            subCategoryId: true,
-          },
-        },
-      },
-    });
-    return NextResponse.json(newItem);
   } catch (error) {
     console.error('Error adding to cart:', error);
     return NextResponse.json({ error: 'Failed to add to cart' }, { status: 500 });

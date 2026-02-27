@@ -1,4 +1,3 @@
-import Footer from "@/components/Footer";
 import PromoSection from "@/sections/promo.section";
 import AboutUsSection from "@/sections/aboutus.section";
 import { getSettings } from "@/lib/settings";
@@ -14,14 +13,31 @@ export default async function Home() {
   const parallaxImageUrl =
     settings[SETTING_KEYS.SITE_PARALLAX_IMAGE_URL]?.trim() || DEFAULT_PARALLAX_IMAGE;
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "Ziva Landscaping Co.",
-    url: siteUrl,
-    description: "Landscape design and sustainability in East Africa. Eco-friendly outdoor spaces, drought-resistant plants, organic practices. Kenya.",
-    areaServed: { "@type": "Place", name: "East Africa" },
-  };
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "Ziva Landscaping Co.",
+      url: siteUrl,
+      description: "Landscape design and sustainability in East Africa. Eco-friendly outdoor spaces, drought-resistant plants, organic practices. Kenya.",
+      areaServed: { "@type": "Place", name: "East Africa" },
+      logo: `${siteUrl}/ziva_logo.jpg`
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "Ziva Landscaping Co.",
+      url: siteUrl,
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: `${siteUrl}/shop?q={search_term_string}`
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+  ];
   const parallaxBgStyle = {
     backgroundImage: `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.25)), url(${parallaxImageUrl})`,
     backgroundAttachment: "fixed",
@@ -35,18 +51,13 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="relative flex flex-col flex-1 min-h-full">
-        <div
-          className="fixed inset-0 z-0 pointer-events-none"
-          style={parallaxBgStyle}
-          aria-hidden
-        />
-        <div className="relative z-10 flex flex-col flex-1 min-h-full">
-          <div className="flex-1">
-            <PromoSection />
-            <AboutUsSection />
-          </div>
-          <Footer />
+      <div
+        className="flex flex-col flex-1 min-h-full"
+        style={parallaxBgStyle}
+      >
+        <div className="flex-1">
+          <PromoSection />
+          <AboutUsSection />
         </div>
       </div>
     </>

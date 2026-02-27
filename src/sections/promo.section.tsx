@@ -12,9 +12,9 @@ const collections: Collection[] = [
     id: 1,
     image: "/landscape.jpeg",
     category: "/shop/landscaping",
-    alt: "Landscaping",
+    alt: "East Africa's Premier Landscaping",
     description:
-      "Landscape design and Sustainability: Incorporating landscaping with functionality, sustainability and environment friendly. Crafting vibrant eco-friendly outdoor spaces by designing with drought resistant plants, edible landscape and organic practices",
+      "Landscape design and Sustainability across Kenya, Uganda, and Tanzania. Crafting vibrant eco-friendly outdoor spaces by designing with drought resistant plants, edible landscape and organic practices.",
   },
   {
     id: 2,
@@ -160,11 +160,10 @@ function Slideshow({ collections }: { collections: Collection[] }) {
                 aria-selected={i === selectedIndex}
                 aria-label={`Go to slide ${i + 1}`}
                 onClick={() => scrollTo(i)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  i === selectedIndex
+                className={`h-2 rounded-full transition-all duration-300 ${i === selectedIndex
                     ? "w-10 bg-[var(--accent)] shadow-md"
                     : "w-2 bg-white/60 hover:bg-white/90 hover:scale-110"
-                }`}
+                  }`}
               />
             ))}
           </div>

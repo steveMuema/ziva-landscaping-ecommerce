@@ -31,20 +31,20 @@ export default async function AdminPaymentsPage({
   const mobile = typeof params.mobile === "string" ? params.mobile.trim() : undefined;
 
   const where: {
-    OR?: Array<{ amountPaid?: { gt: number }; mpesaReceiptNo?: { not: null } }>;
-    mpesaReceiptNo?: string | { contains: string; mode: "insensitive" };
+    OR?: Array<{ amountPaid?: { gt: number }; orderPaymentRefs?: { some: object } }>;
+    orderPaymentRefs?: { some: { value: { contains: string; mode: "insensitive" } } };
     phone?: { contains: string; mode: "insensitive" };
     createdAt?: { gte?: Date; lte?: Date };
   } = {};
 
-  // Only show orders that have some payment info (amount paid > 0 or receipt)
+  // Only show orders that have some payment info (amount paid > 0 or at least one ref)
   where.OR = [
     { amountPaid: { gt: 0 } },
-    { mpesaReceiptNo: { not: null } },
+    { orderPaymentRefs: { some: {} } },
   ];
 
   if (ref) {
-    where.mpesaReceiptNo = { contains: ref, mode: "insensitive" };
+    where.orderPaymentRefs = { some: { value: { contains: ref, mode: "insensitive" } } };
   }
   if (mobile) {
     where.phone = { contains: mobile, mode: "insensitive" };
@@ -63,7 +63,7 @@ export default async function AdminPaymentsPage({
       amountPaid: true,
       subtotal: true,
       paymentMethod: true,
-      mpesaReceiptNo: true,
+      orderPaymentRefs: { orderBy: { createdAt: "asc" }, select: { value: true, amount: true } },
       status: true,
       createdAt: true,
       completedAt: true,
@@ -123,7 +123,23 @@ export default async function AdminPaymentsPage({
                     <td className="px-4 py-3 font-mono text-slate-700">{o.phone}</td>
                     <td className="px-4 py-3 text-slate-600">{o.paymentMethod ?? "—"}</td>
                     <td className="px-4 py-3 font-medium text-slate-800">{fmt(Number(o.amountPaid ?? 0))} KSH</td>
-                    <td className="px-4 py-3 font-mono text-slate-700">{o.mpesaReceiptNo ?? "—"}</td>
+                    <td className="px-4 py-3 text-slate-700">
+                      {o.orderPaymentRefs.length > 0 ? (
+                        <div className="space-y-0.5">
+                          {o.orderPaymentRefs.map((r, i) => (
+                            <div key={i} className="flex justify-between gap-2 font-mono text-xs">
+                              <span>{r.value}</span>
+                              {r.amount != null && <span>{fmt(Number(r.amount))}</span>}
+                            </div>
+                          ))}
+                          <div className="text-slate-500 text-xs border-t border-slate-100 pt-0.5">
+                            Total refs: {fmt(o.orderPaymentRefs.reduce((s, r) => s + (r.amount ?? 0), 0))}
+                          </div>
+                        </div>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
                     <td className="px-4 py-3">
                       <span
                         className={

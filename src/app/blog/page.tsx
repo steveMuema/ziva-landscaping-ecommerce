@@ -1,15 +1,22 @@
 import Link from "next/link";
 import Image from "next/image";
 import prisma from "@/lib/prisma";
-import Footer from "@/components/Footer";
 import { BlogSidebar } from "@/components/blog/BlogSidebar";
 import { getFeaturedImageUrl } from "@/components/blog/FeaturedImage";
 
 export const dynamic = "force-dynamic";
 
+const url = process.env.NEXT_PUBLIC_SITE_URL ? `${process.env.NEXT_PUBLIC_SITE_URL}/blog` : "https://zivalandscaping.co.ke/blog";
+
 export const metadata = {
-  title: "Blog | Ziva Landscaping Co.",
+  title: "Blog",
   description: "Articles and updates on sustainable landscaping, East Africa, and eco-friendly outdoor spaces.",
+  alternates: { canonical: url },
+  openGraph: {
+    title: "Blog | Ziva Landscaping Co.",
+    description: "Articles and updates on sustainable landscaping, East Africa, and eco-friendly outdoor spaces.",
+    url,
+  }
 };
 
 function formatDate(d: Date | null) {
@@ -18,6 +25,7 @@ function formatDate(d: Date | null) {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: "UTC",
   });
 }
 
@@ -65,7 +73,7 @@ export default async function BlogPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                      <time className="text-sm text-white/90" dateTime={featured.publishedAt?.toISOString() ?? undefined}>
+                      <time suppressHydrationWarning className="text-sm text-white/90" dateTime={featured.publishedAt?.toISOString() ?? undefined}>
                         {formatDate(featured.publishedAt)}
                       </time>
                       <h2 className="text-2xl sm:text-3xl font-bold mt-1 font-[family-name:var(--font-quicksand)] group-hover:text-[var(--ziva-green-light)] transition-colors">
@@ -96,7 +104,7 @@ export default async function BlogPage() {
                       </div>
                       <div className="p-4 flex-1 flex flex-col">
                         {post.publishedAt && (
-                          <time className="text-xs text-[var(--muted)]" dateTime={post.publishedAt.toISOString()}>
+                          <time suppressHydrationWarning className="text-xs text-[var(--muted)]" dateTime={post.publishedAt.toISOString()}>
                             {formatDate(post.publishedAt)}
                           </time>
                         )}
@@ -121,7 +129,6 @@ export default async function BlogPage() {
           <BlogSidebar recentPosts={recentForSidebar} />
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

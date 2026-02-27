@@ -1,5 +1,5 @@
 "use client";
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { Cart } from '@/types';
 import Image from 'next/image';
 import { useCart } from '@/lib/cart';
@@ -7,19 +7,31 @@ import { useCreateOrder } from '@/lib/order';
 import cloudinaryLoader from "@/lib/cloudinaryLoader";
 import { useRouter } from 'next/navigation';
 import { AddressAutocomplete } from '@/components/AddressAutocomplete';
+import { SETTING_KEYS } from '@/lib/setting-keys';
 
-const PRICING_THRESHOLD_KSH = 10000;
-const DOWN_PAYMENT_RATIO = 0.5;
+const DEFAULT_DELIVERY_FEE_KSH = 400;
+const DEFAULT_WHATSAPP = "254757133726";
+
+/** Normalize to digits with country code for wa.me (e.g. 254712345678). */
+function normalizeWhatsApp(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length === 9 && (digits.startsWith("7") || digits.startsWith("1"))) return "254" + digits;
+  if (digits.length >= 10 && digits.startsWith("254")) return digits.slice(0, 12);
+  if (digits.length >= 9) return "254" + digits.slice(-9);
+  return value || DEFAULT_WHATSAPP;
+}
 
 interface CheckoutSectionProps {
   cartItems: Cart[];
 }
 
 const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
+  const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [location, setLocation] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'MPESA' | 'CASH'>('CASH');
   const [loadingItems, setLoadingItems] = useState<Set<number>>(new Set());
+  const [deliveryFee, setDeliveryFee] = useState<number>(DEFAULT_DELIVERY_FEE_KSH);
+  const [whatsappNumber, setWhatsappNumber] = useState<string>(DEFAULT_WHATSAPP);
   const { items, updateCart, clearCart } = useCart();
   const { createOrder, loading, error, setError } = useCreateOrder();
   const router = useRouter();
@@ -27,6 +39,20 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
     .split('; ')
     .find((row) => row.startsWith('clientId='))
     ?.split('=')[1] || '' : '';
+
+  useEffect(() => {
+    fetch('/api/site-settings')
+      .then((res) => res.ok ? res.json() : {})
+      .then((settings: Record<string, string>) => {
+        const raw = settings[SETTING_KEYS.DELIVERY_FEE_KSH];
+        const n = raw != null ? parseFloat(raw) : NaN;
+        if (!Number.isNaN(n) && n >= 0) setDeliveryFee(n);
+
+        const waRaw = (settings[SETTING_KEYS.SITE_PHONE_WHATSAPP] ?? "").trim();
+        if (waRaw) setWhatsappNumber(normalizeWhatsApp(waRaw));
+      })
+      .catch(() => { });
+  }, []);
 
   const orderItems = (items.length > 0 ? items : cartItems).map((item) => ({
     id: item.id,
@@ -39,10 +65,7 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
   }));
 
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const requiredAmountNow = subtotal < PRICING_THRESHOLD_KSH
-    ? subtotal
-    : Math.round(subtotal * DOWN_PAYMENT_RATIO * 100) / 100;
-  const isFullPayment = subtotal < PRICING_THRESHOLD_KSH;
+  const total = subtotal + deliveryFee;
 
   const handleQuantityChange = async (productId: number, newQuantity: number) => {
     if (newQuantity < 1) return;
@@ -60,55 +83,62 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
     }
   };
 
+  /** Build and open a WhatsApp message with order details. */
+  function sendWhatsAppOrderMessage(
+    orderId: number,
+    customerName: string,
+    customerPhone: string,
+    customerLocation: string,
+    productsOrdered: { name: string; quantity: number }[],
+  ) {
+    const itemLines = productsOrdered
+      .map((p, i) => `  ${i + 1}. ${p.name} x${p.quantity}`)
+      .join("\n");
+
+    const message = [
+      `Hi, I'm *${customerName}* \u{1F44B}`,
+      `I'd like to place the following order:`,
+      ``,
+      `*\u{1F6D2} Order #${orderId}*`,
+      `\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500`,
+      `*\u260E Phone:* ${customerPhone}`,
+      `*\u{1F4CD} Deliver to:* ${customerLocation}`,
+      ``,
+      `*\u{1F4E6} Items:*`,
+      itemLines,
+      `\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500`,
+      ``,
+      `Looking forward to your confirmation. Thank you! \u{1F64F}`,
+    ].join("\n");
+
+    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
   const handleCheckout = async () => {
+    const nameTrimmed = name.trim();
     const phoneTrimmed = phone.trim();
     const locationTrimmed = location.trim();
-    if (!phoneTrimmed || !locationTrimmed) return;
+    if (!nameTrimmed || !phoneTrimmed || !locationTrimmed) return;
     if (!clientId) return;
 
     try {
-      if (paymentMethod === 'MPESA') {
-        const orderId = await createOrder({
-          clientId,
-          phone: phoneTrimmed,
-          location: locationTrimmed,
-          items: orderItems.map((item) => ({ productId: item.productId, quantity: item.quantity, price: item.price })),
-          subtotal,
-          paymentMethod: 'MPESA',
-          amountPaid: 0,
-        });
-        if (!orderId) return;
-        const stkRes = await fetch('/api/mpesa/stk-push', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderId,
-            phone: phoneTrimmed.replace(/\D/g, '').slice(-9),
-            amount: requiredAmountNow,
-          }),
-        });
-        if (!stkRes.ok) {
-          const err = await stkRes.json().catch(() => ({}));
-          setError(err?.error || 'M-Pesa initiation failed. You can pay on delivery for this order.');
-        }
-        await clearCart();
-        router.push(`/shop/orders/${orderId}`);
-        return;
-      }
       const orderId = await createOrder({
         clientId,
         phone: phoneTrimmed,
         location: locationTrimmed,
+        fullname: nameTrimmed,
         items: orderItems.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
           price: item.price,
         })),
         subtotal,
-        paymentMethod: 'CASH',
+        paymentMethod: 'PAY_ON_DELIVERY',
         amountPaid: 0,
       });
       if (orderId) {
+        sendWhatsAppOrderMessage(orderId, nameTrimmed, phoneTrimmed, locationTrimmed, orderItems);
         await clearCart();
         router.push(`/shop/orders/${orderId}`);
       }
@@ -128,11 +158,24 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="w-full lg:w-1/2 space-y-6">
             <div className="bg-[var(--card-bg)] rounded-lg p-4 sm:p-6 shadow-sm border border-[var(--card-border)]">
-              <h2 className="text-lg sm:text-xl font-semibold text-[var(--foreground)] mb-4 sm:mb-6 font-[family-name:var(--font-quicksand)]">Payment details</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-[var(--foreground)] mb-4 sm:mb-6 font-[family-name:var(--font-quicksand)]">Delivery details</h2>
               <p className="text-sm text-[var(--muted)] mb-4 font-[family-name:var(--font-quicksand)]">
-                We only collect your phone number and delivery location at checkout.
+                Enter your name, phone number, and delivery location to place your order.
               </p>
               <div className="space-y-4">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-[var(--foreground)] font-[family-name:var(--font-quicksand)] mb-2">
+                    Your name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-[var(--card-border)] rounded-lg text-[var(--foreground)] bg-[var(--background)] focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] transition-colors duration-200"
+                    placeholder="e.g. John Doe"
+                  />
+                </div>
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-[var(--foreground)] font-[family-name:var(--font-quicksand)] mb-2">
                     Phone number
@@ -158,35 +201,6 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
                     className="w-full px-3 py-2 sm:px-4 sm:py-3 border border-[var(--card-border)] rounded-lg text-[var(--foreground)] bg-[var(--background)] focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] transition-colors duration-200"
                   />
                 </div>
-              </div>
-            </div>
-
-            <div className="bg-[var(--card-bg)] rounded-lg p-4 sm:p-6 shadow-sm border border-[var(--card-border)]">
-              <h2 className="text-lg sm:text-xl font-semibold text-[var(--foreground)] mb-4 font-[family-name:var(--font-quicksand)]">Payment (KSH)</h2>
-              <p className="text-sm text-[var(--muted)] mb-4 font-[family-name:var(--font-quicksand)]">
-                Orders under KSH 10,000: pay in full. Orders KSH 10,000 and above: 50% down payment now, rest on delivery.
-              </p>
-              <div className="space-y-3">
-                <label className="flex items-center gap-3 p-3 border border-[var(--card-border)] rounded-lg cursor-pointer hover:bg-[var(--muted-bg)]">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    checked={paymentMethod === 'MPESA'}
-                    onChange={() => setPaymentMethod('MPESA')}
-                    className="text-[var(--accent)]"
-                  />
-                  <span className="font-[family-name:var(--font-quicksand)]">Pay with M-Pesa now — KSH {requiredAmountNow.toFixed(2)}</span>
-                </label>
-                <label className="flex items-center gap-3 p-3 border border-[var(--card-border)] rounded-lg cursor-pointer hover:bg-[var(--muted-bg)]">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    checked={paymentMethod === 'CASH'}
-                    onChange={() => setPaymentMethod('CASH')}
-                    className="text-[var(--accent)]"
-                  />
-                  <span className="font-[family-name:var(--font-quicksand)]">Pay in cash on delivery</span>
-                </label>
               </div>
             </div>
 
@@ -273,18 +287,17 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
                       <span>KSH {subtotal.toFixed(2)}</span>
                     )}
                   </div>
-                  {!isFullPayment && (
-                    <div className="flex justify-between text-sm text-amber-700 font-[family-name:var(--font-quicksand)]">
-                      <span>Due now (50%)</span>
-                      <span>KSH {requiredAmountNow.toFixed(2)}</span>
-                    </div>
-                  )}
+                  <div className="flex justify-between text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">
+                    <span>Delivery</span>
+                    <span>KSH {deliveryFee.toFixed(2)}</span>
+                  </div>
+
                   <div className="flex justify-between text-base sm:text-lg font-semibold text-[var(--foreground)] font-[family-name:var(--font-quicksand)] pt-2 border-t border-[var(--card-border)]">
                     <span>Total</span>
                     {loadingItems.size > 0 ? (
                       <div className="w-20 sm:w-24 h-5 sm:h-6 bg-[var(--card-border)] animate-pulse rounded-lg" />
                     ) : (
-                      <span>KSH {subtotal.toFixed(2)}</span>
+                      <span>KSH {total.toFixed(2)}</span>
                     )}
                   </div>
                 </div>

@@ -32,6 +32,8 @@ export default async function AdminBlogEditPage({
     const excerpt = (formData.get("excerpt") as string) || null;
     const content = formData.get("content") as string;
     const published = formData.get("published") === "on";
+    const imageUrlRaw = (formData.get("imageUrl") as string)?.trim();
+    const imageUrl = imageUrlRaw || null;
     await prisma.blogPost.update({
       where: { id: postId },
       data: {
@@ -41,6 +43,7 @@ export default async function AdminBlogEditPage({
         content: content || "<p></p>",
         published,
         publishedAt: published ? (post.publishedAt || new Date()) : null,
+        imageUrl,
         updatedAt: new Date(),
       },
     });
@@ -73,6 +76,7 @@ export default async function AdminBlogEditPage({
           initialExcerpt={post.excerpt ?? ""}
           initialContent={post.content}
           initialPublished={post.published}
+          initialImageUrl={post.imageUrl ?? ""}
         />
       </div>
     </div>

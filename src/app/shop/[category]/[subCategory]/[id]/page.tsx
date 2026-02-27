@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Footer from "@/components/Footer";
 import ProductSection from "@/sections/product.section";
 import { ProductProvider } from "@/lib/productContext";
 import { CartProvider } from "@/lib/cart";
@@ -80,16 +79,42 @@ async function ProductPageContent({ id, category, subCategory }: { id: string; c
 
   return (
     <div className="flex flex-col flex-1 min-h-full bg-[var(--background)]">
-      <div className="flex-1">
-        <ProductSection
-          product={product as unknown as Product}
-          categoryName={categoryName}
-          subCategoryName={subCategoryName}
-          categorySlug={categorySlug}
-          subCategorySlug={subCategorySlug}
-        />
-      </div>
-      <Footer />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org/",
+            "@type": "Product",
+            "name": product.name,
+            "image": product.imageUrl ? [product.imageUrl] : [],
+            "description": product.description || `Buy ${product.name} at Ziva Landscaping Co.`,
+            "sku": product.id.toString(),
+            "brand": {
+              "@type": "Brand",
+              "name": "Ziva Landscaping Co."
+            },
+            "offers": {
+              "@type": "Offer",
+              "url": `${baseUrl}/shop/${encodeURIComponent(category)}/${encodeURIComponent(subCategory)}/${id}`,
+              "priceCurrency": "KES",
+              "price": product.price,
+              "itemCondition": "https://schema.org/NewCondition",
+              "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+              "seller": {
+                "@type": "Organization",
+                "name": "Ziva Landscaping Co."
+              }
+            }
+          })
+        }}
+      />
+      <ProductSection
+        product={product as unknown as Product}
+        categoryName={categoryName}
+        subCategoryName={subCategoryName}
+        categorySlug={categorySlug}
+        subCategorySlug={subCategorySlug}
+      />
     </div>
   );
 }

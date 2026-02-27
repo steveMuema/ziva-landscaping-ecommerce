@@ -4,6 +4,13 @@ import prisma from "@/lib/prisma";
 export async function GET() {
   const categories = await prisma.category.findMany({
     include: { subCategories: true },
+    orderBy: { name: "asc" },
+  });
+  // Put "Landscaping" first, then keep the rest in alphabetical order
+  categories.sort((a, b) => {
+    if (a.name === "Landscaping") return -1;
+    if (b.name === "Landscaping") return 1;
+    return a.name.localeCompare(b.name);
   });
   const formattedCategories = categories.map((category) => ({
     id: category.id.toString(),

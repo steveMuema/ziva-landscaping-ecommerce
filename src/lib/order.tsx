@@ -146,6 +146,7 @@ export function useCreateOrder() {
     clientId: string;
     phone: string;
     location: string;
+    fullname?: string;
     items: { productId: number; quantity: number; price: number }[];
     subtotal: number;
     paymentMethod?: 'MPESA' | 'CASH' | 'PAY_ON_DELIVERY';

@@ -4,7 +4,6 @@ import { getAgricultureCategories } from "@/lib/api";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { CategoryGrid } from "@/components/CategoryGrid";
 import { Category } from "@/types";
-import Footer from "@/components/Footer";
 import { getSettings } from "@/lib/settings";
 import { SETTING_KEYS } from "@/lib/setting-keys";
 
@@ -47,26 +46,20 @@ export default async function AgriculturePage() {
   ];
 
   return (
-    <div className="relative flex flex-col flex-1 min-h-full">
-      <div
-        className="fixed inset-0 z-0 pointer-events-none"
-        style={bgStyle}
-        aria-hidden
-      />
-      <div className="relative z-10 flex flex-col flex-1 min-h-full bg-white/82 dark:bg-slate-900/82 backdrop-blur-md">
-      <div className="container mx-auto py-8 px-2 sm:px-4 md:px-6 lg:px-8 min-h-[400px] flex-1">
-        <Breadcrumb path={breadcrumbPath} />
-        <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2 text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">
-          Agriculture
-        </h1>
-        <p className="text-center text-[var(--muted)] mb-6 sm:mb-8 font-[family-name:var(--font-quicksand)] max-w-2xl mx-auto">
-          Sustainable agriculture and landscaping solutions for East Africa.
-        </p>
-        <Suspense fallback={<LoadingSkeleton count={4} />}>
-          <CategoryGrid categories={sortedCategories as unknown as Category[]} />
-        </Suspense>
-      </div>
-      <Footer />
+    <div className="flex flex-col flex-1 min-h-full" style={bgStyle}>
+      <div className="flex flex-col flex-1 min-h-full bg-white/82 dark:bg-slate-900/82 backdrop-blur-md">
+        <div className="container mx-auto py-8 px-2 sm:px-4 md:px-6 lg:px-8 min-h-[400px] flex-1">
+          <Breadcrumb path={breadcrumbPath} />
+          <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2 text-[var(--foreground)] font-[family-name:var(--font-quicksand)]">
+            Agriculture
+          </h1>
+          <p className="text-center text-[var(--muted)] mb-6 sm:mb-8 font-[family-name:var(--font-quicksand)] max-w-2xl mx-auto">
+            Sustainable agriculture and landscaping solutions for East Africa.
+          </p>
+          <Suspense fallback={<LoadingSkeleton count={4} />}>
+            <CategoryGrid categories={sortedCategories as unknown as Category[]} />
+          </Suspense>
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -38,6 +40,44 @@
   --ziva-white: #1a1f23;
 }
 
+[data-theme="cyan"] {
+  --background: #083344;
+  --foreground: #ecfeff;
+  --header-bg: #083344;
+  --header-fg: #ecfeff;
+  --header-border: #164e63;
+  --card-bg: #164e63;
+  --card-border: #164e63;
+  --muted: #67e8f9;
+  --muted-bg: #155e75;
+  --accent: #06b6d4;
+  --accent-hover: #0ea5e9;
+  --ziva-green: #06b6d4;
+  --ziva-green-light: #22d3ee;
+  --ziva-gold: #f59e0b;
+  --ziva-gold-light: #fbbf24;
+  --ziva-white: #164e63;
+}
+
+[data-theme="blue"] {
+  --background: #172554;
+  --foreground: #eff6ff;
+  --header-bg: #172554;
+  --header-fg: #eff6ff;
+  --header-border: #1e3a8a;
+  --card-bg: #1e3a8a;
+  --card-border: #1e3a8a;
+  --muted: #93c5fd;
+  --muted-bg: #1e40af;
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --ziva-green: #3b82f6;
+  --ziva-green-light: #60a5fa;
+  --ziva-gold: #f59e0b;
+  --ziva-gold-light: #fbbf24;
+  --ziva-white: #1e3a8a;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -62,6 +102,7 @@ body {
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -73,6 +114,7 @@ body {
     transform: translateX(0);
     opacity: 1;
   }
+
   to {
     transform: translateX(-100%);
     opacity: 0;
@@ -84,6 +126,7 @@ body {
     transform: translateX(-100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -95,6 +138,7 @@ body {
     transform: translateX(0);
     opacity: 1;
   }
+
   to {
     transform: translateX(100%);
     opacity: 0;
@@ -105,6 +149,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -114,6 +159,7 @@ body {
   from {
     opacity: 1;
   }
+
   to {
     opacity: 0;
   }

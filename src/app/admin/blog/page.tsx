@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/authOptions";
-import { PlusIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+import { PlusIcon } from "@heroicons/react/24/outline";
+import BlogActions from "@/components/admin/BlogActions";
 
 export const dynamic = "force-dynamic";
 
@@ -53,10 +54,7 @@ export default async function AdminBlogPage() {
           <ul className="divide-y divide-slate-100">
             {posts.map((post) => (
               <li key={post.id} className="hover:bg-slate-50/50">
-                <Link
-                  href={`/admin/blog/${post.id}/edit`}
-                  className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 transition-colors sm:flex-nowrap"
-                >
+                <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:flex-nowrap">
                   <div className="min-w-0 flex-1">
                     <span className="font-medium text-slate-900">{post.title}</span>
                     <span className="ml-2 text-sm text-slate-400">/{post.slug}</span>
@@ -66,11 +64,8 @@ export default async function AdminBlogPage() {
                       </span>
                     )}
                   </div>
-                  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">
-                    <PencilSquareIcon className="h-4 w-4" />
-                    Edit
-                  </span>
-                </Link>
+                  <BlogActions id={post.id} slug={post.slug} />
+                </div>
               </li>
             ))}
           </ul>

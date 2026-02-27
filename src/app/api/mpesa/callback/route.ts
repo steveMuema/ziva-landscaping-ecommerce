@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 
 /**
  * Safaricom M-Pesa STK Push callback. Called when customer completes or cancels payment.
- * On success: look up order by CheckoutRequestID and update amountPaid and mpesaReceiptNo.
+ * On success: look up order by CheckoutRequestID, update amountPaid/status, and add receipt as OrderPaymentRef.
  */
 export async function POST(request: Request) {
   try {
@@ -38,14 +38,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ ResultCode: 0, ResultDesc: "Accepted" });
     }
 
-    await prisma.order.update({
-      where: { id: orderId },
-      data: {
-        amountPaid: amount,
-        mpesaReceiptNo,
-        status: "PROCESSING",
-      },
-    });
+    await prisma.$transaction([
+      prisma.order.update({
+        where: { id: orderId },
+        data: {
+          amountPaid: amount,
+          status: "PROCESSING",
+        },
+      }),
+      ...(mpesaReceiptNo
+        ? [prisma.orderPaymentRef.create({ data: { orderId, value: mpesaReceiptNo, amount } })]
+        : []),
+    ]);
 
     revalidatePath("/admin/finance");
     return NextResponse.json({ ResultCode: 0, ResultDesc: "Success" });

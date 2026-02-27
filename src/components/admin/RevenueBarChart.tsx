@@ -25,7 +25,7 @@ export function RevenueBarChart({ data }: { data: Point[] }) {
   }
 
   return (
-    <div className="h-64 w-full">
+    <div className="min-h-[200px] w-full" style={{ height: 240 }}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}

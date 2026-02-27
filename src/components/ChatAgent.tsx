@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { ChatBubbleLeftRightIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { SETTING_KEYS } from "@/lib/setting-keys";
+import { slugToName } from "@/lib/slug";
 
 const DEFAULT_WHATSAPP = "254757133726";
 
@@ -15,6 +16,50 @@ function normalizeWhatsApp(value: string): string {
   if (digits.length >= 10 && digits.startsWith("254")) return digits.slice(0, 12);
   if (digits.length >= 9) return "254" + digits.slice(-9);
   return value || DEFAULT_WHATSAPP;
+}
+
+/** Parse the pathname into structured, human-readable page context. */
+function parsePageContext(pathname: string): {
+  category?: string;
+  subCategory?: string;
+  productId?: string;
+} {
+  const segments = (pathname ?? "/")
+    .replace(/\/$/, "")
+    .split("/")
+    .filter(Boolean);
+
+  // /shop/category/subcategory/id
+  if (segments[0] === "shop" && segments.length >= 4) {
+    return {
+      category: slugToName(segments[1]),
+      subCategory: slugToName(segments[2]),
+      productId: segments[3],
+    };
+  }
+  // /shop/category/subcategory
+  if (segments[0] === "shop" && segments.length === 3) {
+    return {
+      category: slugToName(segments[1]),
+      subCategory: slugToName(segments[2]),
+    };
+  }
+  // /shop/category
+  if (segments[0] === "shop" && segments.length === 2) {
+    return { category: slugToName(segments[1]) };
+  }
+  // /agriculture/category/subcategory/id  or /agriculture/category/subcategory etc.
+  if (segments[0] === "agriculture" && segments.length >= 3) {
+    return {
+      category: slugToName(segments[1]),
+      subCategory: segments[2] ? slugToName(segments[2]) : undefined,
+      productId: segments[3] ?? undefined,
+    };
+  }
+  if (segments[0] === "agriculture" && segments.length === 2) {
+    return { category: slugToName(segments[1]) };
+  }
+  return {};
 }
 
 type Message = { role: "user" | "assistant"; text: string };
@@ -43,7 +88,7 @@ export default function ChatAgent() {
           setWhatsappDisplay(raw);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const scrollToBottom = () => listEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -66,10 +111,11 @@ export default function ChatAgent() {
     if (!open || introFetched || messages.length > 0) return;
     setIntroFetched(true);
     setIntroLoading(true);
+    const ctx = parsePageContext(pathname ?? "/");
     fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: "", pathname: pathname ?? "/" }),
+      body: JSON.stringify({ message: "", pathname: pathname ?? "/", ...ctx, history: [] }),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -78,7 +124,7 @@ export default function ChatAgent() {
         if (reply) setMessages([{ role: "assistant", text: reply }]);
         if (intro) setWhatsappIntro(intro);
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setIntroLoading(false));
   }, [open, introFetched, pathname, messages.length]);
 
@@ -87,25 +133,32 @@ export default function ChatAgent() {
     if (!toSend) return;
 
     setInput("");
-    setMessages((prev) => [...prev, { role: "user", text: toSend }]);
+    const updatedMessages = [...messages, { role: "user" as const, text: toSend }];
+    setMessages(updatedMessages);
     setLoading(true);
 
     try {
+      const ctx = parsePageContext(pathname ?? "/");
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: toSend,
           pathname: pathname ?? "/",
+          ...ctx,
+          history: updatedMessages.slice(0, -1), // everything before the current message
         }),
       });
       const data = await res.json();
       const reply = (data.reply as string) ?? "I'm Fiona—I can guide you. Try: Where is the shop? How do I checkout?";
+      // Update the WhatsApp intro with the latest context (including user message)
+      const intro = (data.whatsappIntro as string)?.trim();
+      if (intro) setWhatsappIntro(intro);
       setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
     } catch {
       setMessages((prev) => [
         ...prev,
-          { role: "assistant", text: "I'm Fiona—I couldn’t respond right now. Use the menu to explore, or open WhatsApp below to contact us." },
+        { role: "assistant", text: "I'm Fiona—I couldn't respond right now. Use the menu to explore, or open WhatsApp below to contact us." },
       ]);
     } finally {
       setLoading(false);
@@ -123,11 +176,20 @@ export default function ChatAgent() {
   if (pathname?.startsWith("/admin") || pathname?.startsWith("/auth")) return null;
 
   function openWhatsAppWithContext() {
-    const intro =
+    // Find the last message the user typed, to append to the WhatsApp intro
+    const lastUserMsg = [...messages].reverse().find((m) => m.role === "user")?.text;
+
+    let intro =
       whatsappIntro ||
       (pathname === "/" || !pathname
         ? "Hi! I was browsing Ziva Landscaping and had a few questions. Is someone around to chat?"
         : "Hi! I'm on your site and had a quick question — would someone be able to help?");
+
+    // If the user typed something in chat but the intro doesn't already include it, append it
+    if (lastUserMsg && !intro.includes(lastUserMsg)) {
+      intro += `\n\nMy question: ${lastUserMsg}`;
+    }
+
     const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(intro)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   }
@@ -169,11 +231,10 @@ export default function ChatAgent() {
                   className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${
-                      msg.role === "user"
-                        ? "bg-[var(--accent)] text-white"
-                        : "bg-[var(--card-border)]/50 text-[var(--foreground)]"
-                    }`}
+                    className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${msg.role === "user"
+                      ? "bg-[var(--accent)] text-white"
+                      : "bg-[var(--card-border)]/50 text-[var(--foreground)]"
+                      }`}
                   >
                     {/* Simple **bold** rendering */}
                     {msg.role === "assistant" ? (

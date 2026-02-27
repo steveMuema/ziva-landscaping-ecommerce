@@ -42,8 +42,8 @@ export default async function AdminFinancePage({
     orderBy: { createdAt: "desc" },
   });
 
-  // Only PROCESSING and COMPLETED count as sales; PENDING and CANCELLED do not
-  const orders = allOrders.filter((o) => o.status === "PROCESSING" || o.status === "COMPLETED");
+  // Revenue and profit: only COMPLETED orders (not shown until complete)
+  const orders = allOrders.filter((o) => o.status === "COMPLETED");
 
   const totalRevenue = orders.reduce((sum, o) => sum + Number(o.subtotal), 0);
   const totalCost = orders.reduce((sum, o) => sum + (o.costTotal ?? 0), 0);
@@ -85,7 +85,7 @@ export default async function AdminFinancePage({
     ? (daysNum as (typeof VALID_DAYS)[number])
     : DEFAULT_DAYS;
 
-  // Daily data: revenue + profit (last N days)
+  // Daily data: revenue + profit by completion date (last N days)
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const dailyData: { date: string; revenue: number; profit: number; count: number }[] = [];
@@ -97,7 +97,9 @@ export default async function AdminFinancePage({
     dayStart.setHours(0, 0, 0, 0);
     const dayEnd = new Date(date);
     dayEnd.setHours(23, 59, 59, 999);
-    const dayOrders = orders.filter((o) => o.createdAt >= dayStart && o.createdAt <= dayEnd);
+    const dayOrders = orders.filter(
+      (o) => o.completedAt != null && o.completedAt >= dayStart && o.completedAt <= dayEnd
+    );
     const revenue = dayOrders.reduce((sum, o) => sum + Number(o.subtotal), 0);
     const profit = dayOrders.reduce(
       (sum, o) => sum + Number(o.subtotal) - (o.costTotal ?? 0) - (o.transportFee ?? 0),
@@ -110,14 +112,14 @@ export default async function AdminFinancePage({
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Finance</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Revenue, cost, transport, profit, and TAT. Update order status on Orders.
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Finance</h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            Revenue and profit from completed orders only. Set delivery cost and payment refs on Orders to complete.
           </p>
         </div>
         <Link
           href="/admin/orders"
-          className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
         >
           Manage orders →
         </Link>
@@ -125,51 +127,51 @@ export default async function AdminFinancePage({
 
       {/* Summary cards + TAT */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Revenue</p>
-          <p className="mt-1 text-lg font-bold text-slate-900">KSH {fmt(totalRevenue)}</p>
-          <p className="text-xs text-slate-400">Sale total</p>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-600 dark:bg-[var(--card-bg)]">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Revenue</p>
+          <p className="mt-1 text-lg font-bold text-slate-900 dark:text-slate-100">KSH {fmt(totalRevenue)}</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">Sale total</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Cost</p>
-          <p className="mt-1 text-lg font-bold text-slate-900">KSH {fmt(totalCost)}</p>
-          <p className="text-xs text-slate-400">Goods cost</p>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-600 dark:bg-[var(--card-bg)]">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Cost</p>
+          <p className="mt-1 text-lg font-bold text-slate-900 dark:text-slate-100">KSH {fmt(totalCost)}</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">Goods cost</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Transport</p>
-          <p className="mt-1 text-lg font-bold text-slate-900">KSH {fmt(totalTransport)}</p>
-          <p className="text-xs text-slate-400">Delivery</p>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-600 dark:bg-[var(--card-bg)]">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Transport</p>
+          <p className="mt-1 text-lg font-bold text-slate-900 dark:text-slate-100">KSH {fmt(totalTransport)}</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">Delivery</p>
         </div>
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Profit</p>
-          <p className={`mt-1 text-lg font-bold ${totalProfit >= 0 ? "text-emerald-800" : "text-red-700"}`}>
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 shadow-sm dark:border-emerald-500/40 dark:bg-emerald-500/20">
+          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">Profit</p>
+          <p className={`mt-1 text-lg font-bold ${totalProfit >= 0 ? "text-emerald-800 dark:text-emerald-300" : "text-red-700 dark:text-red-400"}`}>
             KSH {fmt(totalProfit)}
           </p>
-          <p className="text-xs text-slate-500">Revenue − cost − transport</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Revenue − cost − transport</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Received</p>
-          <p className="mt-1 text-lg font-bold text-slate-900">KSH {fmt(totalPaid)}</p>
-          <p className="text-xs text-slate-400">Payments received</p>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-600 dark:bg-[var(--card-bg)]">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Received</p>
+          <p className="mt-1 text-lg font-bold text-slate-900 dark:text-slate-100">KSH {fmt(totalPaid)}</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">Payments received</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Sales</p>
-          <p className="mt-1 text-lg font-bold text-slate-900">{orders.length}</p>
-          <p className="text-xs text-slate-400">Processing + completed (pending excluded)</p>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-600 dark:bg-[var(--card-bg)]">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Sales</p>
+          <p className="mt-1 text-lg font-bold text-slate-900 dark:text-slate-100">{orders.length}</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">Processing + completed (pending excluded)</p>
         </div>
-        <div className="rounded-xl border border-violet-200 bg-violet-50/50 p-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-violet-600">Avg TAT</p>
-          <p className="mt-1 text-lg font-bold text-violet-800">
+        <div className="rounded-xl border border-violet-200 bg-violet-50/50 p-4 shadow-sm dark:border-violet-500/40 dark:bg-violet-500/20">
+          <p className="text-xs font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-300">Avg TAT</p>
+          <p className="mt-1 text-lg font-bold text-violet-800 dark:text-violet-200">
             {completedWithTat.length === 0 ? "—" : tatLabel}
           </p>
-          <p className="text-xs text-slate-500">Order → delivery ({completedWithTat.length} completed)</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Order → delivery ({completedWithTat.length} completed)</p>
         </div>
       </div>
 
       {/* Sales & profit line chart */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-600 dark:bg-[var(--card-bg)]">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Sales & profit over time</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Sales & profit over time</h2>
           <RevenueRangeSelect currentDays={chartDays} />
         </div>
         <SalesProfitLineChart data={dailyData} />
@@ -177,17 +179,17 @@ export default async function AdminFinancePage({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue bar chart */}
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-600 dark:bg-[var(--card-bg)]">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Revenue by day</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Revenue by day</h2>
             <RevenueRangeSelect currentDays={chartDays} />
           </div>
           <RevenueBarChart data={dailyData} />
         </div>
 
         {/* Pie: most ordered products */}
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 mb-4">Most ordered products (top 10)</h2>
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-600 dark:bg-[var(--card-bg)]">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-4">Most ordered products (top 10)</h2>
           <ProductPieChart slices={pieSlices} />
         </div>
       </div>

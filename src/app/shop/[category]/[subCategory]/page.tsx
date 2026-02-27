@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { getSubCategoryByNames } from "@/lib/api";
 import Breadcrumb from "@/components/Breadcrumb";
 import { Suspense } from "react";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { ProductGridWithProviders } from "@/components/ProductGrid";
 import { Product } from "@/types";
-import Footer from "@/components/Footer";
 import { ProductProvider } from "@/lib/productContext";
 import { slugToName, normalizeSlug } from "@/lib/slug";
 
@@ -16,6 +16,33 @@ export const viewport = {
   initialScale: 1,
   themeColor: "#166534",
 };
+
+export async function generateMetadata({ params }: { params: Promise<{ category: string; subCategory: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const normalizedCategorySlug = normalizeSlug(resolvedParams.category ?? "");
+  const normalizedSubCategorySlug = normalizeSlug(resolvedParams.subCategory ?? "");
+  const categoryName = slugToName(normalizedCategorySlug);
+  const subCategoryName = slugToName(normalizedSubCategorySlug);
+
+  const subCategory = await getSubCategoryByNames(categoryName, subCategoryName);
+  if (!subCategory) return { title: "Not Found | Ziva Landscaping Co." };
+
+  const title = `${subCategory.name} | ${categoryName} | Ziva Landscaping Co.`;
+  const description = subCategory.description || `Shop ${subCategory.name} products in ${categoryName} at Ziva Landscaping Co.`;
+  const url = process.env.NEXT_PUBLIC_SITE_URL ? `${process.env.NEXT_PUBLIC_SITE_URL}/shop/${normalizedCategorySlug}/${normalizedSubCategorySlug}` : `https://zivalandscaping.co.ke/shop/${normalizedCategorySlug}/${normalizedSubCategorySlug}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      images: subCategory.imageUrl ? [{ url: subCategory.imageUrl, width: 800, height: 600, alt: subCategory.name }] : undefined,
+    }
+  };
+}
 
 export default async function SubCategoryPage({
   params,
@@ -82,7 +109,6 @@ export default async function SubCategoryPage({
             />
           </Suspense>
         </div>
-        <Footer />
       </div>
     </ProductProvider>
   );

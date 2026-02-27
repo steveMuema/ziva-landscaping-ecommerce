@@ -24,6 +24,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/lib/cart";
 import { useCartSidebar } from "@/lib/cartSidebarContext";
 import { useTheme } from "@/lib/themeContext";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import ShoppingCart from "@/components/ShoppingCart";
 
 // Server action to fetch categories
@@ -78,7 +79,7 @@ export default function NavigationBar() {
         const url = data?.SITE_LOGO_URL?.trim();
         if (url) setSiteLogoUrl(url);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const toggleCategory = (categoryId: string) => {
@@ -127,11 +128,10 @@ export default function NavigationBar() {
                       <Link
                         href={`/shop/${categorySlug}`}
                         className={`font-medium flex-1 text-left font-[family-name:var(--font-quicksand)] transition-colors
-                        ${
-                          pathname === `/shop/${categorySlug}`
+                        ${pathname === `/shop/${categorySlug}`
                             ? "text-[var(--accent)] font-bold"
                             : "text-[var(--foreground)] hover:text-[var(--accent)]"
-                        }
+                          }
                       `}
                         onClick={closeSidebar}
                       >
@@ -179,11 +179,10 @@ export default function NavigationBar() {
             <Link
               href={`/shop/blog`}
               className={`font-medium flex-1 text-left font-[family-name:var(--font-quicksand)] transition-colors
-              ${
-                pathname === `/shop/blog`
+              ${pathname === `/shop/blog`
                   ? "text-[var(--accent)] font-bold"
                   : "text-[var(--foreground)] hover:text-[var(--accent)]"
-              }
+                }
             `}
               onClick={closeSidebar}
             >
@@ -232,7 +231,7 @@ export default function NavigationBar() {
               <button
                 type="button"
                 onClick={() => setIsSidebarOpen(true)}
-                className="relative shrink-0 rounded-md bg-transparent p-2 text-[var(--muted)] hover:text-[var(--foreground)] md:hidden"
+                className="relative shrink-0 rounded-md bg-transparent p-2 text-[var(--muted)] hover:text-[var(--foreground)]"
               >
                 <span className="absolute -inset-0.5" />
                 <span className="sr-only">Open menu</span>
@@ -271,11 +270,10 @@ export default function NavigationBar() {
                   <Link
                     key={page.name}
                     href={page.href}
-                    className={`flex items-center text-base font-medium transition-colors duration-200 ease-out font-[family-name:var(--font-quicksand)] ${
-                      pathname === page.href
-                        ? "text-[var(--accent)] border-b-2 border-[var(--accent)]"
-                        : "text-[var(--header-fg)] hover:text-[var(--foreground)]"
-                    }`}
+                    className={`flex items-center text-base font-medium transition-colors duration-200 ease-out font-[family-name:var(--font-quicksand)] ${pathname === page.href
+                      ? "text-[var(--accent)] border-b-2 border-[var(--accent)]"
+                      : "text-[var(--header-fg)] hover:text-[var(--foreground)]"
+                      }`}
                     aria-current={pathname === page.href ? "page" : undefined}
                   >
                     {page.name}
@@ -307,18 +305,9 @@ export default function NavigationBar() {
                     </Link>
                   )}
                   <span aria-hidden="true" className="h-6 w-px bg-[var(--header-border)]" />
-                  <button
-                    type="button"
-                    onClick={toggleTheme}
-                    className="p-2 text-[var(--muted)] hover:text-[var(--foreground)] rounded-full"
-                    aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                  >
-                    {theme === "dark" ? (
-                      <SunIcon className="size-5" aria-hidden />
-                    ) : (
-                      <MoonIcon className="size-5" aria-hidden />
-                    )}
-                  </button>
+                  <div className="flex items-center">
+                    <ThemeToggle />
+                  </div>
                 </div>
 
                 {/* Search */}

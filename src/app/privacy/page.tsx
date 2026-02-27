@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — Ziva Landscaping Co.",
@@ -125,7 +124,6 @@ export default function PrivacyPage() {
           </Link>
         </p>
       </article>
-      <Footer />
     </div>
   );
 }

@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { getCategoryBySlug } from "@/lib/api";
 import Breadcrumb from "@/components/Breadcrumb";
 import { Suspense } from "react";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { SubCategoryGrid } from "@/components/SubCategoryGrid";
 import { SubCategory } from "@/types";
-import Footer from "@/components/Footer";
 export const dynamic = "force-dynamic";
 
 export const viewport = {
@@ -22,6 +22,31 @@ function slugFromParam(param: string) {
     .trim()
     .replace(/\s+/g, "-")
     .replace(/[^\w-]/g, "");
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const slug = resolvedParams.category?.trim() ?? "";
+  const normalizedSlug = slugFromParam(slug);
+  const category = await getCategoryBySlug(normalizedSlug);
+
+  if (!category) return { title: "Category Not Found | Ziva Landscaping Co." };
+
+  const title = `${category.name} | Shop | Ziva Landscaping Co.`;
+  const description = category.description || `Shop ${category.name} at Ziva Landscaping Co. Eco-friendly outdoor solutions.`;
+  const url = process.env.NEXT_PUBLIC_SITE_URL ? `${process.env.NEXT_PUBLIC_SITE_URL}/shop/${normalizedSlug}` : `https://zivalandscaping.co.ke/shop/${normalizedSlug}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      images: category.imageUrl ? [{ url: category.imageUrl, width: 800, height: 600, alt: category.name }] : undefined,
+    }
+  };
 }
 
 export default async function CategoryPage({
@@ -71,7 +96,6 @@ export default async function CategoryPage({
           <SubCategoryGrid subCategories={sortedSubCategories as unknown as SubCategory[]} categoryName={categoryName} />
         </Suspense>
       </div>
-      <Footer />
     </div>
   );
 }

@@ -13,12 +13,16 @@ import {
   CurrencyDollarIcon,
   BanknotesIcon,
   DocumentTextIcon,
+  ArrowDownTrayIcon,
   ArrowRightOnRectangleIcon,
   Bars3Icon,
   XMarkIcon,
   HomeIcon,
   Cog6ToothIcon,
+  SunIcon,
+  MoonIcon,
 } from "@heroicons/react/24/outline";
+import { useTheme } from "@/lib/themeContext";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: ChartBarIcon },
@@ -28,6 +32,7 @@ const navItems = [
   { href: "/admin/orders", label: "Orders", icon: ClipboardDocumentListIcon },
   { href: "/admin/finance", label: "Finance", icon: CurrencyDollarIcon },
   { href: "/admin/payments", label: "Payments", icon: BanknotesIcon },
+  { href: "/admin/downloads", label: "Downloads", icon: ArrowDownTrayIcon },
   { href: "/admin/blog", label: "Blog", icon: DocumentTextIcon },
   { href: "/admin/settings", label: "Settings", icon: Cog6ToothIcon },
 ];
@@ -35,29 +40,30 @@ const navItems = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       {/* Mobile sidebar backdrop */}
       <div
-        className="fixed inset-0 z-40 bg-slate-900/60 md:hidden"
+        className="fixed inset-0 z-40 bg-black/50 md:hidden"
         aria-hidden={!sidebarOpen}
         onClick={() => setSidebarOpen(false)}
         style={{ display: sidebarOpen ? "block" : "none" }}
       />
 
-      {/* Sidebar */}
+      {/* Sidebar - theme-aware */}
       <aside
-        className={`fixed top-0 left-0 z-50 flex h-full w-64 flex-col bg-slate-900 text-white transition-transform duration-200 ease-out md:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 flex h-full w-64 flex-col bg-[var(--card-bg)] border-r border-[var(--card-border)] text-[var(--foreground)] transition-transform duration-200 ease-out md:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex h-16 items-center justify-between border-b border-slate-700 px-4 md:justify-center">
+        <div className="flex h-16 items-center justify-between border-b border-[var(--card-border)] px-4 md:justify-center">
           <span className="text-lg font-semibold tracking-tight">Ziva Admin</span>
           <button
             type="button"
             onClick={() => setSidebarOpen(false)}
-            className="rounded p-2 text-slate-400 hover:bg-slate-800 hover:text-white md:hidden"
+            className="rounded p-2 text-[var(--muted)] hover:bg-[var(--muted-bg)] hover:text-[var(--foreground)] md:hidden"
             aria-label="Close menu"
           >
             <XMarkIcon className="h-6 w-6" />
@@ -73,8 +79,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-emerald-600 text-white"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                    ? "bg-[var(--accent)] text-white"
+                    : "text-[var(--muted)] hover:bg-[var(--muted-bg)] hover:text-[var(--foreground)]"
                 }`}
               >
                 <Icon className="h-5 w-5 shrink-0" />
@@ -83,10 +89,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             );
           })}
         </nav>
-        <div className="mt-auto shrink-0 border-t border-slate-700 p-3">
+        <div className="mt-auto shrink-0 border-t border-[var(--card-border)] p-3">
           <Link
             href="/"
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white"
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[var(--muted)] hover:bg-[var(--muted-bg)] hover:text-[var(--foreground)]"
           >
             <HomeIcon className="h-5 w-5" />
             View site
@@ -94,7 +100,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: "/auth/signin" })}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[var(--muted)] hover:bg-[var(--muted-bg)] hover:text-[var(--foreground)]"
           >
             <ArrowRightOnRectangleIcon className="h-5 w-5" />
             Sign out
@@ -104,17 +110,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Main area */}
       <div className="md:pl-64">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-slate-200 bg-white px-4 shadow-sm">
+        {/* Top bar - theme-aware + theme toggle */}
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-[var(--header-border)] bg-[var(--header-bg)] px-4 shadow-sm">
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
-            className="rounded p-2 text-slate-600 hover:bg-slate-100 md:hidden"
+            className="rounded p-2 text-[var(--foreground)] hover:bg-[var(--muted-bg)] md:hidden"
             aria-label="Open menu"
           >
             <Bars3Icon className="h-6 w-6" />
           </button>
           <div className="flex-1" />
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="rounded p-2 text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--muted-bg)]"
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {theme === "dark" ? (
+              <SunIcon className="h-5 w-5" aria-hidden />
+            ) : (
+              <MoonIcon className="h-5 w-5" aria-hidden />
+            )}
+          </button>
         </header>
 
         {/* Page content */}

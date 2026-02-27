@@ -12,14 +12,24 @@
     {
       "src": "/Ziva_logo_3.ico",
       "sizes": "48x48",
-      "type": "image/x-icon",
-      "purpose": "any"
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/Ziva_Logo.svg",
       "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
+      "type": "image/svg+xml"
     }
   ]
 }

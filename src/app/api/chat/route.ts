@@ -31,7 +31,7 @@ function getGeminiModel(apiKey: string) {
 
 function buildSystemPrompt(pathname: string, ctx: PageContext, catalogContext: string): string {
   const parts: string[] = [
-    `You are Fiona, a friendly, concise customer assistant for Ziva Landscaping Co. — a sustainable landscaping e-commerce site in Kenya, East Africa.`,
+    `You are a friendly, concise customer assistant for Ziva Landscaping Co. — a sustainable landscaping e-commerce site in Kenya, East Africa.`,
     `You help customers navigate the site, find products, understand checkout, delivery, and payment.`,
     `Prices are in KSH (Kenyan Shillings). Payment: M-Pesa (STK push at checkout) or cash on delivery. Orders under 10,000 KSH = full payment; 10,000+ = 50% deposit.`,
     `Stores: Kiambu Rd Ridgeways, Westlands Nairobi, Ngong Nairobi. Phone/WhatsApp: +254 757 133 726. Email: sales@zivalandscaping.co.ke`,
@@ -126,13 +126,13 @@ function getContextResponse(pathname: string, message: string): string {
   const path = pathname.replace(/\/$/, "") || "/";
 
   if (/^(hi|hello|hey|good morning|good afternoon)\b/.test(m) || m === "") {
-    if (path === "/") return "Hi! I'm Fiona. Welcome to Ziva Landscaping. You're on the home page—I can guide you. Try **Shop** to browse products, **Agriculture** for farm & nursery, or **Company** to learn about us. What would you like to do?";
-    if (path === "/shop") return "Hi! I'm Fiona. You're in the Shop. Pick a category below to see products. Need a specific category?";
-    if (path.startsWith("/shop/") && path.split("/").length === 3) return "Hi! I'm Fiona. You're viewing a category. Choose a subcategory to see products, or ask me where to find something.";
-    if (path.startsWith("/shop/") && path.split("/").length >= 4) return "Hi! I'm Fiona. You're on a product listing. Click any product for details, or add to cart. Need help with checkout or delivery?";
-    if (path === "/agriculture") return "Hi! I'm Fiona. You're on Agriculture—seeds, plants, and nursery. Browse categories or ask about organic farming and plants.";
-    if (path === "/company") return "Hi! I'm Fiona. You're on our Company page—mission, vision, and Ziva Homes. Want to know about landscaping services?";
-    return `Hi! I'm Fiona. You're on ${path === "/" ? "the home page" : "this page"}. How can I guide you? Try: **Shop**, **Agriculture**, **Company**, or **Checkout**.`;
+    if (path === "/") return "Hi! Welcome to Ziva Landscaping. You're on the home page—I can guide you. Try **Shop** to browse products, **Agriculture** for farm & nursery, or **Company** to learn about us. What would you like to do?";
+    if (path === "/shop") return "Hi! You're in the Shop. Pick a category below to see products. Need a specific category?";
+    if (path.startsWith("/shop/") && path.split("/").length === 3) return "Hi! You're viewing a category. Choose a subcategory to see products, or ask me where to find something.";
+    if (path.startsWith("/shop/") && path.split("/").length >= 4) return "Hi! You're on a product listing. Click any product for details, or add to cart. Need help with checkout or delivery?";
+    if (path === "/agriculture") return "Hi! You're on Agriculture—seeds, plants, and nursery. Browse categories or ask about organic farming and plants.";
+    if (path === "/company") return "Hi! You're on our Company page—mission, vision, and Ziva Homes. Want to know about landscaping services?";
+    return `Hi! You're on ${path === "/" ? "the home page" : "this page"}. How can I guide you? Try: **Shop**, **Agriculture**, **Company**, or **Checkout**.`;
   }
 
   if (/\b(shop|buy|products?|catalog)\b/.test(m)) return "Go to **Shop** (link in the menu)—then choose a category like Garden Tools, Outdoor Living, Lawn Care. Use the top menu to open Shop.";
@@ -143,7 +143,7 @@ function getContextResponse(pathname: string, message: string): string {
   if (/\b(price|cost|ksh|payment|mpesa)\b/.test(m)) return "Prices are in KSH. We accept **M-Pesa** (STK push at checkout) and **cash on delivery**.";
   if (/\b(delivery|shipping|location|nairobi|kenya)\b/.test(m)) return "We serve Kenya. At checkout you'll enter your address. Use **WhatsApp** to ask about specific delivery options.";
 
-  return "I'm Fiona, your guide for Ziva Landscaping. Ask: **Where is the shop?**, **How do I checkout?**, **Contact?** or use the menu to explore.";
+  return "I'm here to help you navigate Ziva Landscaping. Ask: **Where is the shop?**, **How do I checkout?**, **Contact?** or use the menu to explore.";
 }
 
 // ──── Gemini AI response ────
@@ -171,7 +171,7 @@ async function getGeminiResponse(
     const chat = model.startChat({
       history: [
         { role: "user", parts: [{ text: "System instructions: " + systemPrompt }] },
-        { role: "model", parts: [{ text: "Understood! I'm Fiona, ready to help customers navigate Ziva Landscaping. I'll be concise and helpful." }] },
+        { role: "model", parts: [{ text: "Understood! I'm ready to help customers navigate Ziva Landscaping. I'll be concise and helpful." }] },
         ...geminiHistory,
       ],
     });
@@ -260,7 +260,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ reply, whatsappIntro, ai: usedAI });
   } catch {
     return NextResponse.json(
-      { reply: "Sorry, something went wrong. I'm Fiona—try asking: Where is the shop? Or use the menu to explore.", ai: false },
+      { reply: "Sorry, something went wrong. Try asking: Where is the shop? Or use the menu to explore.", ai: false },
       { status: 200 }
     );
   }

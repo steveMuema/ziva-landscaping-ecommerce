@@ -150,7 +150,7 @@ export default function ChatAgent() {
         }),
       });
       const data = await res.json();
-      const reply = (data.reply as string) ?? "I'm Fiona—I can guide you. Try: Where is the shop? How do I checkout?";
+      const reply = (data.reply as string) ?? "I'm here to guide you. Try: Where is the shop? How do I checkout?";
       // Update the WhatsApp intro with the latest context (including user message)
       const intro = (data.whatsappIntro as string)?.trim();
       if (intro) setWhatsappIntro(intro);
@@ -158,7 +158,7 @@ export default function ChatAgent() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", text: "I'm Fiona—I couldn't respond right now. Use the menu to explore, or open WhatsApp below to contact us." },
+        { role: "assistant", text: "I couldn't respond right now. Use the menu to explore, or open WhatsApp below to contact us." },
       ]);
     } finally {
       setLoading(false);
@@ -201,7 +201,7 @@ export default function ChatAgent() {
         type="button"
         onClick={() => setOpen((o) => !o)}
         className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent)] text-white shadow-lg transition-all hover:bg-[var(--accent-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:ring-offset-2"
-        aria-label={open ? "Close Fiona" : "Chat with Fiona"}
+        aria-label={open ? "Close Chat" : "Chat with us"}
       >
         {open ? <XMarkIcon className="h-6 w-6" /> : <ChatBubbleLeftRightIcon className="h-6 w-6" />}
       </button>
@@ -210,10 +210,10 @@ export default function ChatAgent() {
       {open && (
         <div
           className="fixed bottom-24 right-6 z-40 flex w-[min(calc(100vw-3rem),380px)] flex-col overflow-hidden rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] shadow-xl"
-          aria-label="Chat with Fiona"
+          aria-label="Chat with us"
         >
           <div className="border-b border-[var(--card-border)] px-4 py-3">
-            <h2 className="text-sm font-semibold text-[var(--foreground)]">Fiona</h2>
+            <h2 className="text-sm font-semibold text-[var(--foreground)]">Assistant</h2>
             <p className="text-xs text-[var(--muted)]">I see where you are. Ask me anything, or contact us below.</p>
           </div>
 
@@ -276,7 +276,7 @@ export default function ChatAgent() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask Fiona…"
+                placeholder="Ask me anything…"
                 className="flex-1 rounded-xl border border-[var(--card-border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
                 disabled={loading}
               />

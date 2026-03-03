@@ -306,7 +306,10 @@ export default function SettingsForm() {
               <div className="border-b border-slate-100 px-5 py-4">
                 <h2 className="font-semibold text-slate-900">Gemini AI</h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  Used for powering Fiona, the conversational agent. Updates hot-load immediately.
+                  Used for powering the conversational agent. Updates hot-load immediately.
+                  <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-700 font-medium ml-1">
+                    Get an API key &rarr;
+                  </a>
                 </p>
               </div>
               <div className="p-5 space-y-4">
@@ -748,6 +751,6 @@ export default function SettingsForm() {
           {saving ? "Saving…" : "Save settings"}
         </button>
       </div>
-    </form>
+    </form >
   );
 }

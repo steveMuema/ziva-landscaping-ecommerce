@@ -3,8 +3,9 @@ import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
 import { getSetting } from "@/lib/settings";
 import { SETTING_KEYS } from "@/lib/setting-keys";
+import { WaveClient } from "@/lib/wave";
 
-const ORDER_STATUS = new Set(['PENDING','PROCESSING','COMPLETED','CANCELLED']);
+const ORDER_STATUS = new Set(['PENDING', 'PROCESSING', 'COMPLETED', 'CANCELLED']);
 
 const PRICING_THRESHOLD_KSH = 10_000;
 const DOWN_PAYMENT_RATIO = 0.5;
@@ -110,6 +111,43 @@ export async function POST(request: Request) {
     if (receiptNo) {
       await prisma.orderPaymentRef.create({ data: { orderId: orderResult.id, value: receiptNo, amount: paid } });
     }
+
+    // -------------------------------------------------------------------------------------------------
+    // WAVE ACCOUNTING OUTSOURCING (PRIMARY CHECKOUT SOURCE OF TRUTH)
+    // We block the response to guarantee the user's invoice is securely sent to their email.
+    // -------------------------------------------------------------------------------------------------
+    try {
+      const user = await prisma.user.findUnique({ where: { id: clientId } });
+      const email = user?.email || `${String(phone).trim()}@local.ziva.guest.com`;
+      const fullname = user?.name || "Ziva Guest";
+
+      const waveCustomerId = await WaveClient.syncCustomer(email, fullname);
+
+      let waveInvoiceId: string | null = null;
+      if (waveCustomerId) {
+        const waveItems = items.map(i => ({
+          name: `Storefront Product Reference (${i.productId})`,
+          price: i.price,
+          quantity: i.quantity,
+        }));
+        waveInvoiceId = await WaveClient.syncInvoice(waveCustomerId, waveItems, transportFee);
+      }
+
+      if (waveCustomerId || waveInvoiceId) {
+        await prisma.order.update({
+          where: { id: orderResult.id },
+          data: { waveCustomerId, waveInvoiceId }
+        });
+
+        if (waveInvoiceId) {
+          await WaveClient.approveInvoice(waveInvoiceId);
+          await WaveClient.sendInvoice(waveInvoiceId, email); // Emails the user their checkout link!
+        }
+      }
+    } catch (waveSyncErr) {
+      console.error("Critical Wave sync failure on checkout intercept:", waveSyncErr);
+    }
+    // -------------------------------------------------------------------------------------------------
 
     revalidatePath("/admin/finance");
     return NextResponse.json({ orderId: orderResult.id });

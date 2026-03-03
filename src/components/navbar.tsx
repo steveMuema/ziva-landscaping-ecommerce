@@ -13,8 +13,6 @@ import {
   XMarkIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  SunIcon,
-  MoonIcon,
   ArrowRightOnRectangleIcon,
 } from "@heroicons/react/24/outline";
 import Image from "next/image";
@@ -60,7 +58,7 @@ export default function NavigationBar() {
   const { data: session, status } = useSession();
   const { items } = useCart();
   const { cartOpen, setCartOpen } = useCartSidebar();
-  const { theme, toggleTheme } = useTheme();
+  const { } = useTheme();
   const isSignedIn = status === "authenticated" && !!session?.user;
   const isAdmin = isSignedIn && session?.user?.role === "admin";
 
@@ -231,7 +229,7 @@ export default function NavigationBar() {
               <button
                 type="button"
                 onClick={() => setIsSidebarOpen(true)}
-                className="relative shrink-0 rounded-md bg-transparent p-2 text-[var(--muted)] hover:text-[var(--foreground)]"
+                className="relative shrink-0 rounded-md bg-transparent p-2 text-[var(--muted)] hover:text-[var(--foreground)] md:hidden"
               >
                 <span className="absolute -inset-0.5" />
                 <span className="sr-only">Open menu</span>

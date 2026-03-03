@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { Cart } from '@/types';
-
 export async function POST(request: Request) {
   try {
     const { clientId, productId, quantity } = await request.json();

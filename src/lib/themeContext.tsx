@@ -3,14 +3,14 @@
 import * as React from "react";
 import { ThemeProvider as NextThemesProvider, useTheme as useNextTheme } from "next-themes";
 
-type Theme = "light" | "dark" | "cyan" | "blue";
+type Theme = "light" | "dark" | "cyan" | "blue" | "system";
 
 export function ThemeProvider({ children, ...props }: React.ComponentProps<typeof NextThemesProvider>) {
   return (
     <NextThemesProvider
       attribute="data-theme"
-      defaultTheme="light"
-      enableSystem={false}
+      defaultTheme="system"
+      enableSystem={true}
       themes={['light', 'dark', 'cyan', 'blue']}
       {...props}
     >
@@ -20,10 +20,11 @@ export function ThemeProvider({ children, ...props }: React.ComponentProps<typeo
 }
 
 export function useTheme() {
-  const { theme, setTheme } = useNextTheme();
+  const { theme, setTheme, systemTheme } = useNextTheme();
 
   return {
-    theme: (theme || "light") as Theme,
+    theme: (theme || "system") as Theme,
+    systemTheme,
     setTheme: (t: Theme) => setTheme(t),
     toggleTheme: () => {
       // Legacy stub for any components historically toggling light/dark

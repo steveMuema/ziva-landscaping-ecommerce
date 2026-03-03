@@ -90,7 +90,7 @@ export default function OrderConfirmationSection() {
                 Thanks for ordering
               </h1>
               <p className="text-[var(--muted)] font-[family-name:var(--font-quicksand)]">
-                We appreciate your order, we're currently processing it. So hang tight and we'll send you confirmation very soon!
+                We've drafted your official invoice through our Wave Accounting system. **Please check your email inbox** for the invoice and secure payment link to finalize your purchase!
               </p>
             </div>
             {/* Order Progress */}
@@ -101,11 +101,11 @@ export default function OrderConfirmationSection() {
                     { key: 'PENDING', label: 'Order placed', completed: false, active: false },
                     { key: 'PROCESSING', label: 'Processing', completed: false, active: false },
                     { key: 'SHIPPED', label: 'Shipped', completed: false, active: false },
-                    { 
-                      key: 'DELIVERED', 
-                      label: order.status === 'CANCELLED' ? 'Cancelled' : 'Delivered', 
-                      completed: false, 
-                      active: false 
+                    {
+                      key: 'DELIVERED',
+                      label: order.status === 'CANCELLED' ? 'Cancelled' : 'Delivered',
+                      completed: false,
+                      active: false
                     }
                   ];
 
@@ -161,9 +161,9 @@ export default function OrderConfirmationSection() {
                   <div className="relative">
                     {/* Progress Bar Background */}
                     <div className="absolute top-6 left-0 right-0 h-1 bg-[var(--card-border)] rounded-full"></div>
-                    
+
                     {/* Progress Bar Fill */}
-                    <div 
+                    <div
                       className={`absolute top-6 left-0 h-1 ${progressColor} rounded-full transition-all duration-500 ease-in-out`}
                       style={{ width: progressWidth }}
                     ></div>
@@ -173,26 +173,24 @@ export default function OrderConfirmationSection() {
                       {steps.map((step) => (
                         <div key={step.key} className="flex flex-col items-center">
                           {/* Step Circle */}
-                          <div className={`w-3 h-3 rounded-full border-2 transition-all duration-300 ${
-                            step.completed 
-                              ? `${progressColor} border-transparent` 
-                              : step.active 
-                                ? `bg-[var(--card-bg)] ${progressColor.replace('bg-', 'border-')} border-2` 
+                          <div className={`w-3 h-3 rounded-full border-2 transition-all duration-300 ${step.completed
+                              ? `${progressColor} border-transparent`
+                              : step.active
+                                ? `bg-[var(--card-bg)] ${progressColor.replace('bg-', 'border-')} border-2`
                                 : 'bg-[var(--card-bg)] border-[var(--card-border)]'
-                          }`}></div>
-                          
+                            }`}></div>
+
                           {/* Step Label */}
                           <div className="mt-3 text-center">
                             <span
-                              className={`text-sm font-medium font-[family-name:var(--font-quicksand)] ${
-                                order.status === 'DELIVERED'
+                              className={`text-sm font-medium font-[family-name:var(--font-quicksand)] ${order.status === 'DELIVERED'
                                   ? 'text-green-500'
                                   : order.status === 'CANCELLED'
-                                  ? 'text-red-500'
-                                  : step.completed || step.active
-                                  ? 'text-yellow-500'
-                                  : 'text-[var(--muted)]'
-                              }`}
+                                    ? 'text-red-500'
+                                    : step.completed || step.active
+                                      ? 'text-yellow-500'
+                                      : 'text-[var(--muted)]'
+                                }`}
                             >
                               {step.label}
                             </span>
@@ -204,13 +202,12 @@ export default function OrderConfirmationSection() {
                     {/* Order Status Message */}
                     <div className="mt-6 text-center">
                       <p
-                        className={`text-sm font-[family-name:var(--font-quicksand)] ${
-                          order.status === 'DELIVERED'
+                        className={`text-sm font-[family-name:var(--font-quicksand)] ${order.status === 'DELIVERED'
                             ? 'text-green-500'
                             : order.status === 'CANCELLED'
-                            ? 'text-red-500'
-                            : 'text-[var(--muted)]'
-                        }`}
+                              ? 'text-red-500'
+                              : 'text-[var(--muted)]'
+                          }`}
                       >
                         {order.status === 'PENDING' && 'Your order has been placed and is awaiting confirmation.'}
                         {order.status === 'PROCESSING' && 'Your order is being processed and prepared for shipment.'}

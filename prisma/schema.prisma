@@ -85,17 +85,19 @@ model Wishlist {
 }
 
 model User {
-  id            String          @id @default(cuid())
-  name          String?
-  email         String?         @unique
-  emailVerified DateTime?
-  password      String?
-  role          String          @default("user")
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  Account       Account[]
-  Session       Session[]
-  Authenticator Authenticator[]
+  id               String          @id @default(cuid())
+  name             String?
+  email            String?         @unique
+  emailVerified    DateTime?
+  password         String?
+  role             String          @default("user")
+  twoFactorSecret  String?
+  twoFactorEnabled Boolean         @default(false)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  Account          Account[]
+  Session          Session[]
+  Authenticator    Authenticator[]
 }
 
 model Account {
@@ -168,6 +170,8 @@ model Order {
   paymentMethod   PaymentMethod?
   amountPaid      Float              @default(0)
   completedAt     DateTime?          // Set when status becomes COMPLETED (for TAT)
+  waveInvoiceId   String?            // Anchors the synced Wave Accounting invoice
+  waveCustomerId  String?            // Anchors the synced Wave Accounting customer
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   orderItems      OrderItem[]

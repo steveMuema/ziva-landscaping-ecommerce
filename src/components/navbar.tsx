@@ -49,7 +49,6 @@ export default function NavigationBar() {
     categories: [],
     pages: [
       { name: "Shop", href: "/shop" },
-      { name: "Agriculture", href: "/agriculture" },
       { name: "Company", href: "/company" },
       { name: "Blog", href: "/blog" },
     ],
@@ -175,9 +174,9 @@ export default function NavigationBar() {
             </ul>
             <hr className="mb-4 border-gray-200" />
             <Link
-              href={`/shop/blog`}
-              className={`font-medium flex-1 text-left font-[family-name:var(--font-quicksand)] transition-colors
-              ${pathname === `/shop/blog`
+              href={`/blog`}
+              className={`block font-medium text-[var(--foreground)] hover:text-[var(--accent)] font-[family-name:var(--font-quicksand)] transition-colors
+              ${pathname === `/blog`
                   ? "text-[var(--accent)] font-bold"
                   : "text-[var(--foreground)] hover:text-[var(--accent)]"
                 }

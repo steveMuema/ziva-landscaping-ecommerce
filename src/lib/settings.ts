@@ -3,24 +3,34 @@ import { SETTING_KEYS } from "@/lib/setting-keys";
 
 export { SETTING_KEYS };
 
-/** Get a single setting value from DB. Returns null if not set. */
+/** Get a single setting value from DB. Returns null if not set or DB unavailable. */
 export async function getSetting(key: string): Promise<string | null> {
-  const row = await prisma.setting.findUnique({
-    where: { key },
-  });
-  return row?.value ?? null;
+  if (!process.env.DATABASE_URL) return null;
+  try {
+    const row = await prisma.setting.findUnique({
+      where: { key },
+    });
+    return row?.value ?? null;
+  } catch {
+    return null;
+  }
 }
 
-/** Get multiple settings. Returns record of key -> value (null if not set). */
+/** Get multiple settings. Returns record of key -> value (null if not set or DB unavailable). */
 export async function getSettings(keys: string[]): Promise<Record<string, string | null>> {
   if (keys.length === 0) return {};
-  const rows = await prisma.setting.findMany({
-    where: { key: { in: keys } },
-  });
-  const map: Record<string, string | null> = {};
-  for (const k of keys) map[k] = null;
-  for (const r of rows) map[r.key] = r.value;
-  return map;
+  if (!process.env.DATABASE_URL) return Object.fromEntries(keys.map(k => [k, null]));
+  try {
+    const rows = await prisma.setting.findMany({
+      where: { key: { in: keys } },
+    });
+    const map: Record<string, string | null> = {};
+    for (const k of keys) map[k] = null;
+    for (const r of rows) map[r.key] = r.value;
+    return map;
+  } catch {
+    return Object.fromEntries(keys.map(k => [k, null]));
+  }
 }
 
 /** Set a setting (upsert). */

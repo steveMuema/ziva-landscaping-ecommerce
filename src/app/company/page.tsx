@@ -3,6 +3,8 @@ import AboutUsSection from "@/sections/aboutus.section";
 import { getSettings } from "@/lib/settings";
 import { SETTING_KEYS } from "@/lib/setting-keys";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Company — Mission & Vision | Ziva Landscaping Co",
   description:

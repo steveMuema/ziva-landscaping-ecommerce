@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { getSetting } from "@/lib/settings";
 import { SETTING_KEYS } from "@/lib/setting-keys";
 import { WaveClient } from "@/lib/wave";
+import { ZohoClient } from "@/lib/zoho";
 
 const ORDER_STATUS = new Set(['PENDING', 'PROCESSING', 'COMPLETED', 'CANCELLED']);
 
@@ -148,6 +149,43 @@ export async function POST(request: Request) {
       console.error("Critical Wave sync failure on checkout intercept:", waveSyncErr);
     }
     // -------------------------------------------------------------------------------------------------
+
+    // -------------------------------------------------------------------------------------------------
+    // ZOHO BOOKS OUTSOURCING (SECONDARY CHECKOUT TRUTH)
+    // Runs alongside the Wave sync to manage ledger accounting in Zoho Books.
+    // -------------------------------------------------------------------------------------------------
+    try {
+      const user = await prisma.user.findUnique({ where: { id: clientId } });
+      const email = user?.email || `${String(phone).trim()}@local.ziva.guest.com`;
+      const fullname = user?.name || "Ziva Guest";
+
+      const zohoCustomerId = await ZohoClient.syncCustomer(email, fullname);
+      let zohoInvoiceId: string | null = null;
+
+      if (zohoCustomerId) {
+        const zohoItems = items.map(i => ({
+          name: `Storefront Product Reference (${i.productId})`,
+          price: i.price,
+          quantity: i.quantity,
+        }));
+        zohoInvoiceId = await ZohoClient.syncInvoice(zohoCustomerId, zohoItems, transportFee);
+      }
+
+      if (zohoCustomerId || zohoInvoiceId) {
+        await prisma.order.update({
+          where: { id: orderResult.id },
+          data: { zohoCustomerId, zohoInvoiceId }
+        });
+
+        if (zohoInvoiceId) {
+          await ZohoClient.sendInvoice(zohoInvoiceId, email);
+        }
+      }
+    } catch (zohoSyncErr) {
+      console.error("Critical Zoho sync failure on checkout intercept:", zohoSyncErr);
+    }
+    // -------------------------------------------------------------------------------------------------
+
 
     revalidatePath("/admin/finance");
     return NextResponse.json({ orderId: orderResult.id });

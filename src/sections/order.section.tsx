@@ -63,14 +63,14 @@ export default function OrderSection() {
                   order.status === "PENDING"
                     ? "text-yellow-500 font-[family-name:var(--font-quicksand)]"
                     : order.status === "SHIPPED"
-                    ? "text-blue-500 font-[family-name:var(--font-quicksand)]"
-                    : "text-green-500 font-[family-name:var(--font-quicksand)]"
+                      ? "text-blue-500 font-[family-name:var(--font-quicksand)]"
+                      : "text-green-500 font-[family-name:var(--font-quicksand)]"
                 }
               >
                 {order.status}
               </span>
             </p>
-            <p className="text-[var(--muted)] font-[family-name:var(--font-quicksand)]">
+            <p className="text-[var(--muted)] font-[family-name:var(--font-quicksand)]" suppressHydrationWarning>
               <strong className="text-[var(--muted)] font-[family-name:var(--font-quicksand)]">Created At:</strong>{" "}
               {new Date(order.createdAt).toLocaleString()}
             </p>

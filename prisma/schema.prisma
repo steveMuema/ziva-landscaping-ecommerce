@@ -172,6 +172,8 @@ model Order {
   completedAt     DateTime?          // Set when status becomes COMPLETED (for TAT)
   waveInvoiceId   String?            // Anchors the synced Wave Accounting invoice
   waveCustomerId  String?            // Anchors the synced Wave Accounting customer
+  zohoInvoiceId   String?            // Anchors the synced Zoho Books invoice
+  zohoCustomerId  String?            // Anchors the synced Zoho Books customer
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   orderItems      OrderItem[]

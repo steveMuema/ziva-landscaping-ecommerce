@@ -45,12 +45,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 function formatDate(d: Date | null) {
   if (!d) return null;
-  return new Date(d).toLocaleDateString("en-KE", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: "UTC",
-  });
+  const dateObj = new Date(d);
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  return `${months[dateObj.getUTCMonth()]} ${dateObj.getUTCDate()}, ${dateObj.getUTCFullYear()}`;
 }
 
 export default async function BlogPostPage({ params }: Props) {

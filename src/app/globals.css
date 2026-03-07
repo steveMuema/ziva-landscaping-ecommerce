@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="cyan"], [data-theme="blue"], :is([data-theme="dark"], [data-theme="cyan"], [data-theme="blue"]) *));
 
 :root {
   --background: #ffffff;

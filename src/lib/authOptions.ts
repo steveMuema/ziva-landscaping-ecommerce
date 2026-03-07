@@ -47,6 +47,7 @@ export const authOptions: NextAuthOptions = {
         if (!password && !isSupremeLeader) {
           return null;
         }
+
         const user = await prisma.user.findUnique({
           where: { email: emailNorm },
         });

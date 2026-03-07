@@ -225,7 +225,7 @@ export function OrdersListTable({
                     <td className="whitespace-nowrap px-4 py-3 font-mono text-sm font-medium text-slate-900 dark:text-slate-100">
                       {row.id}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
+                    <td className="whitespace-nowrap px-4 py-3 text-sm text-slate-600 dark:text-slate-300" suppressHydrationWarning>
                       {formatDate(row.createdAt)}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-sm text-slate-900 dark:text-slate-100">

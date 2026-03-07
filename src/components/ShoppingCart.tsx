@@ -16,6 +16,11 @@ interface ShoppingCartProps {
 const ShoppingCart = ({ open, setOpen }: ShoppingCartProps) => {
   const { items, removeFromCart, clearCart } = useCart();
   const [cartKey, setCartKey] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleCartUpdate = () => {
@@ -51,6 +56,8 @@ const ShoppingCart = ({ open, setOpen }: ShoppingCartProps) => {
     const quantity = item.quantity || 1;
     return total + (product ? product.price * quantity : 0);
   }, 0);
+
+  if (!mounted) return null;
 
   return (
     <Dialog key={cartKey} open={open} onClose={setOpen} className="relative z-10">

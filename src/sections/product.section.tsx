@@ -22,17 +22,20 @@ const ProductSection = ({ product, categoryName, subCategoryName, categorySlug, 
   const subSlug = subCategorySlug ?? slugify(subCategoryName);
   const router = useRouter();
   const { items } = useCart();
-  const [quantity, setQuantity] = useState(() => {
-    if (typeof window === "undefined") return 1;
+  const [quantity, setQuantity] = useState(1);
+
+  // Hydrate quantity from localStorage after initial render to avoid mismatch
+  useEffect(() => {
     try {
       const storedQuantities = localStorage.getItem("cartQuantities");
       const quantities = storedQuantities ? JSON.parse(storedQuantities) : {};
-      return quantities[product.id] || 1;
+      if (quantities[product.id]) {
+        setQuantity(quantities[product.id]);
+      }
     } catch (error) {
       console.error("Error parsing cartQuantities from localStorage:", error);
-      return 1;
     }
-  });
+  }, [product.id]);
 
   // Sync quantity with cart.items
   useEffect(() => {
@@ -79,9 +82,9 @@ const ProductSection = ({ product, categoryName, subCategoryName, categorySlug, 
   // Split description into paragraphs based on newlines or three spaces after a period
   const descriptionParagraphs = product.description
     ? product.description
-        .split(/\n|.\s\s\s/)
-        .filter((line) => line.trim() !== "")
-        .map((line) => line.replace(/^.\s\s\s/, "")) // Remove leading period and spaces if split on them
+      .split(/\n|.\s\s\s/)
+      .filter((line) => line.trim() !== "")
+      .map((line) => line.replace(/^.\s\s\s/, "")) // Remove leading period and spaces if split on them
     : ["No description available."];
 
   return (

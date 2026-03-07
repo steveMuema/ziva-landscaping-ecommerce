@@ -15,6 +15,10 @@ const LABELS: Record<string, string> = {
   [SETTING_KEYS.CLOUDINARY_API_KEY]: "Cloudinary API key",
   [SETTING_KEYS.CLOUDINARY_API_SECRET]: "Cloudinary API secret",
   [SETTING_KEYS.GEMINI_API_KEY]: "Gemini API Key",
+  [SETTING_KEYS.ZOHO_BOOKS_CLIENT_ID]: "Zoho Client ID",
+  [SETTING_KEYS.ZOHO_BOOKS_CLIENT_SECRET]: "Zoho Client Secret",
+  [SETTING_KEYS.ZOHO_BOOKS_REFRESH_TOKEN]: "Zoho Refresh Token",
+  [SETTING_KEYS.ZOHO_BOOKS_ORGANIZATION_ID]: "Zoho Organization ID",
   [SETTING_KEYS.SITE_COMPANY_NAME]: "Company name",
   [SETTING_KEYS.SITE_TAGLINE]: "Tagline",
   [SETTING_KEYS.SITE_EMAIL]: "Contact email",
@@ -334,6 +338,40 @@ export default function SettingsForm() {
                     )}
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-slate-200 bg-slate-50/50 shadow-sm">
+              <div className="border-b border-slate-100 px-5 py-4">
+                <h2 className="font-semibold text-slate-900">Zoho Books</h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Used for syncing orders and generating invoices directly in your accounting system.
+                </p>
+              </div>
+              <div className="p-5 space-y-4">
+                {([SETTING_KEYS.ZOHO_BOOKS_CLIENT_ID, SETTING_KEYS.ZOHO_BOOKS_CLIENT_SECRET, SETTING_KEYS.ZOHO_BOOKS_REFRESH_TOKEN, SETTING_KEYS.ZOHO_BOOKS_ORGANIZATION_ID] as const).map((key) => (
+                  <div key={key}>
+                    <label htmlFor={key} className="block text-sm font-medium text-slate-700">
+                      {LABELS[key]}
+                    </label>
+                    <div className="mt-1 flex items-center gap-2">
+                      <input
+                        id={key}
+                        type="password"
+                        autoComplete="off"
+                        placeholder={settings[key] ? "•••••••• (leave blank to keep)" : "Not set"}
+                        className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 sm:text-sm"
+                        value={form[key] ?? ""}
+                        onChange={(e) => setForm((p) => ({ ...p, [key]: e.target.value }))}
+                      />
+                      {settings[key] && (
+                        <span className="shrink-0 rounded bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700">
+                          Set
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 

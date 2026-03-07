@@ -21,12 +21,11 @@ export const metadata = {
 
 function formatDate(d: Date | null) {
   if (!d) return null;
-  return new Date(d).toLocaleDateString("en-KE", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: "UTC",
-  });
+  // Use a strictly deterministic ISO string or extract UTC components manually to avoid
+  // hydration mismatches based on the server's local node timezone vs the browser's matching logic.
+  const dateObj = new Date(d);
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  return `${months[dateObj.getUTCMonth()]} ${dateObj.getUTCDate()}, ${dateObj.getUTCFullYear()}`;
 }
 
 export default async function BlogPage() {

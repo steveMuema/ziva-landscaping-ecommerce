@@ -199,10 +199,10 @@ export default async function ProductsPage() {
                         min={0}
                         defaultValue={prod.stock}
                         className={`w-20 rounded-lg border px-2 py-1.5 text-right text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 ${prod.stock === 0
-                            ? "border-red-300 bg-red-50 text-red-900"
-                            : prod.stock <= LOW_STOCK_THRESHOLD
-                              ? "border-amber-300 bg-amber-50 text-amber-900"
-                              : "border-slate-300 text-slate-900"
+                          ? "border-red-300 bg-red-50 text-red-900"
+                          : prod.stock <= LOW_STOCK_THRESHOLD
+                            ? "border-amber-300 bg-amber-50 text-amber-900"
+                            : "border-slate-300 text-slate-900"
                           }`}
                         aria-label={`Stock for ${prod.name}`}
                       />
@@ -217,12 +217,12 @@ export default async function ProductsPage() {
                   <td className="px-5 py-3">
                     {prod.tags.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
-                        {[...new Set(prod.tags)].map((t, i) => (
+                        {(prod.tags as string[] || []).map((t, idx) => (
                           <span
-                            key={`${t}-${i}`}
+                            key={idx}
                             className="inline-flex rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700"
                           >
-                            {t}
+                            {String(t)}
                           </span>
                         ))}
                       </div>

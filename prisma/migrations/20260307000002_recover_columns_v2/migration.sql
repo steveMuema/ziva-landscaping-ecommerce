@@ -30,6 +30,16 @@ CREATE TABLE IF NOT EXISTS "MpesaStkRequest" (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "MpesaStkRequest_checkoutRequestId_key" ON "MpesaStkRequest"("checkoutRequestId");
 
+-- PageView
+CREATE TABLE IF NOT EXISTS "PageView" (
+    "id" SERIAL NOT NULL,
+    "path" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "PageView_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "PageView_path_idx" ON "PageView"("path");
+CREATE INDEX IF NOT EXISTS "PageView_createdAt_idx" ON "PageView"("createdAt");
+
 -- BlogPost
 CREATE TABLE IF NOT EXISTS "BlogPost" (
     "id" SERIAL NOT NULL,

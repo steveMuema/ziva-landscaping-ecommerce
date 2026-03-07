@@ -3,8 +3,6 @@ import AboutUsSection from "@/sections/aboutus.section";
 import { getSettings } from "@/lib/settings";
 import { SETTING_KEYS } from "@/lib/setting-keys";
 
-export const dynamic = 'force-dynamic';
-
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://zivalandscaping.co.ke";
 const DEFAULT_PARALLAX_IMAGE = "/landscape.jpeg";
 

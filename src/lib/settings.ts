@@ -1,37 +1,46 @@
 import prisma from "@/lib/prisma";
 import { SETTING_KEYS } from "@/lib/setting-keys";
+import { unstable_cache } from "next/cache";
 
 export { SETTING_KEYS };
 
 /** Get a single setting value from DB. Returns null if not set or DB unavailable. */
-export async function getSetting(key: string): Promise<string | null> {
-  if (!process.env.DATABASE_URL) return null;
-  try {
-    const row = await prisma.setting.findUnique({
-      where: { key },
-    });
-    return row?.value ?? null;
-  } catch {
-    return null;
-  }
-}
+export const getSetting = unstable_cache(
+  async (key: string): Promise<string | null> => {
+    if (!process.env.DATABASE_URL) return null;
+    try {
+      const row = await prisma.setting.findUnique({
+        where: { key },
+      });
+      return row?.value ?? null;
+    } catch {
+      return null;
+    }
+  },
+  ['getSetting'],
+  { tags: ['settings'], revalidate: 3600 }
+);
 
 /** Get multiple settings. Returns record of key -> value (null if not set or DB unavailable). */
-export async function getSettings(keys: string[]): Promise<Record<string, string | null>> {
-  if (keys.length === 0) return {};
-  if (!process.env.DATABASE_URL) return Object.fromEntries(keys.map(k => [k, null]));
-  try {
-    const rows = await prisma.setting.findMany({
-      where: { key: { in: keys } },
-    });
-    const map: Record<string, string | null> = {};
-    for (const k of keys) map[k] = null;
-    for (const r of rows) map[r.key] = r.value;
-    return map;
-  } catch {
-    return Object.fromEntries(keys.map(k => [k, null]));
-  }
-}
+export const getSettings = unstable_cache(
+  async (keys: string[]): Promise<Record<string, string | null>> => {
+    if (keys.length === 0) return {};
+    if (!process.env.DATABASE_URL) return Object.fromEntries(keys.map(k => [k, null]));
+    try {
+      const rows = await prisma.setting.findMany({
+        where: { key: { in: keys } },
+      });
+      const map: Record<string, string | null> = {};
+      for (const k of keys) map[k] = null;
+      for (const r of rows) map[r.key] = r.value;
+      return map;
+    } catch {
+      return Object.fromEntries(keys.map(k => [k, null]));
+    }
+  },
+  ['getSettings'],
+  { tags: ['settings'], revalidate: 3600 }
+);
 
 /** Set a setting (upsert). */
 export async function setSetting(key: string, value: string): Promise<void> {
@@ -40,6 +49,7 @@ export async function setSetting(key: string, value: string): Promise<void> {
     create: { key, value },
     update: { value },
   });
+  // You might want to call revalidateTag('settings') from the API endpoint that uses this.
 }
 
 

@@ -9,7 +9,6 @@ import { CartSidebarProvider } from "@/lib/cartSidebarContext";
 import { ThemeProvider } from "@/lib/themeContext";
 import { SessionProvider } from "@/components/SessionProvider";
 import RootLayoutContent from "@/components/RootLayoutContent";
-import { RecordPageView } from "@/components/RecordPageView";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -137,7 +136,6 @@ export default function RootLayout({
             </CartSidebarProvider>
           </ThemeProvider>
         </SessionProvider>
-        <RecordPageView />
         <Analytics />
       </body>
     </html>

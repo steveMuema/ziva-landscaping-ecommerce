@@ -111,23 +111,7 @@ export default async function AdminDashboard() {
     })(),
   ]);
 
-  let pageViewsToday = 0;
-  let pageViewsLast7 = 0;
-  let topPages: { path: string; _count: { path: number } }[] = [];
-  try {
-    [pageViewsToday, pageViewsLast7, topPages] = await Promise.all([
-      prisma.pageView.count({ where: { createdAt: { gte: today } } }),
-      prisma.pageView.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
-      prisma.pageView.groupBy({
-        by: ["path"],
-        _count: { path: true },
-        orderBy: { _count: { path: "desc" } },
-        take: 10,
-      }),
-    ]);
-  } catch {
-    // PageView model/table may be missing; keep defaults (0, 0, [])
-  }
+
 
   const pendingOrders = orders.filter((o) => o.status === "PENDING").length;
   const ordersLast7 = orders.filter(
@@ -141,8 +125,7 @@ export default async function AdminDashboard() {
     { label: "Pending orders", count: pendingOrders, href: "/admin/orders", icon: ShoppingCartIcon, color: "amber" },
     { label: "Orders (7 days)", count: ordersLast7, href: "/admin/orders", icon: ChartBarIcon, color: "emerald" },
     { label: "Revenue (7 days)", value: `KSH ${fmt(revenueLast7)}`, href: "/admin/finance", icon: CurrencyDollarIcon, color: "blue" },
-    { label: "Page views today", count: pageViewsToday, href: "#", icon: EyeIcon, color: "violet" },
-    { label: "Page views (7 days)", count: pageViewsLast7, href: "#", icon: EyeIcon, color: "slate" },
+
     { label: "Categories", count: categoryCount, href: "/admin/categories", icon: FolderIcon, color: "blue" },
     { label: "Subcategories", count: subCategoryCount, href: "/admin/subcategories", icon: Squares2X2Icon, color: "emerald" },
     { label: "Products", count: productCount, href: "/admin/products", icon: CubeIcon, color: "violet" },
@@ -225,26 +208,21 @@ export default async function AdminDashboard() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-600 dark:bg-[var(--card-bg)]">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-600 px-5 py-4">
-            <h2 className="font-semibold text-slate-900 dark:text-slate-100">Top pages</h2>
+            <h2 className="font-semibold text-slate-900 dark:text-slate-100">Site Analytics</h2>
           </div>
-          <div className="p-5">
-            {topPages.length === 0 ? (
-              <p className="text-sm text-slate-500 dark:text-slate-400">No page views yet. Visit the site to see stats.</p>
-            ) : (
-              <ul className="space-y-2">
-                {topPages.map((p) => (
-                  <li
-                    key={p.path}
-                    className="flex items-center justify-between rounded-lg border border-slate-100 dark:border-slate-600 py-2 px-3 text-sm text-slate-700 dark:text-slate-300"
-                  >
-                    <span className="truncate font-mono" title={p.path}>
-                      {p.path === "/" ? "Home" : p.path}
-                    </span>
-                    <span className="text-slate-400 dark:text-slate-500 shrink-0 ml-2">{fmt(p._count.path)}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
+          <div className="p-5 flex flex-col items-center justify-center text-center h-[250px]">
+            <ChartBarIcon className="h-10 w-10 text-slate-400 dark:text-slate-500 mb-3" />
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 px-4">
+              Detailed page views, visitors, and performance analytics are now handled natively by Vercel Analytics for maximum speed and reliability.
+            </p>
+            <a
+              href="https://vercel.com/dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 transition-colors dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+            >
+              View Vercel Analytics
+            </a>
           </div>
         </div>
 

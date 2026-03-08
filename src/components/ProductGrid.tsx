@@ -5,11 +5,13 @@ import { CartProvider } from "@/lib/cart";
 import { WishlistProvider } from "@/lib/wishlist";
 import { useProducts } from "@/lib/productContext";
 import { useEffect, useMemo, memo } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import cloudinaryLoader from "@/lib/cloudinaryLoader";
 import ProductActions from "@/components/ProductActions";
 import { normalizeSlug, slugify } from "@/lib/slug";
+import { Pagination, paginate } from "@/components/Pagination";
 
 interface ProductGridProps {
   products: Product[];
@@ -24,8 +26,11 @@ const ProductGridComponent = ({ products: initialProducts, categoryName, subCate
   const subSlug = subCategorySlug != null ? normalizeSlug(subCategorySlug) : slugify(subCategoryName);
   const { setProducts } = useProducts();
   const controls = useAnimation();
+  const searchParams = useSearchParams();
+  const page = Math.max(1, Number(searchParams.get("page") ?? 1));
 
   const memoizedProducts = useMemo(() => initialProducts, [initialProducts]);
+  const pageProducts = useMemo(() => paginate(memoizedProducts, page), [memoizedProducts, page]);
 
   useEffect(() => {
     setProducts(memoizedProducts);
@@ -40,8 +45,9 @@ const ProductGridComponent = ({ products: initialProducts, categoryName, subCate
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 px-2 sm:px-0 min-h-[300px]">
-      {memoizedProducts.map((product) => (
+    <>
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 px-2 sm:px-0 min-h-[300px]">
+        {pageProducts.map((product) => (
           <motion.div
             key={product.id}
             className="bg-[var(--card-bg)] shadow-md rounded-lg overflow-hidden relative group hover:shadow-lg transition-shadow duration-300 min-h-[200px] flex flex-col border border-[var(--card-border)]"
@@ -92,8 +98,10 @@ const ProductGridComponent = ({ products: initialProducts, categoryName, subCate
               <ProductActions productId={product.id} stock={product.stock} quantity={1} />
             </div>
           </motion.div>
-      ))}
-    </div>
+        ))}
+      </div>
+      <Pagination totalItems={memoizedProducts.length} />
+    </>
   );
 };
 

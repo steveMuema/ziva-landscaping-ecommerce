@@ -3,6 +3,8 @@ import Image from "next/image";
 import prisma from "@/lib/prisma";
 import { BlogSidebar } from "@/components/blog/BlogSidebar";
 import { getFeaturedImageUrl } from "@/components/blog/FeaturedImage";
+import { Pagination, paginate, PAGE_SIZE } from "@/components/Pagination";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -28,8 +30,15 @@ function formatDate(d: Date | null) {
   return `${months[dateObj.getUTCMonth()]} ${dateObj.getUTCDate()}, ${dateObj.getUTCFullYear()}`;
 }
 
-export default async function BlogPage() {
-  const posts = await prisma.blogPost.findMany({
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ page?: string }>;
+}) {
+  const resolvedParams = await searchParams;
+  const page = Math.max(1, Number(resolvedParams?.page ?? 1));
+
+  const allPosts = await prisma.blogPost.findMany({
     where: { published: true },
     orderBy: { publishedAt: "desc" },
     select: {
@@ -41,7 +50,9 @@ export default async function BlogPage() {
     },
   });
 
-  const recentForSidebar = posts.map((p) => ({ id: p.id, title: p.title, slug: p.slug }));
+  type BlogPost = typeof allPosts[number];
+  const posts = paginate<BlogPost>(allPosts, page, PAGE_SIZE);
+  const recentForSidebar = allPosts.slice(0, 5).map((p) => ({ id: p.id, title: p.title, slug: p.slug }));
   const [featured, ...rest] = posts;
 
   return (
@@ -147,6 +158,9 @@ export default async function BlogPage() {
               {posts.length === 0 && (
                 <p className="text-[var(--muted)] py-8">No posts yet. Check back later.</p>
               )}
+              <Suspense>
+                <Pagination totalItems={allPosts.length} />
+              </Suspense>
             </main>
 
             <BlogSidebar recentPosts={recentForSidebar} />

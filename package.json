@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "prisma db seed && next build",
+    "build": "next build",
     "postinstall": "prisma generate",
     "seed": "ts-node prisma/seed.ts",
     "start": "next start",

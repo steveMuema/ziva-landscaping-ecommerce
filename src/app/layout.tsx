@@ -100,24 +100,6 @@ export default function RootLayout({
             __html: `(function(){var t=document.documentElement.getAttribute('data-theme')||localStorage.getItem('ziva-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js');});}`,
           }}
         />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "LocalBusiness",
-              "name": "Ziva Landscaping Co.",
-              "image": `${baseUrl}/ziva_logo.jpg`,
-              "description": "Landscape design and sustainability in East Africa. Eco-friendly outdoor spaces, drought-resistant plants, edible landscape, organic practices.",
-              "url": baseUrl,
-              "address": {
-                "@type": "PostalAddress",
-                "addressCountry": "KE",
-                "addressLocality": "Nairobi"
-              }
-            })
-          }}
-        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${quicksand.variable} antialiased`}

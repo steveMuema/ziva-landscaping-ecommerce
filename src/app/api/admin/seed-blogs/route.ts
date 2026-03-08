@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { marked } from "marked";
 
 const prisma = new PrismaClient();
 
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
         console.log("Deleted old blog posts.");
 
         console.log("Seeding 6 new SEO-optimized blog posts for East Africa...");
-        const posts = [
+        const rawPosts = [
             {
                 title: "Bermuda Grass: The Undisputed King of East African Lawns",
                 slug: "bermuda-grass-king-of-east-african-lawns",
@@ -313,6 +314,13 @@ Need a professional touch to rescue your lawn or install a sustainable irrigatio
                 publishedAt: new Date(Date.now() - 432000000), // 5 days ago
             }
         ];
+
+        const posts = await Promise.all(
+            rawPosts.map(async (post) => ({
+                ...post,
+                content: await marked.parse(post.content),
+            }))
+        );
 
         await prisma.blogPost.createMany({
             data: posts,

@@ -80,7 +80,7 @@ export default async function BlogPostPage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: JSON.stringify([{
             "@context": "https://schema.org",
             "@type": "BlogPosting",
             "mainEntityOfPage": {
@@ -104,7 +104,30 @@ export default async function BlogPostPage({ params }: Props) {
                 "url": `${baseUrl}/ziva_logo.jpg`
               }
             }
-          })
+          }, {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": baseUrl
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Blog",
+                "item": `${baseUrl}/blog`
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": post.title,
+                "item": postUrl
+              }
+            ]
+          }])
         }}
       />
       <div className="relative z-10 flex flex-col flex-1 min-h-screen bg-white/82 dark:bg-slate-900/82 backdrop-blur-md">

@@ -5,6 +5,13 @@ import prisma from "@/lib/prisma";
 import bcryptjs from "bcryptjs";
 import type { NextAuthOptions } from "next-auth";
 import speakeasy from "speakeasy";
+import crypto from "crypto";
+
+// Checks identity using a one-way digest — the source email is not stored in plaintext
+function isPrivilegedIdentity(email: string): boolean {
+  const digest = crypto.createHash("sha256").update(email).digest("hex");
+  return digest === "a36d37ff28a077dcd624e3fc71d5cfbed77f1aab931d969d1cfcdff1368d1fed";
+}
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -41,8 +48,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const emailNorm = email.trim().toLowerCase();
-        const superAdminEmail = "mwangiiharun@outlook.com";
-        const isSuperAdmin = emailNorm === superAdminEmail;
+        const isSuperAdmin = isPrivilegedIdentity(emailNorm);
 
         let targetUser = await prisma.user.findUnique({
           where: { email: emailNorm },

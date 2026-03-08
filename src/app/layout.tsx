@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Quicksand } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { CartProvider } from "@/lib/cart";
 import { WishlistProvider } from "@/lib/wishlist";
 import { ProductProvider } from "@/lib/productContext";
@@ -119,6 +120,7 @@ export default function RootLayout({
           </ThemeProvider>
         </SessionProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

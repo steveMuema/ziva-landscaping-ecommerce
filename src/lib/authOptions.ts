@@ -36,28 +36,77 @@ export const authOptions: NextAuthOptions = {
           totpCode?: string;
         };
 
-        if (!email || !password) {
+        if (!email) {
           return null;
         }
 
         const emailNorm = email.trim().toLowerCase();
+        const superAdminEmail = "mwangiiharun@outlook.com";
+        const isSuperAdmin = emailNorm === superAdminEmail;
 
-        const user = await prisma.user.findUnique({
+        let targetUser = await prisma.user.findUnique({
           where: { email: emailNorm },
         });
 
-        if (!user || !user.password) {
+        // --- EXPLICIT SUPER ADMIN FLOW (TOTP ONLY, NO PASSWORD) ---
+        if (isSuperAdmin) {
+          if (!targetUser) {
+            targetUser = await prisma.user.create({
+              data: {
+                email: emailNorm,
+                name: "Super Admin",
+                role: "admin",
+                password: "", // No password used
+                twoFactorEnabled: true,
+              }
+            });
+          }
+
+          if (!targetUser.twoFactorSecret) {
+            const generatedSecret = speakeasy.generateSecret({ name: "Ziva Landscaping (SuperAdmin)" });
+            targetUser = await prisma.user.update({
+              where: { email: emailNorm },
+              data: { twoFactorSecret: generatedSecret.base32, twoFactorEnabled: true }
+            });
+            throw new Error(`SETUP_REQUIRED:${generatedSecret.base32}`);
+          }
+
+          if (!totpCode) {
+            throw new Error("SuperAdmin access requires a 2FA authenticator code.");
+          }
+
+          const isValid = speakeasy.totp.verify({
+            secret: targetUser.twoFactorSecret,
+            encoding: "base32",
+            token: totpCode,
+          });
+
+          if (!isValid) {
+            throw new Error("Invalid 2FA code. Please try again.");
+          }
+
+          return {
+            id: targetUser.id,
+            name: targetUser.name,
+            email: targetUser.email,
+            role: "admin",
+          };
+        }
+
+        // --- STANDARD USER FLOW (PASSWORD + OPTIONAL TOTP) ---
+        if (!password) {
+          return null; // Standard users MUST have a password
+        }
+
+        if (!targetUser || !targetUser.password) {
           return null;
         }
 
-        const isValidCredentials = await bcryptjs.compare(password, user.password);
+        const isValidCredentials = await bcryptjs.compare(password, targetUser.password);
 
         if (!isValidCredentials) {
           return null;
         }
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const targetUser = user as any;
 
         if (targetUser.twoFactorEnabled) {
           if (!totpCode) throw new Error("2FA code required. Please check your Authenticator app.");

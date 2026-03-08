@@ -28,7 +28,16 @@ export function ThemeToggle() {
 
     return (
         <Menu as="div" className="relative inline-block text-left">
-            <div>
+            <div className="relative">
+                {theme === "system" && (
+                    <div className="absolute right-full top-1/2 -translate-y-1/2 mr-3 pointer-events-none animate-pulse">
+                        <span className="relative flex items-center justify-center rounded-full bg-[var(--accent)] px-3 py-1 text-[11px] font-bold text-white shadow-sm whitespace-nowrap font-[family-name:var(--font-quicksand)]">
+                            Try a theme 🎨
+                            {/* Little triangle pointing right */}
+                            <span className="absolute -right-1 top-1/2 -translate-y-1/2 border-[5px] border-transparent border-l-[var(--accent)]"></span>
+                        </span>
+                    </div>
+                )}
                 <MenuButton className="inline-flex items-center justify-center rounded-md p-2 text-[var(--header-fg)] hover:bg-[var(--muted-bg)] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--accent)]">
                     <span className="sr-only">Open theme menu</span>
                     {theme === "system" ? (

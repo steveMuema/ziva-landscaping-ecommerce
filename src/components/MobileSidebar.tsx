@@ -8,6 +8,8 @@ import {
 import { XMarkIcon, ChevronDownIcon, ChevronUpIcon, ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { useTheme } from "@/lib/themeContext";
 
 function slugify(name: string) {
   return name
@@ -44,6 +46,7 @@ export default function MobileSidebar({
   isSignedIn,
   isAdmin,
 }: MobileSidebarProps) {
+  const { theme } = useTheme();
   return (
     <Dialog open={isSidebarOpen} onClose={closeSidebar} className="fixed z-40 inset-0">
       <DialogBackdrop className="fixed inset-0 bg-black/25 transition-opacity duration-300" />
@@ -163,6 +166,18 @@ export default function MobileSidebar({
               Sign in
             </Link>
           )}
+          <hr className="my-4 border-[var(--header-border)]" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-[var(--muted)] font-[family-name:var(--font-quicksand)]">Theme</span>
+              {theme === "system" && (
+                <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[10px] font-semibold text-white animate-pulse">
+                  Try a theme!
+                </span>
+              )}
+            </div>
+            <ThemeToggle />
+          </div>
         </DialogPanel>
       </div>
     </Dialog>

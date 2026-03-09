@@ -184,11 +184,13 @@ export default async function BlogPostPage({ params }: Props) {
                 </header>
 
                 <div
-                  className="prose prose-lg max-w-none prose-headings:font-[family-name:var(--font-quicksand)] prose-p:text-[var(--foreground)] prose-li:text-[var(--foreground)]"
+                  className="prose prose-lg max-w-none prose-headings:font-[family-name:var(--font-quicksand)] prose-p:text-[var(--foreground)] prose-li:text-[var(--foreground)] prose-p:leading-relaxed prose-p:mb-6 prose-headings:mt-10 prose-headings:mb-4"
                   dangerouslySetInnerHTML={{ __html: post.content }}
                 />
 
-                <CommentSection postId={post.id} initialComments={post.comments} />
+                <div className="mt-12 border-t border-[var(--card-border)] pt-8">
+                  <CommentSection postId={post.id} initialComments={post.comments} />
+                </div>
               </article>
             </main>
 

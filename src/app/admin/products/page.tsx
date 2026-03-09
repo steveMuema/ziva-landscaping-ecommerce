@@ -151,11 +151,11 @@ export default async function ProductsPage({
         <div className="border-b border-slate-100 px-5 py-4 flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 className="font-semibold text-slate-900">All products</h2>
-            <p className="text-sm text-slate-500">{products.length} total · Stock management: set new value and click Update</p>
+            <p className="text-sm text-slate-500">{allProducts.length} total · Stock management: set new value and click Update</p>
           </div>
-          {products.filter((p) => p.stock <= LOW_STOCK_THRESHOLD).length > 0 && (
+          {allProducts.filter((p) => p.stock <= LOW_STOCK_THRESHOLD).length > 0 && (
             <p className="text-sm text-amber-700 font-medium">
-              {products.filter((p) => p.stock === 0).length} out of stock · {products.filter((p) => p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD).length} low stock (≤{LOW_STOCK_THRESHOLD})
+              {allProducts.filter((p) => p.stock === 0).length} out of stock · {allProducts.filter((p) => p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD).length} low stock (≤{LOW_STOCK_THRESHOLD})
             </p>
           )}
         </div>

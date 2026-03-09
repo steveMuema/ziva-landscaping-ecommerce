@@ -89,7 +89,7 @@ export default async function CategoriesPage({
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-100 px-5 py-4">
           <h2 className="font-semibold text-slate-900">All categories</h2>
-          <p className="text-sm text-slate-500">{categories.length} total</p>
+          <p className="text-sm text-slate-500">{allCategories.length} total</p>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-200">

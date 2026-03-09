@@ -48,7 +48,7 @@ export default async function AdminBlogPage({
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-100 px-5 py-4">
           <h2 className="font-semibold text-slate-900">Posts</h2>
-          <p className="text-sm text-slate-500">{posts.length} total</p>
+          <p className="text-sm text-slate-500">{allPosts.length} total</p>
         </div>
         {posts.length === 0 ? (
           <div className="px-5 py-12 text-center">

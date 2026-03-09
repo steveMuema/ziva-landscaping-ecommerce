@@ -248,13 +248,21 @@ model PageView {
 }
 
 model Comment {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   postId     Int
-  post       BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post       BlogPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
   authorName String
   content    String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  likes      Int       @default(0)
+  
+  // Threading
+  parentId   Int?
+  parent     Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies    Comment[] @relation("CommentReplies")
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@index([postId])
+  @@index([parentId])
 }

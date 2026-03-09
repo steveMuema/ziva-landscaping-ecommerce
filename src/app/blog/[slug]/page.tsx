@@ -59,6 +59,14 @@ export default async function BlogPostPage({ params }: Props) {
       include: {
         comments: {
           orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            authorName: true,
+            content: true,
+            createdAt: true,
+            likes: true,
+            parentId: true,
+          }
         },
       },
     }),

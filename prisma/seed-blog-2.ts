@@ -69,6 +69,7 @@ async function main() {
             imageUrl: "https://res.cloudinary.com/dzfj48piv/image/upload/v1753997440/hfr8ljiiouxbze4kzimc.jpg",
             published: true,
             publishedAt: new Date(),
+            tags: ["Edible Landscaping", "Grafted Apples", "Urban Farming", "East Africa"],
         }
     });
 

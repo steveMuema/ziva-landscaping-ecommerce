@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { DEFAULT_BLOG_IMAGE } from "./BlogSidebar";
 import cloudinaryLoader from "@/lib/cloudinaryLoader";

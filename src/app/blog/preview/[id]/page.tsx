@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import prisma from "@/lib/prisma";
-import cloudinaryLoader from "@/lib/cloudinaryLoader";
+import { FeaturedImage } from "@/components/blog/FeaturedImage";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
@@ -62,13 +62,11 @@ export default async function BlogPreviewPage({
 
             {post.imageUrl && (
                 <div className="relative mb-12 aspect-[21/9] w-full overflow-hidden rounded-2xl bg-slate-100">
-                    <Image
+                    <FeaturedImage
                         src={post.imageUrl}
                         alt={post.title}
-                        fill
-                        className="object-cover"
+                        className="object-cover w-full h-full"
                         priority
-                        loader={post.imageUrl.startsWith("https://res.cloudinary.com") ? cloudinaryLoader : undefined}
                     />
                 </div>
             )}

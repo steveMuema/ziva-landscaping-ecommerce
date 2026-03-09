@@ -4,6 +4,8 @@ import { uploadImage } from "@/lib/cloudinary";
 import Image from "next/image";
 import { PlusIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { Pagination, paginate, PAGE_SIZE } from "@/components/Pagination";
+import { Suspense } from "react";
 
 const inputClass =
   "w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
@@ -29,11 +31,21 @@ async function updateProductStock(formData: FormData) {
   revalidatePath("/");
 }
 
-export default async function ProductsPage() {
-  const products = await prisma.product.findMany({
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const resolvedParams = await searchParams;
+  const page = Math.max(1, Number(resolvedParams?.page ?? 1));
+
+  const allProducts = await prisma.product.findMany({
     include: { subCategory: { include: { category: true } } },
     orderBy: { id: "desc" },
   });
+
+  const products = paginate<typeof allProducts[number]>(allProducts, page, PAGE_SIZE);
+
   const subCategories = await prisma.subCategory.findMany({
     include: { category: true },
     orderBy: [{ category: { name: "asc" } }, { name: "asc" }],
@@ -245,9 +257,13 @@ export default async function ProductsPage() {
           </table>
         </div>
         {products.length === 0 && (
-          <p className="px-5 py-8 text-center text-sm text-slate-500">No products yet. Add one above.</p>
+          <p className="px-5 py-8 text-center text-sm text-slate-500">No products match your criteria. Add one above.</p>
         )}
       </div>
+
+      <Suspense>
+        <Pagination totalItems={allProducts.length} />
+      </Suspense>
     </div>
   );
 }

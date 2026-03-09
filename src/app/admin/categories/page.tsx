@@ -2,14 +2,25 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { uploadImage } from "@/lib/cloudinary";
 import { PlusIcon } from "@heroicons/react/24/outline";
+import { Pagination, paginate, PAGE_SIZE } from "@/components/Pagination";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
-export default async function CategoriesPage() {
-  const categories = await prisma.category.findMany({
+export default async function CategoriesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const resolvedParams = await searchParams;
+  const page = Math.max(1, Number(resolvedParams?.page ?? 1));
+
+  const allCategories = await prisma.category.findMany({
     include: { subCategories: true },
     orderBy: { name: "asc" },
   });
+
+  const categories = paginate<typeof allCategories[number]>(allCategories, page, PAGE_SIZE);
 
   async function createCategory(formData: FormData) {
     "use server";
@@ -109,9 +120,13 @@ export default async function CategoriesPage() {
           </table>
         </div>
         {categories.length === 0 && (
-          <p className="px-5 py-8 text-center text-sm text-slate-500">No categories yet. Add one above.</p>
+          <p className="px-5 py-8 text-center text-sm text-slate-500">No categories match your criteria.</p>
         )}
       </div>
+
+      <Suspense>
+        <Pagination totalItems={allCategories.length} />
+      </Suspense>
     </div>
   );
 }

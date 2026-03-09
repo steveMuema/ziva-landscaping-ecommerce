@@ -4,6 +4,8 @@ import Link from "next/link";
 import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/prisma";
 import { PaymentsFilters } from "@/components/admin/PaymentsFilters";
+import { Pagination, paginate, PAGE_SIZE } from "@/components/Pagination";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +27,7 @@ export default async function AdminPaymentsPage({
   }
 
   const params = await searchParams;
+  const page = Math.max(1, Number(params.page ?? 1));
   const dateFrom = typeof params.dateFrom === "string" ? params.dateFrom : undefined;
   const dateTo = typeof params.dateTo === "string" ? params.dateTo : undefined;
   const ref = typeof params.ref === "string" ? params.ref.trim() : undefined;
@@ -55,7 +58,7 @@ export default async function AdminPaymentsPage({
     if (dateTo) where.createdAt.lte = new Date(dateTo + "T23:59:59.999Z");
   }
 
-  const orders = await prisma.order.findMany({
+  const allOrders = await prisma.order.findMany({
     where,
     select: {
       id: true,
@@ -70,6 +73,8 @@ export default async function AdminPaymentsPage({
     },
     orderBy: { createdAt: "desc" },
   });
+
+  const orders = paginate<typeof allOrders[number]>(allOrders, page, PAGE_SIZE);
 
   return (
     <div className="space-y-6">
@@ -160,6 +165,10 @@ export default async function AdminPaymentsPage({
           </table>
         </div>
       </div>
+
+      <Suspense>
+        <Pagination totalItems={allOrders.length} />
+      </Suspense>
     </div>
   );
 }

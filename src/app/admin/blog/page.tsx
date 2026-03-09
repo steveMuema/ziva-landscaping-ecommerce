@@ -5,18 +5,29 @@ import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/authOptions";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import BlogActions from "@/components/admin/BlogActions";
+import { Pagination, paginate, PAGE_SIZE } from "@/components/Pagination";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminBlogPage() {
+export default async function AdminBlogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== "admin") {
     redirect("/auth/signin");
   }
 
-  const posts = await prisma.blogPost.findMany({
+  const resolvedParams = await searchParams;
+  const page = Math.max(1, Number(resolvedParams?.page ?? 1));
+
+  const allPosts = await prisma.blogPost.findMany({
     orderBy: { updatedAt: "desc" },
   });
+
+  const posts = paginate<typeof allPosts[number]>(allPosts, page, PAGE_SIZE);
 
   return (
     <div className="space-y-6">
@@ -71,6 +82,10 @@ export default async function AdminBlogPage() {
           </ul>
         )}
       </div>
+
+      <Suspense>
+        <Pagination totalItems={allPosts.length} />
+      </Suspense>
     </div>
   );
 }

@@ -2,14 +2,26 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { uploadImage } from "@/lib/cloudinary";
 import { PlusIcon } from "@heroicons/react/24/outline";
+import { Pagination, paginate, PAGE_SIZE } from "@/components/Pagination";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
-export default async function SubCategoriesPage() {
-  const subCategories = await prisma.subCategory.findMany({
+export default async function SubCategoriesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const resolvedParams = await searchParams;
+  const page = Math.max(1, Number(resolvedParams?.page ?? 1));
+
+  const allSubCategories = await prisma.subCategory.findMany({
     include: { category: true },
     orderBy: { name: "asc" },
   });
+
+  const subCategories = paginate<typeof allSubCategories[number]>(allSubCategories, page, PAGE_SIZE);
+
   const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
 
   async function createSubCategory(formData: FormData) {
@@ -110,9 +122,13 @@ export default async function SubCategoriesPage() {
           </table>
         </div>
         {subCategories.length === 0 && (
-          <p className="px-5 py-8 text-center text-sm text-slate-500">No subcategories yet. Add one above.</p>
+          <p className="px-5 py-8 text-center text-sm text-slate-500">No subcategories match your criteria.</p>
         )}
       </div>
+
+      <Suspense>
+        <Pagination totalItems={allSubCategories.length} />
+      </Suspense>
     </div>
   );
 }

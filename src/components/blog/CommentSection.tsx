@@ -12,6 +12,20 @@ type CommentType = {
     parentId: number | null;
 };
 
+/*
+## 4. New Published Posts
+I've successfully seeded and published two major new articles:
+- **The Great East African Apple Conspiracy**: A deep dive into grafted apple seedlings and edible landscaping.
+- **The Balcony Revolution**: A guide to growing strawberries in urban spaces like apartments.
+Both posts are fully tagged, SEO-optimized, and use the new premium paragraph spacing and conversational comment features.
+
+## Verification
+- Checked `[slug]/page.tsx` for `prose-p:mb-6` styling and enhanced data fetching.
+- Verified database schema update for `parentId` and `likes`.
+- Confirmed the interactive `CommentSection.tsx` with hierarchical rendering.
+- Successfully seeded and published Posts 2 and 3 with `upsert` logic.
+- Successfully built and deployed to production.
+*/
 export default function CommentSection({
     postId,
     initialComments,

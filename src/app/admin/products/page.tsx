@@ -4,7 +4,8 @@ import { uploadImage } from "@/lib/cloudinary";
 import Image from "next/image";
 import { PlusIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { Pagination, paginate, PAGE_SIZE } from "@/components/Pagination";
+import { Pagination } from "@/components/Pagination";
+import { paginate, PAGE_SIZE } from "@/lib/pagination";
 import { Suspense } from "react";
 
 const inputClass =

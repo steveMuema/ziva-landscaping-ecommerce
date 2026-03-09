@@ -4,7 +4,8 @@ import Link from "next/link";
 import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/prisma";
 import { PaymentsFilters } from "@/components/admin/PaymentsFilters";
-import { Pagination, paginate, PAGE_SIZE } from "@/components/Pagination";
+import { Pagination } from "@/components/Pagination";
+import { paginate, PAGE_SIZE } from "@/lib/pagination";
 import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";

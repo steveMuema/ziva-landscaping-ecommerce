@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-
-const PAGE_SIZE = 20;
+import { PAGE_SIZE } from "@/lib/pagination";
 
 interface PaginationProps {
     totalItems: number;
@@ -69,8 +68,8 @@ export function Pagination({ totalItems, pageSize = PAGE_SIZE }: PaginationProps
                         href={buildHref(p)}
                         aria-current={p === currentPage ? "page" : undefined}
                         className={`inline-flex items-center justify-center rounded-md w-9 h-9 text-sm font-semibold transition-colors font-[family-name:var(--font-quicksand)] ${p === currentPage
-                                ? "bg-[var(--accent)] text-white border border-[var(--accent)] shadow-sm"
-                                : "bg-[var(--card-bg)] text-[var(--foreground)] border border-[var(--card-border)] hover:bg-[var(--muted-bg)]"
+                            ? "bg-[var(--accent)] text-white border border-[var(--accent)] shadow-sm"
+                            : "bg-[var(--card-bg)] text-[var(--foreground)] border border-[var(--card-border)] hover:bg-[var(--muted-bg)]"
                             }`}
                     >
                         {p}
@@ -95,11 +94,3 @@ export function Pagination({ totalItems, pageSize = PAGE_SIZE }: PaginationProps
         </nav>
     );
 }
-
-/** Returns the slice of items for the current page. Pass the full array and current page number. */
-export function paginate<T>(items: T[], page: number, pageSize = PAGE_SIZE): T[] {
-    const start = (page - 1) * pageSize;
-    return items.slice(start, start + pageSize);
-}
-
-export { PAGE_SIZE };

@@ -2,7 +2,8 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { uploadImage } from "@/lib/cloudinary";
 import { PlusIcon } from "@heroicons/react/24/outline";
-import { Pagination, paginate, PAGE_SIZE } from "@/components/Pagination";
+import { Pagination } from "@/components/Pagination";
+import { paginate, PAGE_SIZE } from "@/lib/pagination";
 import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";

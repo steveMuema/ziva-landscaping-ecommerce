@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { FeaturedImage } from "@/components/blog/FeaturedImage";
 import { getFeaturedImageUrl } from "@/components/blog/FeaturedImage";
 import { LoadMore } from "@/components/LoadMore";
 import { getMoreBlogPosts } from "@/lib/actions/blog";
@@ -13,6 +14,7 @@ type BlogPostForList = {
     title: string;
     slug: string;
     tags: string[];
+    imageUrl: string | null;
     excerpt: string | null;
     publishedAt: Date | null;
 };
@@ -62,12 +64,10 @@ export function BlogList({ initialPosts }: { initialPosts: BlogPostForList[] }) 
                 <Link href={`/blog/${featured.slug}`} className="block group">
                     <article className="rounded-2xl overflow-hidden border border-[var(--card-border)] bg-[var(--card-bg)] shadow-sm hover:shadow-md transition-shadow">
                         <div className="aspect-[21/10] relative bg-[var(--muted-bg)]">
-                            <Image
-                                src={getFeaturedImageUrl(null)}
-                                alt=""
-                                fill
-                                className="object-cover group-hover:scale-[1.02] transition-transform duration-300"
-                                sizes="(max-width: 1024px) 100vw, 800px"
+                            <FeaturedImage
+                                src={featured.imageUrl}
+                                alt={featured.title}
+                                className="object-cover group-hover:scale-[1.02] transition-transform duration-300 w-full h-full"
                                 priority
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -101,13 +101,11 @@ export function BlogList({ initialPosts }: { initialPosts: BlogPostForList[] }) 
                     {rest.map((post) => (
                         <Link key={post.id} href={`/blog/${post.slug}`} className="block group">
                             <article className="rounded-xl overflow-hidden border border-[var(--card-border)] bg-[var(--card-bg)] h-full flex flex-col shadow-sm hover:shadow-md transition-shadow">
-                                <div className="aspect-[16/10] relative bg-[var(--muted-bg)] shrink-0">
-                                    <Image
-                                        src={getFeaturedImageUrl(null)}
-                                        alt=""
-                                        fill
-                                        className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
-                                        sizes="(max-width: 640px) 100vw, 50vw"
+                                <div className="aspect-[16/10] relative bg-[var(--muted-bg)] shrink-0 overflow-hidden">
+                                    <FeaturedImage
+                                        src={post.imageUrl}
+                                        alt={post.title}
+                                        className="object-cover group-hover:scale-[1.03] transition-transform duration-300 w-full h-full"
                                     />
                                 </div>
                                 <div className="p-4 flex-1 flex flex-col">

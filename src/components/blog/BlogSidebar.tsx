@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
+import { FeaturedImage } from "./FeaturedImage";
 
 const DEFAULT_BLOG_IMAGE = "/landscape.jpeg";
 
-type PostForSidebar = { id: number; title: string; slug: string };
+type PostForSidebar = { id: number; title: string; slug: string; imageUrl: string | null };
 
 export function BlogSidebar({ recentPosts }: { recentPosts: PostForSidebar[] }) {
   return (
@@ -13,14 +14,23 @@ export function BlogSidebar({ recentPosts }: { recentPosts: PostForSidebar[] }) 
           <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--muted)] mb-4 font-[family-name:var(--font-quicksand)]">
             Recent posts
           </h3>
-          <ul className="space-y-2">
+          <ul className="space-y-4">
             {recentPosts.slice(0, 6).map((p) => (
               <li key={p.id}>
                 <Link
                   href={`/blog/${p.slug}`}
-                  className="text-[var(--foreground)] hover:text-[var(--accent)] text-sm leading-snug block py-1 border-l-2 border-transparent hover:border-[var(--accent)] pl-3 -ml-px transition-colors"
+                  className="group flex gap-3 items-start"
                 >
-                  {p.title}
+                  <div className="shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-slate-100 relative border border-slate-200">
+                    <FeaturedImage
+                      src={p.imageUrl}
+                      alt=""
+                      className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
+                    />
+                  </div>
+                  <span className="text-[var(--foreground)] group-hover:text-[var(--accent)] text-xs font-medium leading-snug transition-colors line-clamp-2">
+                    {p.title}
+                  </span>
                 </Link>
               </li>
             ))}

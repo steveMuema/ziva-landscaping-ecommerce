@@ -28,12 +28,13 @@ export default async function BlogPage() {
       title: true,
       slug: true,
       tags: true,
+      imageUrl: true,
       excerpt: true,
       publishedAt: true,
     },
   });
 
-  const recentForSidebar = posts.map((p) => ({ id: p.id, title: p.title, slug: p.slug }));
+  const recentForSidebar = posts.map((p) => ({ id: p.id, title: p.title, slug: p.slug, imageUrl: p.imageUrl }));
 
   return (
     <>

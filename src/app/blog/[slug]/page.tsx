@@ -65,13 +65,13 @@ export default async function BlogPostPage({ params }: Props) {
     prisma.blogPost.findMany({
       where: { published: true },
       orderBy: { publishedAt: "desc" },
-      select: { id: true, title: true, slug: true },
+      select: { id: true, title: true, slug: true, imageUrl: true },
       take: 6,
     }),
   ]);
   if (!post) notFound();
 
-  const recentForSidebar = recentPosts.map((p) => ({ id: p.id, title: p.title, slug: p.slug }));
+  const recentForSidebar = recentPosts.map((p) => ({ id: p.id, title: p.title, slug: p.slug, imageUrl: p.imageUrl }));
   const featuredUrl = getFeaturedImageUrl(post.imageUrl);
   const bgStyle = {
     backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.3)), url(${featuredUrl})`,

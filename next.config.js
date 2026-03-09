@@ -1,6 +1,18 @@
 module.exports = {
   images: {
-    domains: [process.env.CLOUDINARY_CLOUD_NAME ? `res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}` : "res.cloudinary.com"],
+    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      }
+    ],
   },
   env: {
     CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,

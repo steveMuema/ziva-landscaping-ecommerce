@@ -4,12 +4,16 @@ import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import TiptapLink from "@tiptap/extension-link";
+import TiptapImage from "@tiptap/extension-image";
+import { useState } from "react";
 
 const toolbarBtn =
   "px-2 py-1 rounded text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-40";
 const toolbarBtnActive = "bg-gray-300 dark:bg-gray-500";
 
 function Toolbar({ editor }: { editor: Editor | null }) {
+  const [isUploading, setIsUploading] = useState(false);
+
   if (!editor) return null;
 
   const setLink = () => {
@@ -18,6 +22,28 @@ function Toolbar({ editor }: { editor: Editor | null }) {
     if (url == null) return;
     if (url === "") editor.chain().focus().extendMarkRange("link").unsetLink().run();
     else editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    try {
+      const fd = new FormData();
+      fd.set("file", file);
+      const res = await fetch("/api/admin/upload-image", { method: "POST", body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.url) {
+        editor.chain().focus().setImage({ src: data.url }).run();
+      } else {
+        alert(data.error || "Upload failed");
+      }
+    } catch {
+      alert("Upload failed.");
+    } finally {
+      setIsUploading(false);
+      e.target.value = "";
+    }
   };
 
   return (
@@ -75,6 +101,11 @@ function Toolbar({ editor }: { editor: Editor | null }) {
       <button type="button" onClick={setLink} className={editor.isActive("link") ? toolbarBtn + " " + toolbarBtnActive : toolbarBtn} title="Link">
         Link
       </button>
+      <span className="w-px h-5 bg-gray-300 dark:bg-gray-600 mx-1" />
+      <label className={`${toolbarBtn} cursor-pointer inline-flex items-center gap-1`} title="Insert image">
+        <span>{isUploading ? "..." : "🖼️"}</span>
+        <input type="file" accept="image/*" className="sr-only" disabled={isUploading} onChange={handleImageUpload} />
+      </label>
       <span className="w-px h-5 bg-gray-300 dark:bg-gray-600 mx-1" />
       <button
         type="button"
@@ -135,6 +166,13 @@ export default function RichTextEditor({
       TiptapLink.configure({
         openOnClick: false,
         HTMLAttributes: { target: "_blank", rel: "noopener noreferrer" },
+      }),
+      TiptapImage.configure({
+        inline: true,
+        allowBase64: true,
+        HTMLAttributes: {
+          class: "rounded-lg max-w-full h-auto mt-4 mb-4",
+        },
       }),
     ],
     content,

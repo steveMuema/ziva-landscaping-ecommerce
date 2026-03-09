@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { BlogSidebar } from "@/components/blog/BlogSidebar";
 import { getFeaturedImageUrl } from "@/components/blog/FeaturedImage";
+import CommentSection from "@/components/blog/CommentSection";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +54,14 @@ function formatDate(d: Date | null) {
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const [post, recentPosts] = await Promise.all([
-    prisma.blogPost.findUnique({ where: { slug, published: true } }),
+    prisma.blogPost.findUnique({
+      where: { slug, published: true },
+      include: {
+        comments: {
+          orderBy: { createdAt: "desc" },
+        },
+      },
+    }),
     prisma.blogPost.findMany({
       where: { published: true },
       orderBy: { publishedAt: "desc" },
@@ -172,6 +180,8 @@ export default async function BlogPostPage({ params }: Props) {
                   className="prose prose-lg max-w-none prose-headings:font-[family-name:var(--font-quicksand)] prose-p:text-[var(--foreground)] prose-li:text-[var(--foreground)]"
                   dangerouslySetInnerHTML={{ __html: post.content }}
                 />
+
+                <CommentSection postId={post.id} initialComments={post.comments} />
               </article>
             </main>
 

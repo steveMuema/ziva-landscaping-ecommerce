@@ -1,8 +1,5 @@
-import Link from "next/link";
-import Image from "next/image";
 import prisma from "@/lib/prisma";
 import { BlogSidebar } from "@/components/blog/BlogSidebar";
-import { getFeaturedImageUrl } from "@/components/blog/FeaturedImage";
 import { BlogList } from "@/components/blog/BlogList";
 import { PAGE_SIZE } from "@/lib/pagination";
 

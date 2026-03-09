@@ -224,6 +224,7 @@ model BlogPost {
   publishedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  comments    Comment[]
 
   @@index([slug])
   @@index([published, publishedAt])
@@ -243,4 +244,16 @@ model PageView {
 
   @@index([path])
   @@index([createdAt])
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  postId     Int
+  post       BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorName String
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([postId])
 }

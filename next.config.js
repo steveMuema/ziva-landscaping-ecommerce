@@ -1,5 +1,7 @@
 module.exports = {
   images: {
+    loader: 'custom',
+    loaderFile: './src/lib/cloudinaryLoader.ts',
     remotePatterns: [
       {
         protocol: 'https',

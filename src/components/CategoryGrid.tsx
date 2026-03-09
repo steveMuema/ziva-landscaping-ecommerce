@@ -4,7 +4,6 @@ import { Category } from "@/types";
 import { useEffect, useMemo, memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import cloudinaryLoader from "@/lib/cloudinaryLoader";
 import { slugify } from "@/lib/slug";
 
 interface CategoryGridProps {
@@ -42,20 +41,19 @@ const CategoryGridComponent = ({ categories: initialCategories }: CategoryGridPr
           >
             <Link href={`/shop/${slugify(category.name)}`}>
               <div className="relative w-full h-32 sm:h-40 md:h-48">
-                  {category.imageUrl ? (
-                      <Image
-                        src={category.imageUrl}
-                        alt={category.name}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                        loader={category.imageUrl?.startsWith("https://res.cloudinary.com") ? cloudinaryLoader : undefined} 
-                      />
-                    ) : (
-<div className="w-full h-full bg-[var(--muted-bg)] flex items-center justify-center">
+                {category.imageUrl ? (
+                  <Image
+                    src={category.imageUrl}
+                    alt={category.name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[var(--muted-bg)] flex items-center justify-center">
                     <span className="text-[var(--muted)] text-sm">No Image</span>
-                      </div>
-                    )}
+                  </div>
+                )}
               </div>
               <div className="p-2 sm:p-3 text-center">
                 <h3 className="text-base sm:text-sm font-bold text-[var(--foreground)] mb-1 sm:mb-2 font-[family-name:var(--font-quicksand)]">{category.name}</h3>

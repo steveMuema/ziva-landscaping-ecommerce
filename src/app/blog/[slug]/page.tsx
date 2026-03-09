@@ -4,7 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { BlogSidebar } from "@/components/blog/BlogSidebar";
-import { getFeaturedImageUrl } from "@/components/blog/FeaturedImage";
+import { FeaturedImage, getFeaturedImageUrl } from "@/components/blog/FeaturedImage";
 import CommentSection from "@/components/blog/CommentSection";
 
 export const dynamic = "force-dynamic";
@@ -151,12 +151,10 @@ export default async function BlogPostPage({ params }: Props) {
 
               <article>
                 <div className="rounded-2xl overflow-hidden border border-[var(--card-border)] aspect-[21/9] min-h-[200px] relative bg-[var(--muted-bg)] mb-8">
-                  <Image
+                  <FeaturedImage
                     src={featuredUrl}
-                    alt=""
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 800px"
+                    alt={post.title}
+                    className="object-cover w-full h-full"
                     priority
                   />
                 </div>

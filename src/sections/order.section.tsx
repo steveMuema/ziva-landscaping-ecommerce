@@ -4,7 +4,6 @@ import { useOrder } from "@/lib/order";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
-import cloudinaryLoader from "@/lib/cloudinaryLoader";
 
 export default function OrderSection() {
   const params = useParams();
@@ -108,7 +107,6 @@ export default function OrderSection() {
                       alt={item.product.name}
                       width={64}
                       height={64}
-                      loader={(item.product.imageUrl || "").startsWith("https://res.cloudinary.com") ? cloudinaryLoader : undefined}
                       className="object-cover"
                     />
                   </div>

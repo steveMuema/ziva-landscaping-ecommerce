@@ -5,7 +5,6 @@ import { useOrder } from "@/lib/order";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { ArrowRightIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
-import cloudinaryLoader from "@/lib/cloudinaryLoader";
 
 export default function OrderConfirmationSection() {
   const params = useParams();
@@ -122,6 +121,13 @@ export default function OrderConfirmationSection() {
                       progressWidth = '50%';
                       progressColor = 'bg-yellow-500';
                       break;
+                    case 'PROCESSING':
+                      // Order is placed and being processed
+                      steps[0].completed = true;
+                      steps[1].active = true;
+                      progressWidth = '50%';
+                      progressColor = 'bg-yellow-500';
+                      break;
                     case 'SHIPPED':
                       // Order has been shipped
                       steps[0].completed = true;
@@ -174,22 +180,22 @@ export default function OrderConfirmationSection() {
                         <div key={step.key} className="flex flex-col items-center">
                           {/* Step Circle */}
                           <div className={`w-3 h-3 rounded-full border-2 transition-all duration-300 ${step.completed
-                              ? `${progressColor} border-transparent`
-                              : step.active
-                                ? `bg-[var(--card-bg)] ${progressColor.replace('bg-', 'border-')} border-2`
-                                : 'bg-[var(--card-bg)] border-[var(--card-border)]'
+                            ? `${progressColor} border-transparent`
+                            : step.active
+                              ? `bg-[var(--card-bg)] ${progressColor.replace('bg-', 'border-')} border-2`
+                              : 'bg-[var(--card-bg)] border-[var(--card-border)]'
                             }`}></div>
 
                           {/* Step Label */}
                           <div className="mt-3 text-center">
                             <span
                               className={`text-sm font-medium font-[family-name:var(--font-quicksand)] ${order.status === 'DELIVERED'
-                                  ? 'text-green-500'
-                                  : order.status === 'CANCELLED'
-                                    ? 'text-red-500'
-                                    : step.completed || step.active
-                                      ? 'text-yellow-500'
-                                      : 'text-[var(--muted)]'
+                                ? 'text-green-500'
+                                : order.status === 'CANCELLED'
+                                  ? 'text-red-500'
+                                  : step.completed || step.active
+                                    ? 'text-yellow-500'
+                                    : 'text-[var(--muted)]'
                                 }`}
                             >
                               {step.label}
@@ -203,10 +209,10 @@ export default function OrderConfirmationSection() {
                     <div className="mt-6 text-center">
                       <p
                         className={`text-sm font-[family-name:var(--font-quicksand)] ${order.status === 'DELIVERED'
-                            ? 'text-green-500'
-                            : order.status === 'CANCELLED'
-                              ? 'text-red-500'
-                              : 'text-[var(--muted)]'
+                          ? 'text-green-500'
+                          : order.status === 'CANCELLED'
+                            ? 'text-red-500'
+                            : 'text-[var(--muted)]'
                           }`}
                       >
                         {order.status === 'PENDING' && 'Your order has been placed and is awaiting confirmation.'}
@@ -231,7 +237,6 @@ export default function OrderConfirmationSection() {
                       alt={item.product.name}
                       width={64}
                       height={64}
-                      loader={(item.product.imageUrl || "").startsWith("https://res.cloudinary.com") ? cloudinaryLoader : undefined}
                       className="object-cover w-full h-full"
                     />
                   </div>

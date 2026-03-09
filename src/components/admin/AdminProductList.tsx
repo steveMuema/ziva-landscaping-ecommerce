@@ -7,7 +7,6 @@ import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { LoadMore } from "@/components/LoadMore";
 import { getMoreAdminProducts, updateProductStockAction } from "@/lib/actions/admin";
 import { PAGE_SIZE } from "@/lib/pagination";
-import cloudinaryLoader from "@/lib/cloudinaryLoader";
 
 const LOW_STOCK_THRESHOLD = 5;
 
@@ -106,7 +105,6 @@ export function AdminProductList({
                                                     fill
                                                     className="object-cover"
                                                     sizes="40px"
-                                                    loader={prod.imageUrl?.startsWith("https://res.cloudinary.com") ? cloudinaryLoader : undefined}
                                                 />
                                             </div>
                                         ) : (
@@ -133,10 +131,10 @@ export function AdminProductList({
                                             min={0}
                                             defaultValue={prod.stock}
                                             className={`w-20 rounded-lg border px-2 py-1.5 text-right text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 ${prod.stock === 0
-                                                    ? "border-red-300 bg-red-50 text-red-900"
-                                                    : prod.stock <= LOW_STOCK_THRESHOLD
-                                                        ? "border-amber-300 bg-amber-50 text-amber-900"
-                                                        : "border-slate-300 text-slate-900"
+                                                ? "border-red-300 bg-red-50 text-red-900"
+                                                : prod.stock <= LOW_STOCK_THRESHOLD
+                                                    ? "border-amber-300 bg-amber-50 text-amber-900"
+                                                    : "border-slate-300 text-slate-900"
                                                 }`}
                                             aria-label={`Stock for ${prod.name}`}
                                         />

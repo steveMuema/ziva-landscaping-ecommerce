@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import cloudinaryLoader from "@/lib/cloudinaryLoader";
 
 const DEFAULT_IMAGE = "/landscape.jpeg";
 
@@ -49,7 +48,6 @@ export function ParallaxSection({
             className="object-cover"
             sizes="100vw"
             priority={false}
-            loader={useCloudinary ? cloudinaryLoader : undefined}
           />
         )}
       </div>

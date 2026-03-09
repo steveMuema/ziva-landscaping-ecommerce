@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { FeaturedImage } from "./FeaturedImage";
 
 const DEFAULT_BLOG_IMAGE = "/landscape.jpeg";
@@ -39,12 +38,10 @@ export function BlogSidebar({ recentPosts }: { recentPosts: PostForSidebar[] }) 
       )}
       <section className="rounded-xl overflow-hidden border border-[var(--card-border)] bg-[var(--card-bg)]">
         <div className="aspect-[4/3] relative bg-[var(--muted-bg)]">
-          <Image
+          <FeaturedImage
             src={DEFAULT_BLOG_IMAGE}
             alt=""
-            fill
-            className="object-cover"
-            sizes="(max-width: 1024px) 100vw, 288px"
+            className="object-cover w-full h-full"
           />
         </div>
         <div className="p-4">

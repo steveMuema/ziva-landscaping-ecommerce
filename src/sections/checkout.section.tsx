@@ -4,7 +4,6 @@ import { Cart } from '@/types';
 import Image from 'next/image';
 import { useCart } from '@/lib/cart';
 import { useCreateOrder } from '@/lib/order';
-import cloudinaryLoader from "@/lib/cloudinaryLoader";
 import { useRouter } from 'next/navigation';
 import { AddressAutocomplete } from '@/components/AddressAutocomplete';
 import { SETTING_KEYS } from '@/lib/setting-keys';
@@ -232,7 +231,6 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({ cartItems }) => {
                             width={48}
                             height={48}
                             className="object-cover sm:w-16 sm:h-16"
-                            loader={item.image?.startsWith("https://res.cloudinary.com") ? cloudinaryLoader : undefined}
                           />
                         </div>
                         <div className="flex-1 min-w-0">

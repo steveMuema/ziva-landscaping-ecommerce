@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/types";
-import cloudinaryLoader from "@/lib/cloudinaryLoader";
 
 function slugify(name: string) {
   return name
@@ -52,9 +51,8 @@ export default function ProductSlideshowSection({ products }: ProductSlideshowSe
             <Link
               key={p.id}
               href={href}
-              className={`absolute inset-0 block transition-opacity duration-600 ${
-                isActive ? "z-10 opacity-100" : "z-0 opacity-0 pointer-events-none"
-              }`}
+              className={`absolute inset-0 block transition-opacity duration-600 ${isActive ? "z-10 opacity-100" : "z-0 opacity-0 pointer-events-none"
+                }`}
               aria-hidden={!isActive}
               aria-current={isActive ? "true" : undefined}
               onMouseEnter={() => setIsPaused(true)}
@@ -65,8 +63,7 @@ export default function ProductSlideshowSection({ products }: ProductSlideshowSe
                 alt={p.name}
                 fill
                 className="object-cover"
-                sizes="100vw"
-                loader={p.imageUrl?.startsWith("https://res.cloudinary.com") ? cloudinaryLoader : undefined}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 priority={i === 0}
                 fetchPriority={i === 0 ? "high" : "low"}
               />
@@ -106,11 +103,10 @@ export default function ProductSlideshowSection({ products }: ProductSlideshowSe
                 aria-selected={i === currentIndex}
                 aria-label={`Slide ${i + 1}: ${products[i].name}`}
                 onClick={() => goTo(i)}
-                className={`h-2 rounded-full transition-all ${
-                  i === currentIndex
+                className={`h-2 rounded-full transition-all ${i === currentIndex
                     ? "w-8 bg-[var(--accent)]"
                     : "w-2 bg-[var(--muted)] hover:bg-[var(--foreground)]"
-                }`}
+                  }`}
               />
             ))}
           </div>

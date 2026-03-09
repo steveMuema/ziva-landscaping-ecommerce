@@ -1,8 +1,5 @@
-"use client";
-
 import Image from "next/image";
 import { DEFAULT_BLOG_IMAGE } from "./BlogSidebar";
-import cloudinaryLoader from "@/lib/cloudinaryLoader";
 
 export function getFeaturedImageUrl(imageUrl: string | null | undefined): string {
   if (imageUrl?.trim()) return imageUrl.trim();
@@ -25,7 +22,6 @@ export function FeaturedImage({
 
   return (
     <Image
-      loader={isCloudinary ? cloudinaryLoader : undefined}
       src={url}
       alt={alt}
       width={800}

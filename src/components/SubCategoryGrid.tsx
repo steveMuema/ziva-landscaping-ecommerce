@@ -4,7 +4,6 @@ import { SubCategory } from "@/types";
 import { useEffect, useMemo, memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import cloudinaryLoader from "@/lib/cloudinaryLoader";
 import { slugify } from "@/lib/slug";
 
 interface SubCategoryGridProps {
@@ -51,8 +50,7 @@ const SubCategoryGridComponent = ({ subCategories: initialSubCategories, categor
                     alt={subCategory.name}
                     fill
                     className="object-cover"
-                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                    loader={subCategory.imageUrl?.startsWith("https://res.cloudinary.com") ? cloudinaryLoader : undefined} 
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 ) : (
                   <div className="w-full h-full bg-[var(--muted-bg)] flex items-center justify-center">

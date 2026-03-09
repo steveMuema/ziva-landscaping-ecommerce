@@ -5,7 +5,6 @@ import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/re
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useCart } from "@/lib/cart";
 import Image from "next/image";
-import cloudinaryLoader from "@/lib/cloudinaryLoader";
 import Link from "next/link";
 
 interface ShoppingCartProps {
@@ -125,7 +124,6 @@ const ShoppingCart = ({ open, setOpen }: ShoppingCartProps) => {
                                       width={96}
                                       height={96}
                                       className="size-full object-cover"
-                                      loader={product.imageUrl?.startsWith("https://res.cloudinary.com") ? cloudinaryLoader : undefined}
                                     />
                                   ) : (
                                     <div className="size-full bg-gray-200 flex items-center justify-center">

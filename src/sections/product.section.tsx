@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Product } from "@/types";
 import Breadcrumb from "@/components/Breadcrumb";
-import cloudinaryLoader from "@/lib/cloudinaryLoader";
 import ProductActions from "@/components/ProductActions";
 import { useCart } from "@/lib/cart";
 import { slugify } from "@/lib/slug";
@@ -194,7 +193,6 @@ const ProductSection = ({ product, categoryName, subCategoryName, categorySlug, 
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                loader={product.imageUrl?.startsWith("https://res.cloudinary.com") ? cloudinaryLoader : undefined}
               />
             ) : (
               <div className="w-full h-full bg-[var(--card-border)] flex items-center justify-center">

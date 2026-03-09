@@ -7,7 +7,6 @@ import { useProducts } from "@/lib/productContext";
 import { useState, useCallback, useEffect, useMemo, memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import cloudinaryLoader from "@/lib/cloudinaryLoader";
 import ProductActions from "@/components/ProductActions";
 import { normalizeSlug, slugify } from "@/lib/slug";
 import { getMoreProducts } from "@/lib/actions/shop";
@@ -107,7 +106,6 @@ const ProductGridComponent = ({ products: initialProducts, categoryName, subCate
                   fill
                   className="object-cover"
                   sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                  loader={product.imageUrl?.startsWith("https://res.cloudinary.com") ? cloudinaryLoader : undefined}
                 />
               ) : (
                 <div className="w-full h-full bg-[var(--muted-bg)] flex items-center justify-center">

@@ -60,8 +60,18 @@ const content = `
 const excerpt = "Everything you knew about growing apples in Africa is a lie. Discover the rebellious, delicious world of Grafted Apple Seedlings and why edible landscaping is the ultimate flex for the modern East African homeowner.";
 
 async function main() {
-    const post = await prisma.blogPost.create({
-        data: {
+    const post = await prisma.blogPost.upsert({
+        where: { slug: "grafted-apple-seedlings-east-africa-conspiracy" },
+        update: {
+            title: "The Great East African Apple Conspiracy: Why You Should Be Growing Your Own Fruit",
+            excerpt: excerpt,
+            content: content,
+            imageUrl: "https://res.cloudinary.com/dzfj48piv/image/upload/v1753997440/hfr8ljiiouxbze4kzimc.jpg",
+            published: true,
+            publishedAt: new Date(),
+            tags: ["Edible Landscaping", "Grafted Apples", "Urban Farming", "East Africa"],
+        },
+        create: {
             title: "The Great East African Apple Conspiracy: Why You Should Be Growing Your Own Fruit",
             slug: "grafted-apple-seedlings-east-africa-conspiracy",
             excerpt: excerpt,

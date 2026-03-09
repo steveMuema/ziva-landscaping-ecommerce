@@ -52,8 +52,18 @@ const content = `
 const excerpt = "Why settle for flavorless, cardboard-tasting supermarket imports when you can grow exploding flavor bombs on your balcony? The ultimate guide to transforming your urban East African space into a strawberry micro-farm.";
 
 async function main() {
-    const post = await prisma.blogPost.create({
-        data: {
+    const post = await prisma.blogPost.upsert({
+        where: { slug: "strawberry-seedlings-balcony-revolution-nairobi" },
+        update: {
+            title: "The Balcony Revolution: Why Strawberry Seedlings Are the Ultimate Urban Flex",
+            excerpt: excerpt,
+            content: content,
+            imageUrl: "https://res.cloudinary.com/dzfj48piv/image/upload/v1753516945/kulic2iskcjkejqdqf5z.jpg",
+            published: true,
+            publishedAt: new Date(),
+            tags: ["Urban Farming", "Strawberries", "Balcony Gardening", "Edible Landscaping"],
+        },
+        create: {
             title: "The Balcony Revolution: Why Strawberry Seedlings Are the Ultimate Urban Flex",
             slug: "strawberry-seedlings-balcony-revolution-nairobi",
             excerpt: excerpt,
@@ -61,6 +71,7 @@ async function main() {
             imageUrl: "https://res.cloudinary.com/dzfj48piv/image/upload/v1753516945/kulic2iskcjkejqdqf5z.jpg",
             published: true,
             publishedAt: new Date(),
+            tags: ["Urban Farming", "Strawberries", "Balcony Gardening", "Edible Landscaping"],
         }
     });
 

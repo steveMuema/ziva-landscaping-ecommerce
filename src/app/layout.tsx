@@ -10,6 +10,7 @@ import { CartSidebarProvider } from "@/lib/cartSidebarContext";
 import { ThemeProvider } from "@/lib/themeContext";
 import { SessionProvider } from "@/components/SessionProvider";
 import RootLayoutContent from "@/components/RootLayoutContent";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -121,6 +122,11 @@ export default function RootLayout({
         </SessionProvider>
         <Analytics />
         <SpeedInsights />
+        <Script
+          src="https://analytics.ahrefs.com/analytics.js"
+          data-key="Ta8s66egKZrMpKmUDz0Sjg"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

@@ -14,6 +14,7 @@ export type AutoSaveData = {
     id?: number | null;
     title: string;
     slug?: string;
+    tags?: string;
     excerpt?: string;
     content: string;
     imageUrl?: string;
@@ -24,6 +25,7 @@ export async function autoSaveDraft(data: AutoSaveData): Promise<{ success: bool
     try {
         const slugInput = data.slug?.trim();
         const slug = slugInput || slugFromTitle(data.title);
+        const tagsArray = data.tags ? data.tags.split(",").map((t) => t.trim()).filter(Boolean) : [];
 
         // If we have an ID, we update the existing post
         if (data.id) {
@@ -35,6 +37,7 @@ export async function autoSaveDraft(data: AutoSaveData): Promise<{ success: bool
                 data: {
                     title: data.title,
                     slug: data.slug?.trim() || post.slug,
+                    tags: tagsArray,
                     excerpt: data.excerpt || null,
                     content: data.content || "<p></p>",
                     imageUrl: data.imageUrl || null,
@@ -52,6 +55,7 @@ export async function autoSaveDraft(data: AutoSaveData): Promise<{ success: bool
             data: {
                 title: data.title,
                 slug: finalSlug,
+                tags: tagsArray,
                 excerpt: data.excerpt || null,
                 content: data.content || "<p></p>",
                 published: false,

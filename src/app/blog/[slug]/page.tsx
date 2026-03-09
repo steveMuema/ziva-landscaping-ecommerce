@@ -174,6 +174,15 @@ export default async function BlogPostPage({ params }: Props) {
                       {formatDate(post.publishedAt)}
                     </time>
                   )}
+                  {post.tags && post.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-4">
+                      {post.tags.map((tag) => (
+                        <span key={tag} className="text-xs uppercase tracking-wider font-semibold px-2.5 py-1 bg-[var(--muted-bg)] text-[var(--muted)] rounded-full border border-[var(--card-border)]">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </header>
 
                 <div

@@ -12,6 +12,7 @@ type BlogPostForList = {
     id: number;
     title: string;
     slug: string;
+    tags: string[];
     excerpt: string | null;
     publishedAt: Date | null;
 };
@@ -74,7 +75,16 @@ export function BlogList({ initialPosts }: { initialPosts: BlogPostForList[] }) 
                                 <time suppressHydrationWarning className="text-sm text-white/90" dateTime={featured.publishedAt?.toISOString() ?? undefined}>
                                     {formatDate(featured.publishedAt)}
                                 </time>
-                                <h2 className="text-2xl sm:text-3xl font-bold mt-1 font-[family-name:var(--font-quicksand)] group-hover:text-[var(--ziva-green-light)] transition-colors">
+                                {featured.tags && featured.tags.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {featured.tags.map((tag) => (
+                                            <span key={tag} className="text-xs font-semibold px-2.5 py-0.5 bg-[var(--ziva-green-dark)]/50 backdrop-blur-md text-white rounded-full border border-white/20">
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                                <h2 className="text-2xl sm:text-3xl font-bold mt-2 font-[family-name:var(--font-quicksand)] group-hover:text-[var(--ziva-green-light)] transition-colors">
                                     {featured.title}
                                 </h2>
                                 {featured.excerpt && (
@@ -106,7 +116,16 @@ export function BlogList({ initialPosts }: { initialPosts: BlogPostForList[] }) 
                                             {formatDate(post.publishedAt)}
                                         </time>
                                     )}
-                                    <h3 className="mt-1 text-lg font-semibold text-[var(--foreground)] group-hover:text-[var(--accent)] font-[family-name:var(--font-quicksand)]">
+                                    {post.tags && post.tags.length > 0 && (
+                                        <div className="flex flex-wrap gap-1.5 mt-2">
+                                            {post.tags.map((tag) => (
+                                                <span key={tag} className="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 bg-[var(--muted-bg)] text-[var(--muted)] rounded-full">
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                    <h3 className="mt-2 text-lg font-semibold text-[var(--foreground)] group-hover:text-[var(--accent)] font-[family-name:var(--font-quicksand)]">
                                         {post.title}
                                     </h3>
                                     {post.excerpt && (

@@ -32,19 +32,45 @@ export default async function AdminBlogNewPage() {
     const published = formData.get("published") === "on";
     const imageUrlRaw = (formData.get("imageUrl") as string)?.trim();
     const imageUrl = imageUrlRaw || null;
-    const existing = await prisma.blogPost.findUnique({ where: { slug } });
-    const finalSlug = existing ? `${slug}-${Date.now()}` : slug;
-    await prisma.blogPost.create({
-      data: {
-        title,
-        slug: finalSlug,
-        excerpt,
-        content: content || "<p></p>",
-        published,
-        publishedAt: published ? new Date() : null,
-        imageUrl,
-      },
-    });
+    const tagsInput = formData.get("tags") as string || "";
+    const tagsArray = tagsInput.split(",").map((t) => t.trim()).filter(Boolean);
+
+    const idInput = formData.get("id") as string;
+
+    if (idInput && !isNaN(parseInt(idInput, 10))) {
+      const postId = parseInt(idInput, 10);
+      const post = await prisma.blogPost.findUnique({ where: { id: postId } });
+      const newSlug = slugInput || post?.slug || slugFromTitle(title);
+      await prisma.blogPost.update({
+        where: { id: postId },
+        data: {
+          title,
+          slug: newSlug,
+          tags: tagsArray,
+          excerpt,
+          content: content || "<p></p>",
+          published,
+          publishedAt: published ? (post?.publishedAt || new Date()) : null,
+          imageUrl,
+          updatedAt: new Date(),
+        },
+      });
+    } else {
+      const existing = await prisma.blogPost.findUnique({ where: { slug } });
+      const finalSlug = existing ? `${slug}-${Date.now()}` : slug;
+      await prisma.blogPost.create({
+        data: {
+          title,
+          slug: finalSlug,
+          tags: tagsArray,
+          excerpt,
+          content: content || "<p></p>",
+          published,
+          publishedAt: published ? new Date() : null,
+          imageUrl,
+        },
+      });
+    }
     revalidatePath("/admin/blog");
     revalidatePath("/admin");
     revalidatePath("/blog");

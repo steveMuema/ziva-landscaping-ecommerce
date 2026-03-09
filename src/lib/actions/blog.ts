@@ -15,6 +15,7 @@ export async function getMoreBlogPosts(page: number) {
             id: true,
             title: true,
             slug: true,
+            tags: true,
             excerpt: true,
             publishedAt: true,
         },

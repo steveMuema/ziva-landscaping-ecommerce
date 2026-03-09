@@ -34,11 +34,15 @@ export default async function AdminBlogEditPage({
     const published = formData.get("published") === "on";
     const imageUrlRaw = (formData.get("imageUrl") as string)?.trim();
     const imageUrl = imageUrlRaw || null;
+    const tagsInput = formData.get("tags") as string || "";
+    const tagsArray = tagsInput.split(",").map((t) => t.trim()).filter(Boolean);
+
     await prisma.blogPost.update({
       where: { id: postId },
       data: {
         title,
         slug: newSlug,
+        tags: tagsArray,
         excerpt,
         content: content || "<p></p>",
         published,
@@ -71,8 +75,10 @@ export default async function AdminBlogEditPage({
       <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <BlogPostForm
           action={updatePost}
+          postId={postId}
           initialTitle={post.title}
           initialSlug={post.slug}
+          initialTags={post.tags}
           initialExcerpt={post.excerpt ?? ""}
           initialContent={post.content}
           initialPublished={post.published}

@@ -27,6 +27,7 @@ export default async function BlogPage() {
       id: true,
       title: true,
       slug: true,
+      tags: true,
       excerpt: true,
       publishedAt: true,
     },

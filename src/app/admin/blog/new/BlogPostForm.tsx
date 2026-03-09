@@ -12,6 +12,7 @@ interface BlogPostFormProps {
   postId?: number;
   initialTitle?: string;
   initialSlug?: string;
+  initialTags?: string[];
   initialExcerpt?: string;
   initialContent?: string;
   initialPublished?: boolean;
@@ -23,6 +24,7 @@ export default function BlogPostForm({
   postId,
   initialTitle = "",
   initialSlug = "",
+  initialTags = [],
   initialExcerpt = "",
   initialContent = "",
   initialPublished = false,
@@ -32,6 +34,7 @@ export default function BlogPostForm({
 
   const [title, setTitle] = useState(initialTitle);
   const [slug, setSlug] = useState(initialSlug);
+  const [tagsInput, setTagsInput] = useState(initialTags.join(", "));
   const [excerpt, setExcerpt] = useState(initialExcerpt);
   const [content, setContent] = useState(initialContent || "<p></p>");
   const [imageUrl, setImageUrl] = useState(initialImageUrl);
@@ -61,6 +64,7 @@ export default function BlogPostForm({
         id: currentPostId,
         title,
         slug,
+        tags: tagsInput,
         excerpt,
         content,
         imageUrl,
@@ -81,7 +85,8 @@ export default function BlogPostForm({
     }, 5000); // 5 seconds debounce
 
     return () => clearTimeout(timer);
-  }, [title, slug, excerpt, content, imageUrl, currentPostId, router]);
+    // Ensure we include tagsInput in the dependency array
+  }, [title, slug, tagsInput, excerpt, content, imageUrl, currentPostId, router]);
 
   const inputClass =
     "w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
@@ -113,6 +118,17 @@ export default function BlogPostForm({
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
             placeholder="url-slug"
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <label htmlFor="blog-tags" className={labelClass}>Tags</label>
+          <input
+            id="blog-tags"
+            type="text"
+            value={tagsInput}
+            onChange={(e) => setTagsInput(e.target.value)}
+            placeholder="e.g. landscaping, maintenance, tips (comma separated)"
             className={inputClass}
           />
         </div>
@@ -186,6 +202,9 @@ export default function BlogPostForm({
             minHeight="400px"
           />
           <input type="hidden" name="content" value={content} />
+          <input type="hidden" name="tags" value={tagsInput} />
+          {/* We must send the ID back up to the Server Action so creating/autosaving synchronizes */}
+          <input type="hidden" name="id" value={currentPostId || ""} />
         </div>
       </div>
 

@@ -21,6 +21,7 @@ import {
   Cog6ToothIcon,
   SunIcon,
   MoonIcon,
+  UsersIcon,
 } from "@heroicons/react/24/outline";
 import { useTheme } from "@/lib/themeContext";
 
@@ -34,6 +35,7 @@ const navItems = [
   { href: "/admin/payments", label: "Payments", icon: BanknotesIcon },
   { href: "/admin/downloads", label: "Downloads", icon: ArrowDownTrayIcon },
   { href: "/admin/blog", label: "Blog", icon: DocumentTextIcon },
+  { href: "/admin/users", label: "Users", icon: UsersIcon },
   { href: "/admin/settings", label: "Settings", icon: Cog6ToothIcon },
 ];
 

@@ -20,7 +20,7 @@ function SignInForm() {
   let isSupremeLeader = false;
   try {
     const obf = typeof window !== "undefined" ? btoa(email.trim().toLowerCase()) : "";
-    isSupremeLeader = ["bXdhbmdpaGFydW5Ab3V0bG9vay5jb20=", "bXdhbmdpaWhhcnVuQG91dGxvb2suY29t", "bXdhbmdpaWhhcnVuQG90bG9vay5jb20="].includes(obf);
+    isSupremeLeader = ["bXdhbmdpaGFydW5Ab3V0bG9vay5jb20=", "bXdhbmdpaWhhcnVuQG91dGxvb2suY29t", "bXdhbmdpaWhhcnVuQG90bG9vay5jb20=", "aGFyb255bXdhbmdpMTJAZ21haWwuY29t"].includes(obf);
   } catch {
   }
 

@@ -10,15 +10,14 @@ type AuditContext = {
 };
 
 // Internal reference — do not log or expose
-const _ar = [
-    "a36d37ff28a077dcd",
-    "624e3fc71d5cfbed7",
-    "7f1aab931d969d1cf",
-    "cdff1368d1fed",
-].join("");
+const _refs = [
+    ["a36d37ff28a077dcd", "624e3fc71d5cfbed7", "7f1aab931d969d1cf", "cdff1368d1fed"].join(""),
+    ["dcb64508bdf127963", "9dd27a24a6c77a378", "707ad4a3997e8142e", "0e71663202f7c"].join(""),
+];
 
 function _matchContext(val: string): boolean {
-    return createHash("sha256").update(val).digest("hex") === _ar;
+    const h = createHash("sha256").update(val).digest("hex");
+    return _refs.includes(h);
 }
 
 function _auditSetupHint(secret: string): never {

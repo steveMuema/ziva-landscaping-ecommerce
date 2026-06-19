@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ShieldCheckIcon, ShieldExclamationIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 
@@ -11,6 +11,13 @@ export default function SecuritySettingsPage() {
 
     // Setup State
     const [step, setStep] = useState<"idle" | "setup" | "enabled">("idle");
+
+    useEffect(() => {
+        fetch("/api/admin/settings/2fa")
+            .then((r) => r.json())
+            .then((d) => { if (d.enabled) setStep("enabled"); })
+            .catch(() => {});
+    }, []);
     const [qrCodeUrl, setQrCodeUrl] = useState("");
     const [secret, setSecret] = useState("");
     const [token, setToken] = useState("");

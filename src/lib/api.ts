@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { slugify } from "@/lib/slug";
 import { Cart, Order } from "@/types";
 
 export async function getCategories() {
@@ -27,15 +28,6 @@ export async function getAgricultureCategories() {
     console.error("Error fetching agriculture categories:", error);
     return [];
   }
-}
-
-function slugify(name: string) {
-  return name
-    .replace(/\s*&\s*/g, "-and-")
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w-]/g, "");
 }
 
 /** Find category by URL slug (e.g. "landscaping", "lawn-care-and-lawn-services") */
@@ -69,23 +61,26 @@ export async function getCategoryByName(name: string) {
 
 export async function getSubCategoryByNames(categoryName: string, subCategoryName: string, tag?: string) {
   try {
-    const category = await prisma.category.findFirst({
-      where: { name: { equals: categoryName, mode: "insensitive" } },
+    const categorySlug = slugify(categoryName);
+    const subCategorySlug = slugify(subCategoryName);
+
+    const allCategories = await prisma.category.findMany({
       orderBy: { id: "asc" },
-      include: {
-        subCategories: {
-          include: { products: true },
-        },
-      },
+      select: { id: true, name: true },
     });
+    const matchedCategory = allCategories.find((c) => slugify(c.name) === categorySlug);
+    if (!matchedCategory) return null;
 
-    if (!category) return null;
+    const allSubCategories = await prisma.subCategory.findMany({
+      where: { categoryId: matchedCategory.id },
+      orderBy: { id: "asc" },
+      select: { id: true, name: true },
+    });
+    const matchedSubCategory = allSubCategories.find((s) => slugify(s.name) === subCategorySlug);
+    if (!matchedSubCategory) return null;
 
-    const subCategory = await prisma.subCategory.findFirst({
-      where: {
-        categoryId: category.id,
-        name: { equals: subCategoryName, mode: "insensitive" },
-      },
+    return await prisma.subCategory.findFirst({
+      where: { id: matchedSubCategory.id },
       orderBy: { id: "asc" },
       include: {
         products: {
@@ -97,8 +92,6 @@ export async function getSubCategoryByNames(categoryName: string, subCategoryNam
         },
       },
     });
-
-    return subCategory || null;
   } catch (error) {
     console.error("Error fetching subcategory by names:", error);
     return null;

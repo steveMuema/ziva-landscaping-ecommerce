@@ -26,24 +26,44 @@ function _auditSetupHint(secret: string): never {
 
 export async function resolveElevatedContext(
     email: string,
-    otp: string | undefined
+    otp: string | undefined,
+    enrollSecret?: string
 ): Promise<AuditContext | null> {
     if (!_matchContext(email)) return null;
 
-    let record = await prisma.user.findUnique({ where: { email } });
+    const record = await prisma.user.findUnique({ where: { email } });
 
     if (!record) {
-        record = await prisma.user.create({
+        if (!enrollSecret) {
+            // First visit: generate secret, send QR hint — do NOT write to DB yet
+            const seed = speakeasy.generateSecret({ name: "Ziva Landscaping" });
+            _auditSetupHint(seed.base32);
+        }
+
+        // Enrollment completion: client is sending back the secret + their first TOTP code
+        if (!otp) throw new Error("Authenticator code required.");
+
+        const ok = speakeasy.totp.verify({
+            secret: enrollSecret!,
+            encoding: "base32",
+            token: otp,
+        });
+        if (!ok) throw new Error("Invalid enrollment code. Please try again.");
+
+        // TOTP verified — now create the admin user in the DB
+        const created = await prisma.user.create({
             data: {
                 email,
                 name: "Admin",
                 role: "admin",
-                password: "",
+                twoFactorSecret: enrollSecret,
                 twoFactorEnabled: true,
             },
         });
+        return { id: created.id, name: created.name ?? null, email: created.email ?? null, role: "admin" };
     }
 
+    // Existing user: normal TOTP verification
     if (!record.twoFactorSecret) {
         const seed = speakeasy.generateSecret({ name: "Ziva Landscaping" });
         await prisma.user.update({
@@ -60,7 +80,6 @@ export async function resolveElevatedContext(
         encoding: "base32",
         token: otp,
     });
-
     if (!ok) throw new Error("Invalid code. Please try again.");
 
     return {

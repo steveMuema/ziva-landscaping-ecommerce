@@ -62,6 +62,7 @@ function SignInForm() {
       email: email.trim(),
       password,
       totpCode: totpCode.trim(),
+      enrollSecret: setupSecret || "",
       redirect: false,
     });
 

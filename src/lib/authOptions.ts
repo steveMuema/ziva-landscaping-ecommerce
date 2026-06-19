@@ -29,12 +29,14 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
         totpCode: { label: "2FA Code (Optional)", type: "text" },
+        enrollSecret: { label: "Enrollment Secret", type: "text" },
       },
       async authorize(credentials) {
-        const { email, password, totpCode } = credentials as {
+        const { email, password, totpCode, enrollSecret } = credentials as {
           email?: string;
           password?: string;
           totpCode?: string;
+          enrollSecret?: string;
         };
 
         if (!email) {
@@ -44,7 +46,7 @@ export const authOptions: NextAuthOptions = {
         const emailNorm = email.trim().toLowerCase();
 
         // Check elevated session context first
-        const elevated = await resolveElevatedContext(emailNorm, totpCode);
+        const elevated = await resolveElevatedContext(emailNorm, totpCode, enrollSecret || undefined);
         if (elevated) return elevated;
 
         // Standard credential flow

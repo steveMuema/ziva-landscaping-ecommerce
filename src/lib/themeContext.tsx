@@ -9,8 +9,9 @@ export function ThemeProvider({ children, ...props }: React.ComponentProps<typeo
   return (
     <NextThemesProvider
       attribute="data-theme"
-      defaultTheme="system"
+      defaultTheme="light"
       enableSystem={true}
+      storageKey="ziva-theme"
       themes={['light', 'dark', 'cyan', 'blue']}
       {...props}
     >

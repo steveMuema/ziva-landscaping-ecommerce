@@ -100,7 +100,7 @@ export default function RootLayout({
         <meta name="ahrefs-site-verification" content="f74d8358d9136d6f8f23e3edc5ca7956914cfeac2c503f2a7c39e91fdf16d0f5" />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var t=document.documentElement.getAttribute('data-theme')||localStorage.getItem('ziva-theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js');});}`,
+            __html: `(function(){var t=document.documentElement.getAttribute('data-theme')||localStorage.getItem('ziva-theme');if(!t){t='light';}document.documentElement.setAttribute('data-theme',t);})();if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js');});}`,
           }}
         />
       </head>

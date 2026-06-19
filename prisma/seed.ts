@@ -27,7 +27,7 @@ const categoryToImageFolder: Record<string, string> = {
   "Landscaping": "landscaping",
   "Gardening": "garden",
   "Furniture & Fittings": "furniture",
-  "Home Décor & Furnishing": "home-decor",
+  "Home Decor & Furnishing": "home-decor",
 };
 
 import seedData from "./seed-data.json";

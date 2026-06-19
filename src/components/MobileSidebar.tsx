@@ -9,14 +9,7 @@ import { XMarkIcon, ChevronDownIcon, ChevronUpIcon, ArrowRightOnRectangleIcon } 
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-
-function slugify(name: string) {
-  return name
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-");
-}
+import { slugify } from "@/lib/slug";
 
 type Category = {
   id: string;

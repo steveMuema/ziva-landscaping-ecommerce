@@ -51,7 +51,7 @@ const collections: Collection[] = [
     id: 6,
     image: "/home-decor.jpg",
     category: "/shop/home-decor-and-furnishing",
-    alt: "Home Décor & Furnishing",
+    alt: "Home Decor & Furnishing",
     description:
       "Furnishing your home with beauty creativity,and functionality. Planting and choosing unique plants/herbs that do well indoors, that promote health allowing oxygen and fresh air circulate around your home.",
   },

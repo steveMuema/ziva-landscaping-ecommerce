@@ -1,5 +1,5 @@
 -- Create the users table
-CREATE TABLE "users" (
+CREATE TABLE IF NOT EXISTS "users" (
   "id" TEXT PRIMARY KEY,
   "name" VARCHAR(255),
   "email" VARCHAR(255),
@@ -12,7 +12,7 @@ CREATE TABLE "users" (
 );
 
 -- Create an index on the email column for faster lookups
-CREATE INDEX "users_email_idx" ON "users" ("email");
+CREATE INDEX IF NOT EXISTS "users_email_idx" ON "users" ("email");
 
 -- Add a comment to the table for documentation
 COMMENT ON TABLE "users" IS 'Stores user information for the e-commerce platform';

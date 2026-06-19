@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "Category" (
+CREATE TABLE IF NOT EXISTS "Category" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -9,7 +9,7 @@ CREATE TABLE "Category" (
 );
 
 -- CreateTable
-CREATE TABLE "SubCategory" (
+CREATE TABLE IF NOT EXISTS "SubCategory" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "categoryId" INTEGER NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE "SubCategory" (
 );
 
 -- CreateTable
-CREATE TABLE "Product" (
+CREATE TABLE IF NOT EXISTS "Product" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
@@ -35,7 +35,7 @@ CREATE TABLE "Product" (
 );
 
 -- CreateTable
-CREATE TABLE "Wishlist" (
+CREATE TABLE IF NOT EXISTS "Wishlist" (
     "id" SERIAL NOT NULL,
     "userId" TEXT NOT NULL,
     "productId" INTEGER NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE "Wishlist" (
 );
 
 -- CreateTable
-CREATE TABLE "Cart" (
+CREATE TABLE IF NOT EXISTS "Cart" (
     "id" SERIAL NOT NULL,
     "userId" TEXT NOT NULL,
     "productId" INTEGER NOT NULL,
@@ -56,16 +56,29 @@ CREATE TABLE "Cart" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Category_name_key" ON "Category"("name");
+CREATE UNIQUE INDEX IF NOT EXISTS "Category_name_key" ON "Category"("name");
 
 -- AddForeignKey
-ALTER TABLE "SubCategory" ADD CONSTRAINT "SubCategory_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+DO $$ BEGIN
+  ALTER TABLE "SubCategory" ADD CONSTRAINT "SubCategory_categoryId_fkey"
+    FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
--- AddForeignKey
-ALTER TABLE "Product" ADD CONSTRAINT "Product_subCategoryId_fkey" FOREIGN KEY ("subCategoryId") REFERENCES "SubCategory"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+DO $$ BEGIN
+  ALTER TABLE "Product" ADD CONSTRAINT "Product_subCategoryId_fkey"
+    FOREIGN KEY ("subCategoryId") REFERENCES "SubCategory"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
--- AddForeignKey
-ALTER TABLE "Wishlist" ADD CONSTRAINT "Wishlist_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+DO $$ BEGIN
+  ALTER TABLE "Wishlist" ADD CONSTRAINT "Wishlist_productId_fkey"
+    FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
--- AddForeignKey
-ALTER TABLE "Cart" ADD CONSTRAINT "Cart_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+DO $$ BEGIN
+  ALTER TABLE "Cart" ADD CONSTRAINT "Cart_productId_fkey"
+    FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;

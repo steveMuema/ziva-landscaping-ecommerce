@@ -1,21 +1,21 @@
-/*
-  Warnings:
-
-  - You are about to drop the column `image` on the `Product` table. All the data in the column will be lost.
-
-*/
 -- AlterTable
-ALTER TABLE "Category" ADD COLUMN     "imageUrl" TEXT;
+ALTER TABLE "Category" ADD COLUMN IF NOT EXISTS "imageUrl" TEXT;
+
+-- AlterTable: drop legacy image column (safe if already removed)
+DO $$ BEGIN
+  ALTER TABLE "Product" DROP COLUMN "image";
+EXCEPTION
+  WHEN undefined_column THEN NULL;
+  WHEN undefined_table THEN NULL;
+END $$;
+
+ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "imageUrl" TEXT;
 
 -- AlterTable
-ALTER TABLE "Product" DROP COLUMN "image",
-ADD COLUMN     "imageUrl" TEXT;
+ALTER TABLE "SubCategory" ADD COLUMN IF NOT EXISTS "imageUrl" TEXT;
 
--- AlterTable
-ALTER TABLE "SubCategory" ADD COLUMN     "imageUrl" TEXT;
-
--- CreateTable
-CREATE TABLE "Order" (
+-- CreateTable (old Order schema; dropped and replaced by later migrations)
+CREATE TABLE IF NOT EXISTS "Order" (
     "id" SERIAL NOT NULL,
     "userDetails" TEXT NOT NULL,
     "items" TEXT NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE "Order" (
 );
 
 -- CreateTable
-CREATE TABLE "User" (
+CREATE TABLE IF NOT EXISTS "User" (
     "id" TEXT NOT NULL,
     "name" TEXT,
     "email" TEXT,
@@ -41,4 +41,4 @@ CREATE TABLE "User" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email");

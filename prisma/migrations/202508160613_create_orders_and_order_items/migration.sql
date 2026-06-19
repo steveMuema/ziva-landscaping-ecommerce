@@ -1,5 +1,5 @@
 -- Creating Orders table
-CREATE TABLE "Order" (
+CREATE TABLE IF NOT EXISTS "Order" (
     "id" SERIAL PRIMARY KEY,
     "clientId" VARCHAR(255) NOT NULL,
     "email" VARCHAR(255) NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE "Order" (
 );
 
 -- Creating OrderItems table
-CREATE TABLE "OrderItem" (
+CREATE TABLE IF NOT EXISTS "OrderItem" (
     "id" SERIAL PRIMARY KEY,
     "orderId" INTEGER NOT NULL,
     "productId" INTEGER NOT NULL,
@@ -31,6 +31,6 @@ CREATE TABLE "OrderItem" (
 );
 
 -- Create index for faster lookups
-CREATE INDEX idx_order_clientId ON "Order"("clientId");
-CREATE INDEX idx_orderItem_orderId ON "OrderItem"("orderId");
-CREATE INDEX idx_orderItem_productId ON "OrderItem"("productId");
+CREATE INDEX IF NOT EXISTS idx_order_clientId ON "Order"("clientId");
+CREATE INDEX IF NOT EXISTS idx_orderItem_orderId ON "OrderItem"("orderId");
+CREATE INDEX IF NOT EXISTS idx_orderItem_productId ON "OrderItem"("productId");

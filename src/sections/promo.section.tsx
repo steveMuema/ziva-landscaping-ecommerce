@@ -14,7 +14,7 @@ const collections: Collection[] = [
     category: "/shop/landscaping",
     alt: "East Africa's Premier Landscaping",
     description:
-      "Landscape design and Sustainability across Kenya, Uganda, and Tanzania. Crafting vibrant eco-friendly outdoor spaces by designing with drought resistant plants, edible landscape and organic practices.",
+      "Landscape design and Sustainability across East Africa. Crafting vibrant eco-friendly outdoor spaces by designing with drought resistant plants, edible landscape and organic practices.",
   },
   {
     id: 2,
@@ -189,7 +189,7 @@ function Slide({
         style={{ minHeight: `${PROMO_MIN_HEIGHT_VH}vh` }}
       >
         {/* Image — left on desktop, top on mobile */}
-        <div className="relative w-full md:w-1/2 min-h-[36vh] md:min-h-[58vh] shrink-0 overflow-hidden">
+        <div className="relative w-full md:w-1/2 min-h-[36vh] md:min-h-[58vh] shrink-0 overflow-hidden bg-black">
           <motion.div
             className="absolute inset-0"
             initial={false}
@@ -203,7 +203,7 @@ function Slide({
               src={collection.image}
               alt={collection.alt}
               fill
-              className="object-cover"
+              className="object-contain md:object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
               priority={priority}
             />

@@ -18,7 +18,7 @@ export default function AboutUsSection() {
           <div className="order-1 min-w-0 w-full">
             <h2 className="text-3xl font-bold text-[var(--foreground)] mb-6 font-[family-name:var(--font-quicksand)]">East Africa's Most Trusted Landscaping Experts</h2>
             <p className="text-lg text-[var(--muted)] leading-relaxed mb-6 font-[family-name:var(--font-quicksand)] font-medium">
-              At Ziva Landscaping Co., we are the premier choice for crafting vibrant, eco-friendly outdoor spaces across Kenya, Uganda, and Tanzania. We achieve this by: </p>
+              At Ziva Landscaping Co., we are the premier choice for crafting vibrant, eco-friendly outdoor spaces across East Africa. We achieve this by:</p>
             <ul role="list" className="mt-8 mb-8 space-y-8 text-[var(--muted)] font-[family-name:var(--font-quicksand)]">
               <li className="flex gap-x-3">
                 <PlusCircleIcon aria-hidden="true" className="mt-1 size-5 flex-none text-[var(--accent)]" />

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { slugify } from "@/lib/slug";
 
 export async function GET() {
   const categories = await prisma.category.findMany({
@@ -18,13 +19,13 @@ export async function GET() {
     featured: [
       {
         name: "New Arrivals",
-        href: `/shop/${category.name.toLowerCase().replace(/\s+/g, "-")}`,
+        href: `/shop/${slugify(category.name)}`,
         imageSrc: category.imageUrl || "https://tailwindcss.com/plus-assets/img/ecommerce-images/mega-menu-category-01.jpg",
         imageAlt: `Featured ${category.name}`,
       },
       {
         name: "Popular Items",
-        href: `/shop/${category.name.toLowerCase().replace(/\s+/g, "-")}`,
+        href: `/shop/${slugify(category.name)}`,
         imageSrc: category.imageUrl || "https://tailwindcss.com/plus-assets/img/ecommerce-images/mega-menu-category-02.jpg",
         imageAlt: `Popular ${category.name} items`,
       },
@@ -35,7 +36,7 @@ export async function GET() {
         name: category.name,
         items: category.subCategories.map((sub) => ({
           name: sub.name,
-          href: `/shop/${category.name.toLowerCase().replace(/\s+/g, "-")}/${sub.name.toLowerCase().replace(/\s+/g, "-")}`,
+          href: `/shop/${slugify(category.name)}/${slugify(sub.name)}`,
         })),
       },
     ],

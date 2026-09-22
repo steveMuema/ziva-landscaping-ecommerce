@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Product } from "@/types";
 import Breadcrumb from "@/components/Breadcrumb";
 import ProductActions from "@/components/ProductActions";
@@ -19,7 +19,6 @@ interface ProductSectionProps {
 const ProductSection = ({ product, categoryName, subCategoryName, categorySlug, subCategorySlug }: ProductSectionProps) => {
   const catSlug = categorySlug ?? slugify(categoryName);
   const subSlug = subCategorySlug ?? slugify(subCategoryName);
-  const router = useRouter();
   const { items } = useCart();
   const [quantity, setQuantity] = useState(1);
 
@@ -66,10 +65,6 @@ const ProductSection = ({ product, categoryName, subCategoryName, categorySlug, 
     });
   };
 
-  const handleTagClick = (tag: string) => {
-    router.push(`/shop/${catSlug}/${subSlug}?tag=${encodeURIComponent(tag)}`);
-  };
-
   const breadcrumbPath = [
     { name: "Home", href: "/" },
     { name: "Shop", href: "/shop" },
@@ -109,13 +104,13 @@ const ProductSection = ({ product, categoryName, subCategoryName, categorySlug, 
             </div>
             <div className="mb-6 flex flex-wrap gap-2">
               {product.tags.map((tag) => (
-                <span
+                <Link
                   key={tag}
-                  onClick={() => handleTagClick(tag)}
-                  className="inline-block bg-[var(--muted-bg)] rounded-full px-3 py-1 text-sm font-medium text-[var(--foreground)] cursor-pointer hover:opacity-80"
+                  href={`/shop/${catSlug}/${subSlug}?tag=${encodeURIComponent(tag)}`}
+                  className="inline-block bg-[var(--muted-bg)] rounded-full px-3 py-1 text-sm font-medium text-[var(--foreground)] hover:opacity-80"
                 >
                   {tag}
-                </span>
+                </Link>
               ))}
             </div>
             <div className="flex items-center space-x-2 mb-8">

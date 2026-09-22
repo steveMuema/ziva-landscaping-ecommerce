@@ -4,24 +4,10 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { SETTING_KEYS } from "@/lib/setting-keys";
+import { socialUrl } from "@/lib/socials";
 import GoogleMap from "@/components/GoogleMap";
 
 type SiteSettings = Record<string, string>;
-
-function socialUrl(key: string, value: string): string {
-  if (!value.trim()) return "";
-  const v = value.trim();
-  if (/^https?:\/\//i.test(v)) return v;
-  const bases: Record<string, string> = {
-    [SETTING_KEYS.SOCIAL_FACEBOOK]: "https://facebook.com/",
-    [SETTING_KEYS.SOCIAL_INSTAGRAM]: "https://instagram.com/",
-    [SETTING_KEYS.SOCIAL_TWITTER]: "https://x.com/",
-    [SETTING_KEYS.SOCIAL_PINTEREST]: "https://pinterest.com/",
-    [SETTING_KEYS.SOCIAL_YOUTUBE]: "https://youtube.com/",
-    [SETTING_KEYS.SOCIAL_LINKEDIN]: "https://linkedin.com/",
-  };
-  return (bases[key] ?? "") + v.replace(/^\/*/, "");
-}
 
 const DEFAULT_TAGLINE =
   "To nurture thriving, sustainable landscapes that flourish with beauty, health and innovation while preserving our planet's precious resources";

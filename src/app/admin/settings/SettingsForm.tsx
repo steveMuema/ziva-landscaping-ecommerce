@@ -33,6 +33,7 @@ const LABELS: Record<string, string> = {
   [SETTING_KEYS.SOCIAL_PINTEREST]: "Pinterest (URL or username)",
   [SETTING_KEYS.SOCIAL_YOUTUBE]: "YouTube (URL or username)",
   [SETTING_KEYS.SOCIAL_LINKEDIN]: "LinkedIn (URL or username)",
+  [SETTING_KEYS.SOCIAL_TELEGRAM]: "Telegram (URL or username)",
 };
 
 export default function SettingsForm() {
@@ -656,6 +657,7 @@ export default function SettingsForm() {
                   SETTING_KEYS.SOCIAL_PINTEREST,
                   SETTING_KEYS.SOCIAL_YOUTUBE,
                   SETTING_KEYS.SOCIAL_LINKEDIN,
+                  SETTING_KEYS.SOCIAL_TELEGRAM,
                 ].map((key) => (
                   <div key={key}>
                     <label htmlFor={key} className="block text-sm font-medium text-slate-700">{LABELS[key]}</label>

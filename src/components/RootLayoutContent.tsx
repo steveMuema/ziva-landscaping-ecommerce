@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import NavigationBar from "@/components/navbar";
 import ChatAgent from "@/components/ChatAgent";
 import Footer from "@/components/Footer";
+import TopSocialBar from "@/components/TopSocialBar";
 
 /** Paths where the navbar shows an extra banner strip below the main row */
 const PATHS_WITH_NAV_BANNER = new Set([
@@ -32,11 +33,12 @@ export default function RootLayoutContent({
   return (
     <div className="min-h-screen flex flex-col">
       <div className="fixed top-0 left-0 right-0 z-20 w-full">
+        <TopSocialBar />
         <NavigationBar />
       </div>
-      {/* Spacer so content starts below the fixed navbar (main row + optional banner) */}
+      {/* Spacer so content starts below the fixed top bar + navbar (main row + optional banner) */}
       <div
-        className={`shrink-0 ${hasNavBanner ? "h-24 sm:h-28 md:h-32" : "h-14 sm:h-16 md:h-20"}`}
+        className={`shrink-0 ${hasNavBanner ? "h-[128px] sm:h-[144px] md:h-[160px]" : "h-[88px] sm:h-[96px] md:h-[112px]"}`}
         aria-hidden
       />
       <ChatAgent />

@@ -8,6 +8,7 @@ const SOCIAL_BASES: Record<string, string> = {
   [SETTING_KEYS.SOCIAL_YOUTUBE]: "https://youtube.com/",
   [SETTING_KEYS.SOCIAL_LINKEDIN]: "https://linkedin.com/",
   [SETTING_KEYS.SOCIAL_TELEGRAM]: "https://t.me/",
+  [SETTING_KEYS.SOCIAL_TIKTOK]: "https://tiktok.com/@",
 };
 
 /** Resolves a stored social setting value (full URL or bare username) into a full profile URL. */

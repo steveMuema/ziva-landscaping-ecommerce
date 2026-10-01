@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FaFacebookF, FaXTwitter, FaPinterest, FaLinkedinIn, FaWhatsapp, FaTelegram } from "react-icons/fa6";
+import { FaFacebookF, FaInstagram, FaXTwitter, FaTiktok, FaPinterest, FaLinkedinIn, FaWhatsapp, FaTelegram } from "react-icons/fa6";
 import { SETTING_KEYS } from "@/lib/setting-keys";
 import { socialUrl, whatsappUrl } from "@/lib/socials";
 
@@ -22,7 +22,9 @@ export default function TopSocialBar() {
 
   const links = [
     { key: "facebook", label: "Facebook", href: socialUrl(SETTING_KEYS.SOCIAL_FACEBOOK, s(SETTING_KEYS.SOCIAL_FACEBOOK)), Icon: FaFacebookF },
+    { key: "instagram", label: "Instagram", href: socialUrl(SETTING_KEYS.SOCIAL_INSTAGRAM, s(SETTING_KEYS.SOCIAL_INSTAGRAM)), Icon: FaInstagram },
     { key: "twitter", label: "X (Twitter)", href: socialUrl(SETTING_KEYS.SOCIAL_TWITTER, s(SETTING_KEYS.SOCIAL_TWITTER)), Icon: FaXTwitter },
+    { key: "tiktok", label: "TikTok", href: socialUrl(SETTING_KEYS.SOCIAL_TIKTOK, s(SETTING_KEYS.SOCIAL_TIKTOK)), Icon: FaTiktok },
     { key: "pinterest", label: "Pinterest", href: socialUrl(SETTING_KEYS.SOCIAL_PINTEREST, s(SETTING_KEYS.SOCIAL_PINTEREST)), Icon: FaPinterest },
     { key: "linkedin", label: "LinkedIn", href: socialUrl(SETTING_KEYS.SOCIAL_LINKEDIN, s(SETTING_KEYS.SOCIAL_LINKEDIN)), Icon: FaLinkedinIn },
     { key: "whatsapp", label: "WhatsApp", href: whatsappUrl(phone), Icon: FaWhatsapp },

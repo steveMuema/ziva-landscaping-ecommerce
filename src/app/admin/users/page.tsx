@@ -33,8 +33,8 @@ export default function UsersPage() {
             const res = await fetch("/api/admin/users");
             if (!res.ok) throw new Error("Failed to load users");
             setUsers(await res.json());
-        } catch (e: any) {
-            setError(e.message);
+        } catch (e) {
+            setError(e instanceof Error ? e.message : "Failed to load users");
         } finally {
             setLoading(false);
         }
@@ -55,8 +55,8 @@ export default function UsersPage() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
             setUsers((prev) => prev.map((u) => (u.id === user.id ? data : u)));
-        } catch (e: any) {
-            setError(e.message);
+        } catch (e) {
+            setError(e instanceof Error ? e.message : "Failed to update role");
         } finally {
             setBusyId(null);
         }
@@ -70,8 +70,8 @@ export default function UsersPage() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
             setUsers((prev) => prev.filter((u) => u.id !== user.id));
-        } catch (e: any) {
-            setError(e.message);
+        } catch (e) {
+            setError(e instanceof Error ? e.message : "Failed to delete user");
         } finally {
             setBusyId(null);
         }

@@ -19,6 +19,11 @@ export function socialUrl(key: string, value: string): string {
   return (SOCIAL_BASES[key] ?? "") + v.replace(/^\/*/, "");
 }
 
+/** The platform's own homepage, used as a placeholder link until a real handle is configured. */
+export function socialPlaceholderUrl(key: string): string {
+  return SOCIAL_BASES[key] ?? "";
+}
+
 /** Resolves a stored WhatsApp phone number into a wa.me chat link. */
 export function whatsappUrl(phone: string): string {
   const digits = phone.replace(/[^\d]/g, "");

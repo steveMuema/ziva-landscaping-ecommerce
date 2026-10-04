@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { SETTING_KEYS } from "@/lib/setting-keys";
-import { unstable_cache } from "next/cache";
+import { unstable_cache, revalidateTag } from "next/cache";
 
 export { SETTING_KEYS };
 
@@ -42,14 +42,14 @@ export const getSettings = unstable_cache(
   { tags: ['settings'], revalidate: 3600 }
 );
 
-/** Set a setting (upsert). */
+/** Set a setting (upsert). Invalidates the getSetting/getSettings cache immediately. */
 export async function setSetting(key: string, value: string): Promise<void> {
   await prisma.setting.upsert({
     where: { key },
     create: { key, value },
     update: { value },
   });
-  // You might want to call revalidateTag('settings') from the API endpoint that uses this.
+  revalidateTag('settings');
 }
 
 

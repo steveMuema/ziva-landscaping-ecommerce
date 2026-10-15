@@ -12,7 +12,7 @@ const DEFAULT_BG_IMAGE = "/landscape.jpeg";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Agriculture | Ziva Landscaping Co. — East Africa",
+  title: "Agriculture | East Africa",
   description:
     "Agriculture products and solutions. Sustainable farming, landscaping, and eco-friendly supplies in Kenya and East Africa.",
   keywords: [

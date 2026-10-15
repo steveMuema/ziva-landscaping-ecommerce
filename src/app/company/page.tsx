@@ -7,7 +7,7 @@ import { getContent } from "@/lib/content";
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: "Company — Mission & Vision | Ziva Landscaping Co",
+  title: "Company — Mission & Vision",
   description:
     "Ziva Landscaping Co. and Ziva Homes: our mission and vision for sustainable landscaping and eco-friendly outdoor spaces across East Africa. Green, gold, white.",
   keywords: [

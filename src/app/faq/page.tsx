@@ -7,7 +7,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://zivalandscaping.co.
 export async function generateMetadata(): Promise<Metadata> {
   const faq = await getContent("faq");
   return {
-    title: `${faq.title} — Ziva Landscaping Co.`,
+    title: faq.title,
     description: faq.intro || "Answers to common questions about Ziva Landscaping Co. products, delivery and services.",
     alternates: { canonical: `${siteUrl}/faq` },
   };

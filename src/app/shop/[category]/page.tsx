@@ -30,9 +30,11 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
   const normalizedSlug = slugFromParam(slug);
   const category = await getCategoryBySlug(normalizedSlug);
 
-  if (!category) return { title: "Category Not Found | Ziva Landscaping Co." };
+  if (!category) return { title: "Category Not Found" };
 
-  const title = `${category.name} | Shop | Ziva Landscaping Co.`;
+  // The root layout's title template adds the site name; social cards need it spelled out.
+  const title = `${category.name} | Shop`;
+  const socialTitle = `${title} | Ziva Landscaping Co.`;
   const description = category.description || `Shop ${category.name} at Ziva Landscaping Co. Eco-friendly outdoor solutions.`;
   const url = process.env.NEXT_PUBLIC_SITE_URL ? `${process.env.NEXT_PUBLIC_SITE_URL}/shop/${normalizedSlug}` : `https://zivalandscaping.co.ke/shop/${normalizedSlug}`;
 
@@ -41,7 +43,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
     description,
     alternates: { canonical: url },
     openGraph: {
-      title,
+      title: socialTitle,
       description,
       url,
       images: category.imageUrl ? [{ url: category.imageUrl, width: 800, height: 600, alt: category.name }] : undefined,

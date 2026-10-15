@@ -26,9 +26,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { id, category, subCategory } = await params;
   const product = await getProductById(id);
   if (!product) {
-    return { title: `Product not found | ${siteName}` };
+    return { title: "Product not found" };
   }
-  const title = `${product.metaTitle || product.name} | ${siteName}`;
+  // The root layout's title template adds the site name.
+  const title = product.metaTitle || product.name;
   const description = product.metaDescription?.trim() ||
     ((product.description?.trim() && product.description.length > 160)
       ? product.description.slice(0, 157) + "..."

@@ -19,9 +19,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     where: { slug, ...livePost() },
     select: { title: true, excerpt: true, imageUrl: true, metaTitle: true, metaDescription: true },
   });
-  if (!post) return { title: "Blog | Ziva Landscaping Co." };
+  if (!post) return { title: "Blog" };
 
-  const title = `${post.metaTitle || post.title} | Blog | Ziva Landscaping Co.`;
+  // The root layout's title template adds the site name; social cards need it spelled out.
+  const title = `${post.metaTitle || post.title} | Blog`;
+  const socialTitle = `${title} | Ziva Landscaping Co.`;
   const description = post.metaDescription || post.excerpt || `Read ${post.title} at Ziva Landscaping Co.`;
   const url = process.env.NEXT_PUBLIC_SITE_URL ? `${process.env.NEXT_PUBLIC_SITE_URL}/blog/${slug}` : `https://zivalandscaping.co.ke/blog/${slug}`;
   const images = post.imageUrl ? [{ url: post.imageUrl }] : undefined;
@@ -31,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     alternates: { canonical: url },
     openGraph: {
-      title,
+      title: socialTitle,
       description,
       url,
       images,
@@ -39,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: socialTitle,
       description,
       images: post.imageUrl ? [post.imageUrl] : undefined,
     }

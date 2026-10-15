@@ -4,7 +4,7 @@ import { PolicyPage } from "@/components/PolicyPage";
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getContent("page.terms");
-  return { title: `${page.title} — Ziva Landscaping Co.`, description: page.metaDescription || undefined };
+  return { title: page.title, description: page.metaDescription || undefined };
 }
 
 export default async function TermsPage() {

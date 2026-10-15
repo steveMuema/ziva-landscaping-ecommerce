@@ -5,6 +5,9 @@ import NavigationBar from "@/components/navbar";
 import ChatAgent from "@/components/ChatAgent";
 import Footer from "@/components/Footer";
 import TopSocialBar from "@/components/TopSocialBar";
+import Link from "next/link";
+
+type Announcement = { text: string; linkUrl: string; linkLabel: string };
 
 /** Paths where the navbar shows an extra banner strip below the main row */
 const PATHS_WITH_NAV_BANNER = new Set([
@@ -18,8 +21,10 @@ const PATHS_WITH_NAV_BANNER = new Set([
 
 export default function RootLayoutContent({
   children,
+  announcement = null,
 }: {
   children: React.ReactNode;
+  announcement?: Announcement | null;
 }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
@@ -33,6 +38,16 @@ export default function RootLayoutContent({
   return (
     <div className="min-h-screen flex flex-col">
       <div className="fixed top-0 left-0 right-0 z-20 w-full">
+        {announcement && (
+          <div className="flex h-8 items-center justify-center gap-2 overflow-hidden bg-[var(--accent)] px-4 text-center text-xs font-medium text-white sm:text-sm">
+            <span className="truncate">{announcement.text}</span>
+            {announcement.linkUrl && (
+              <Link href={announcement.linkUrl} className="shrink-0 underline underline-offset-2 hover:opacity-90">
+                {announcement.linkLabel || "Learn more"}
+              </Link>
+            )}
+          </div>
+        )}
         <TopSocialBar />
         <NavigationBar />
       </div>
@@ -41,6 +56,7 @@ export default function RootLayoutContent({
         className={`shrink-0 ${hasNavBanner ? "h-[128px] sm:h-[144px] md:h-[160px]" : "h-[88px] sm:h-[96px] md:h-[112px]"}`}
         aria-hidden
       />
+      {announcement && <div className="h-8 shrink-0" aria-hidden />}
       <ChatAgent />
       {/* pb-20/pb-24 sits here — above the footer — so no gap appears below it */}
       <main className="flex-1 flex flex-col min-h-0 pb-20 sm:pb-24">{children}</main>

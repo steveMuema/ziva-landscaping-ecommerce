@@ -1,79 +1,11 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
-import prisma from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { requireEditor } from "@/lib/admin-auth";
 import BlogPostForm from "./BlogPostForm";
-import { requireAdmin } from "@/lib/admin-auth";
-import { sanitizeBlogHtml } from "@/lib/sanitize";
-
-function slugFromTitle(title: string) {
-  return title
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-");
-}
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminBlogNewPage() {
-  await requireAdmin();
-
-  async function createPost(formData: FormData) {
-    "use server";
-    await requireAdmin();
-    const title = formData.get("title") as string;
-    const slugInput = (formData.get("slug") as string)?.trim();
-    const slug = slugInput || slugFromTitle(title);
-    const excerpt = (formData.get("excerpt") as string) || null;
-    const content = formData.get("content") as string;
-    const published = formData.get("published") === "on";
-    const imageUrlRaw = (formData.get("imageUrl") as string)?.trim();
-    const imageUrl = imageUrlRaw || null;
-    const tagsInput = formData.get("tags") as string || "";
-    const tagsArray = tagsInput.split(",").map((t) => t.trim()).filter(Boolean);
-
-    const idInput = formData.get("id") as string;
-
-    if (idInput && !isNaN(parseInt(idInput, 10))) {
-      const postId = parseInt(idInput, 10);
-      const post = await prisma.blogPost.findUnique({ where: { id: postId } });
-      const newSlug = slugInput || post?.slug || slugFromTitle(title);
-      await prisma.blogPost.update({
-        where: { id: postId },
-        data: {
-          title,
-          slug: newSlug,
-          tags: tagsArray,
-          excerpt,
-          content: sanitizeBlogHtml(content || "<p></p>"),
-          published,
-          publishedAt: published ? (post?.publishedAt || new Date()) : null,
-          imageUrl,
-          updatedAt: new Date(),
-        },
-      });
-    } else {
-      const existing = await prisma.blogPost.findUnique({ where: { slug } });
-      const finalSlug = existing ? `${slug}-${Date.now()}` : slug;
-      await prisma.blogPost.create({
-        data: {
-          title,
-          slug: finalSlug,
-          tags: tagsArray,
-          excerpt,
-          content: sanitizeBlogHtml(content || "<p></p>"),
-          published,
-          publishedAt: published ? new Date() : null,
-          imageUrl,
-        },
-      });
-    }
-    revalidatePath("/admin/blog");
-    revalidatePath("/admin");
-    revalidatePath("/blog");
-    redirect("/admin/blog");
-  }
+  await requireEditor();
 
   return (
     <div className="space-y-6">
@@ -88,7 +20,7 @@ export default async function AdminBlogNewPage() {
         <p className="mt-1 text-sm text-slate-500">Create a new blog post.</p>
       </div>
       <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <BlogPostForm action={createPost} />
+        <BlogPostForm />
       </div>
     </div>
   );

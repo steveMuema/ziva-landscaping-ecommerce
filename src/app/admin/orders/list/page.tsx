@@ -3,6 +3,7 @@ import Link from "next/link";
 import { OrdersListTable } from "@/components/admin/OrdersListTable";
 import { updateOrderStatus } from "../actions";
 import { Squares2X2Icon } from "@heroicons/react/24/outline";
+import type { Prisma } from "@prisma/client";
 import { requireAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
@@ -26,11 +27,7 @@ export default async function AdminOrdersListPage({
   const dateFrom = typeof params?.dateFrom === "string" ? params.dateFrom.trim() : "";
   const dateTo = typeof params?.dateTo === "string" ? params.dateTo.trim() : "";
 
-  const where: {
-    status?: { in: (typeof STATUSES)[number][] };
-    phone?: { contains: string; mode: "insensitive" };
-    createdAt?: { gte?: Date; lte?: Date };
-  } = {};
+  const where: Prisma.OrderWhereInput & { createdAt?: { gte?: Date; lte?: Date } } = {};
 
   if (statusFilter) {
     where.status = { in: [statusFilter] };
@@ -38,7 +35,15 @@ export default async function AdminOrdersListPage({
     where.status = { in: [...STATUSES] };
   }
   if (phone) {
-    where.phone = { contains: phone, mode: "insensitive" };
+    // One box searches phone, customer name/email, order number and payment references.
+    const orderId = Number(phone.replace(/^#/, ""));
+    where.OR = [
+      { phone: { contains: phone, mode: "insensitive" } },
+      { fullname: { contains: phone, mode: "insensitive" } },
+      { email: { contains: phone, mode: "insensitive" } },
+      { orderPaymentRefs: { some: { value: { contains: phone, mode: "insensitive" } } } },
+      ...(Number.isInteger(orderId) && orderId > 0 ? [{ id: orderId }] : []),
+    ];
   }
   if (dateFrom || dateTo) {
     where.createdAt = {};
@@ -95,7 +100,7 @@ export default async function AdminOrdersListPage({
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Orders (table)</h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Search, filter by status and date range, and change status. Up to {PAGE_SIZE} per page, latest first.
+            Search by phone, name, email, order number or M-Pesa ref; filter by status and date; change status. Up to {PAGE_SIZE} per page, latest first.
           </p>
         </div>
         <Link

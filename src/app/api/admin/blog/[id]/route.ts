@@ -1,20 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdminApi } from "@/lib/admin-auth";
+import { requireEditorApi } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
+import { audit } from "@/lib/audit";
 
 export async function DELETE(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const auth = await requireAdminApi();
+        const auth = await requireEditorApi();
         if ("response" in auth) return auth.response;
 
         const { id } = await params;
 
-        await prisma.blogPost.delete({
-            where: { id: parseInt(id, 10) },
-        });
+        const postId = parseInt(id, 10);
+        if (isNaN(postId)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+        const post = await prisma.blogPost.delete({ where: { id: postId }, select: { title: true } });
+        await audit(auth.user, { action: "blog.delete", entity: "BlogPost", entityId: postId, summary: `Deleted post “${post.title}”` });
 
         return NextResponse.json({ success: true });
     } catch (error) {

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getProductById } from "@/lib/api";
 import prisma from "@/lib/prisma";
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
+import { activeProduct, livePost } from "@/lib/catalog";
+import { readSetting } from "@/lib/settings";
+import { SETTING_KEYS } from "@/lib/setting-keys";
 
 export const maxDuration = 30; // Vercel Edge/Serverless timeout
 
@@ -210,8 +213,8 @@ async function getCatalogContext(): Promise<string> {
   try {
     const [categories, products, blogs] = await Promise.all([
       prisma.category.findMany({ select: { name: true, subCategories: { select: { name: true } } } }),
-      prisma.product.findMany({ select: { name: true, price: true }, take: 100 }),
-      prisma.blogPost.findMany({ select: { title: true }, take: 15, orderBy: { createdAt: 'desc' } })
+      prisma.product.findMany({ where: activeProduct, select: { name: true, price: true }, take: 100 }),
+      prisma.blogPost.findMany({ where: livePost(), select: { title: true }, take: 15, orderBy: { publishedAt: 'desc' } })
     ]);
 
     let rag = "--- ZIVA KNOWLEDGE BASE ---\n";
@@ -246,8 +249,8 @@ export async function POST(request: NextRequest) {
 
     // Try Gemini first, fall back to rule-based
     const catalogContext = await getCatalogContext();
-    const geminiSetting = await prisma.setting.findUnique({ where: { key: "GEMINI_API_KEY" } });
-    const apiKey = geminiSetting?.value?.trim() || process.env.GOOGLE_AI_API_KEY || "";
+    const geminiKey = await readSetting(SETTING_KEYS.GEMINI_API_KEY);
+    const apiKey = geminiKey?.trim() || process.env.GOOGLE_AI_API_KEY || "";
 
     let reply = await getGeminiResponse(pathname, message, context, history, catalogContext, apiKey);
     const usedAI = !!reply;

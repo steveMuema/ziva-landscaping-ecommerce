@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
 import {
   ChartBarIcon,
@@ -23,8 +23,13 @@ import {
   SunIcon,
   MoonIcon,
   UsersIcon,
+  PhotoIcon,
+  RectangleGroupIcon,
+  ClipboardDocumentCheckIcon,
+  UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useTheme } from "@/lib/themeContext";
+import { canAccessAdminPath } from "@/lib/roles";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: ChartBarIcon },
@@ -37,14 +42,22 @@ const navItems = [
   { href: "/admin/downloads", label: "Downloads", icon: ArrowDownTrayIcon },
   { href: "/admin/blog", label: "Blog", icon: DocumentTextIcon },
   { href: "/admin/comments", label: "Comments", icon: ChatBubbleLeftRightIcon },
+  { href: "/admin/content", label: "Site content", icon: RectangleGroupIcon },
+  { href: "/admin/media", label: "Media", icon: PhotoIcon },
   { href: "/admin/users", label: "Users", icon: UsersIcon },
+  { href: "/admin/audit", label: "Audit log", icon: ClipboardDocumentCheckIcon },
   { href: "/admin/settings", label: "Settings", icon: Cog6ToothIcon },
+  { href: "/admin/account", label: "My account", icon: UserCircleIcon },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { data: session } = useSession();
+  const role = session?.user?.role;
+  // Until the session loads, show nothing role-specific rather than links that would redirect.
+  const visibleNavItems = role ? navItems.filter(({ href }) => canAccessAdminPath(role, href)) : [];
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
@@ -74,7 +87,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </button>
         </div>
         <nav className="flex flex-1 flex-col gap-0.5 overflow-auto p-3">
-          {navItems.map(({ href, label, icon: Icon }) => {
+          {visibleNavItems.map(({ href, label, icon: Icon }) => {
             const isActive = pathname === href || (href !== "/admin" && pathname.startsWith(href));
             return (
               <Link

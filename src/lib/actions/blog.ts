@@ -2,12 +2,13 @@
 
 import prisma from "@/lib/prisma";
 import { PAGE_SIZE } from "@/lib/pagination";
+import { livePost } from "@/lib/catalog";
 
 export async function getMoreBlogPosts(page: number) {
     const skip = (page - 1) * PAGE_SIZE;
 
     const posts = await prisma.blogPost.findMany({
-        where: { published: true },
+        where: livePost(),
         orderBy: { publishedAt: "desc" },
         skip,
         take: PAGE_SIZE,

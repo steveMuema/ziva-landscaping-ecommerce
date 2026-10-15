@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useActionState } from "react";
 import { useRouter } from "next/navigation";
 import RichTextEditor from "@/components/RichTextEditor";
 import { autoSaveDraft } from "@/lib/actions/blog-editor";
-
-type FormAction = (formData: FormData) => Promise<void>;
+import { saveBlogPost, type BlogFormState } from "@/lib/actions/blog-posts";
+import { blogSlug } from "@/lib/slug";
+import { MediaPicker } from "@/components/admin/MediaPicker";
 
 interface BlogPostFormProps {
-  action: FormAction;
   postId?: number;
   initialTitle?: string;
   initialSlug?: string;
@@ -16,11 +16,23 @@ interface BlogPostFormProps {
   initialExcerpt?: string;
   initialContent?: string;
   initialPublished?: boolean;
+  /** ISO string; a future date means the post is scheduled. */
+  initialPublishedAt?: string | null;
   initialImageUrl?: string;
+  initialMetaTitle?: string;
+  initialMetaDescription?: string;
+}
+
+/** ISO date → value for <input type="datetime-local"> in the browser's timezone. */
+function toLocalInput(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 export default function BlogPostForm({
-  action,
   postId,
   initialTitle = "",
   initialSlug = "",
@@ -28,9 +40,13 @@ export default function BlogPostForm({
   initialExcerpt = "",
   initialContent = "",
   initialPublished = false,
+  initialPublishedAt = null,
   initialImageUrl = "",
+  initialMetaTitle = "",
+  initialMetaDescription = "",
 }: BlogPostFormProps) {
   const router = useRouter();
+  const [state, formAction, isSaving] = useActionState<BlogFormState, FormData>(saveBlogPost, {});
 
   const [title, setTitle] = useState(initialTitle);
   const [slug, setSlug] = useState(initialSlug);
@@ -39,27 +55,58 @@ export default function BlogPostForm({
   const [content, setContent] = useState(initialContent || "<p></p>");
   const [imageUrl, setImageUrl] = useState(initialImageUrl);
   const [isPublished, setIsPublished] = useState(initialPublished);
+  const [metaTitle, setMetaTitle] = useState(initialMetaTitle);
+  const [metaDescription, setMetaDescription] = useState(initialMetaDescription);
+  // Set after mount so the server and browser don't disagree on the timezone.
+  const [publishAtLocal, setPublishAtLocal] = useState("");
+  useEffect(() => setPublishAtLocal(toLocalInput(initialPublishedAt)), [initialPublishedAt]);
 
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(postId ? new Date() : null);
   const [currentPostId, setCurrentPostId] = useState<number | undefined>(postId);
+  const [autoSaveOff, setAutoSaveOff] = useState(initialPublished);
 
   const [imageUploading, setImageUploading] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
 
-  // Auto-save logic
+  // Unsaved-changes tracking: compare against the last state that reached the server.
+  const snapshot = JSON.stringify({ title, slug, tagsInput, excerpt, content, imageUrl, isPublished, metaTitle, metaDescription, publishAtLocal });
+  const savedSnapshot = useRef<string | null>(null);
+  useEffect(() => {
+    if (savedSnapshot.current === null && publishAtLocal === toLocalInput(initialPublishedAt)) {
+      savedSnapshot.current = snapshot;
+    }
+  }, [snapshot, publishAtLocal, initialPublishedAt]);
+  const isDirty = savedSnapshot.current !== null && savedSnapshot.current !== snapshot;
+  const submitting = useRef(false);
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const warn = (e: BeforeUnloadEvent) => {
+      if (submitting.current) return;
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [isDirty]);
+
+  // A failed save returns here instead of redirecting, so allow the warning again.
+  useEffect(() => {
+    submitting.current = false;
+  }, [state]);
+
+  // Auto-save drafts (published posts are only saved with the button)
   const mounted = useRef(false);
   useEffect(() => {
     if (!mounted.current) {
       mounted.current = true;
       return;
     }
-
-    // Only auto-save if we have a title
-    if (!title.trim()) return;
+    if (autoSaveOff || !title.trim()) return;
 
     const timer = setTimeout(async () => {
       setIsAutoSaving(true);
+      const sent = snapshot;
       const res = await autoSaveDraft({
         id: currentPostId,
         title,
@@ -68,10 +115,16 @@ export default function BlogPostForm({
         excerpt,
         content,
         imageUrl,
+        metaTitle,
+        metaDescription,
       });
 
-      if (res.success) {
+      if (res.skipped === "published") {
+        setAutoSaveOff(true);
+      } else if (res.success) {
         setLastSaved(new Date());
+        // Publishing state and date are not auto-saved, so only count the content as saved.
+        savedSnapshot.current = JSON.stringify({ ...JSON.parse(sent), isPublished: initialPublished, publishAtLocal: toLocalInput(initialPublishedAt) });
         if (res.id && res.id !== currentPostId) {
           setCurrentPostId(res.id);
           // Gently swap the URL from /new to /edit without reloading
@@ -85,17 +138,35 @@ export default function BlogPostForm({
     }, 5000); // 5 seconds debounce
 
     return () => clearTimeout(timer);
-    // Ensure we include tagsInput in the dependency array
-  }, [title, slug, tagsInput, excerpt, content, imageUrl, currentPostId, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, slug, tagsInput, excerpt, content, imageUrl, metaTitle, metaDescription, currentPostId, autoSaveOff]);
 
+  const publishAtDate = publishAtLocal ? new Date(publishAtLocal) : null;
+  const isScheduled = isPublished && publishAtDate != null && publishAtDate.getTime() > Date.now();
+  const statusLabel = !isPublished ? "Draft" : isScheduled ? "Scheduled" : "Published";
+  const statusClass = !isPublished
+    ? "bg-amber-100 text-amber-800"
+    : isScheduled
+      ? "bg-sky-100 text-sky-800"
+      : "bg-emerald-100 text-emerald-800";
+
+  const errors = state.fieldErrors ?? {};
   const inputClass =
     "w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
   const labelClass = "mb-1 block text-sm font-medium text-slate-700";
+  const errorClass = "mt-1 text-xs text-red-600";
 
   return (
-    <form action={action} className="max-w-4xl space-y-8 flex flex-col lg:flex-row gap-8">
+    <form
+      action={formAction}
+      onSubmit={() => { submitting.current = true; }}
+      className="max-w-4xl space-y-8 flex flex-col lg:flex-row gap-8"
+    >
       {/* Main Column */}
       <div className="flex-1 space-y-5">
+        {state.error && (
+          <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
+        )}
         <div>
           <label htmlFor="blog-title" className={labelClass}>Title</label>
           <input
@@ -108,6 +179,7 @@ export default function BlogPostForm({
             className={inputClass}
             required
           />
+          {errors.title && <p className={errorClass}>{errors.title}</p>}
         </div>
         <div>
           <label htmlFor="blog-slug" className={labelClass}>Slug (URL)</label>
@@ -116,10 +188,17 @@ export default function BlogPostForm({
             type="text"
             name="slug"
             value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            placeholder="url-slug"
+            onChange={(e) => setSlug(e.target.value.toLowerCase())}
+            placeholder={blogSlug(title) || "url-slug"}
             className={inputClass}
           />
+          {errors.slug ? (
+            <p className={errorClass}>{errors.slug}</p>
+          ) : (
+            <p className="mt-1 text-xs text-slate-500">
+              Leave empty to use the title. Changing it on a published post keeps the old link working.
+            </p>
+          )}
         </div>
         <div>
           <label htmlFor="blog-tags" className={labelClass}>Tags</label>
@@ -189,9 +268,10 @@ export default function BlogPostForm({
                 }}
               />
             </label>
+            <MediaPicker onSelect={(url) => { setImageUrl(url); setImageError(null); }} />
           </div>
-          {imageError && <p className="mt-1 text-xs text-red-600">{imageError}</p>}
-          <p className="mt-1 text-xs text-slate-500">Optional. Used as the post hero and subtle background on the article page. Paste a URL or upload an image (Cloudinary).</p>
+          {imageError && <p className={errorClass}>{imageError}</p>}
+          <p className="mt-1 text-xs text-slate-500">Optional. Used as the post hero, social share image and subtle background on the article page. Paste a URL or upload an image (Cloudinary).</p>
         </div>
         <div>
           <label className={labelClass}>Content</label>
@@ -203,8 +283,45 @@ export default function BlogPostForm({
           />
           <input type="hidden" name="content" value={content} />
           <input type="hidden" name="tags" value={tagsInput} />
-          {/* We must send the ID back up to the Server Action so creating/autosaving synchronizes */}
+          {/* Autosave may have created the post already; send its ID so Save updates it */}
           <input type="hidden" name="id" value={currentPostId || ""} />
+        </div>
+
+        <div className="rounded-xl border border-slate-200 p-4 space-y-4">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900">Search &amp; social</h3>
+            <p className="text-xs text-slate-500">Optional. Defaults to the title and excerpt.</p>
+          </div>
+          <div>
+            <label htmlFor="blog-metaTitle" className={labelClass}>
+              SEO title <span className="font-normal text-slate-400">({metaTitle.length}/60 recommended)</span>
+            </label>
+            <input
+              id="blog-metaTitle"
+              type="text"
+              name="metaTitle"
+              value={metaTitle}
+              onChange={(e) => setMetaTitle(e.target.value)}
+              placeholder={title || "Title shown in Google results"}
+              className={inputClass}
+            />
+            {errors.metaTitle && <p className={errorClass}>{errors.metaTitle}</p>}
+          </div>
+          <div>
+            <label htmlFor="blog-metaDescription" className={labelClass}>
+              SEO description <span className="font-normal text-slate-400">({metaDescription.length}/160 recommended)</span>
+            </label>
+            <textarea
+              id="blog-metaDescription"
+              name="metaDescription"
+              value={metaDescription}
+              onChange={(e) => setMetaDescription(e.target.value)}
+              placeholder={excerpt || "Summary shown in Google results and link previews"}
+              rows={2}
+              className={inputClass}
+            />
+            {errors.metaDescription && <p className={errorClass}>{errors.metaDescription}</p>}
+          </div>
         </div>
       </div>
 
@@ -215,19 +332,25 @@ export default function BlogPostForm({
 
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm text-slate-500">Status:</span>
-            <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${isPublished ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
-              {isPublished ? 'Published' : 'Draft'}
+            <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClass}`}>
+              {statusLabel}
             </span>
           </div>
 
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 gap-2">
             <span className="text-sm text-slate-500">Auto-save:</span>
-            <span className="text-xs text-slate-400">
-              {isAutoSaving ? "Saving..." : lastSaved ? `Saved at ${lastSaved.toLocaleTimeString()}` : "Not saved"}
+            <span className="text-xs text-slate-400 text-right">
+              {autoSaveOff
+                ? "Off for published posts"
+                : isAutoSaving ? "Saving..." : lastSaved ? `Saved at ${lastSaved.toLocaleTimeString()}` : "Not saved"}
             </span>
           </div>
 
-          <label className="flex items-center gap-2 text-sm text-slate-700 mb-6 bg-white border border-slate-200 p-2 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors">
+          {isDirty && (
+            <p className="mb-4 text-xs font-medium text-amber-700">You have unsaved changes.</p>
+          )}
+
+          <label className="flex items-center gap-2 text-sm text-slate-700 mb-4 bg-white border border-slate-200 p-2 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors">
             <input
               type="checkbox"
               name="published"
@@ -238,15 +361,33 @@ export default function BlogPostForm({
             <span className="font-medium">Publish Post</span>
           </label>
 
+          <div className="mb-6">
+            <label htmlFor="blog-publishAt" className={labelClass}>Publish date</label>
+            <input
+              id="blog-publishAt"
+              type="datetime-local"
+              value={publishAtLocal}
+              onChange={(e) => setPublishAtLocal(e.target.value)}
+              className={`${inputClass} text-sm`}
+            />
+            <input type="hidden" name="publishedAt" value={publishAtDate && !isNaN(publishAtDate.getTime()) ? publishAtDate.toISOString() : ""} />
+            {errors.publishedAt ? (
+              <p className={errorClass}>{errors.publishedAt}</p>
+            ) : (
+              <p className="mt-1 text-xs text-slate-500">Empty = now. A future date schedules the post.</p>
+            )}
+          </div>
+
           <div className="flex flex-col gap-2">
             <button
               type="submit"
-              className="w-full rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 flex justify-center items-center"
+              disabled={isSaving}
+              className="w-full rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 flex justify-center items-center disabled:opacity-60"
             >
-              {isPublished ? "Update Post" : "Save Changes"}
+              {isSaving ? "Saving…" : isScheduled ? "Schedule Post" : isPublished ? "Update Post" : "Save Draft"}
             </button>
             <a
-              href={`/blog/preview/${slug || currentPostId}`}
+              href={`/blog/preview/${currentPostId || slug}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full rounded-lg bg-white border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 text-center"

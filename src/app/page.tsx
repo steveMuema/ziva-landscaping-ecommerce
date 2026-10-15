@@ -2,12 +2,17 @@ import PromoSection from "@/sections/promo.section";
 import AboutUsSection from "@/sections/aboutus.section";
 import { getSettings } from "@/lib/settings";
 import { SETTING_KEYS } from "@/lib/setting-keys";
+import { getContent } from "@/lib/content";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://zivalandscaping.co.ke";
 const DEFAULT_PARALLAX_IMAGE = "/landscape.jpeg";
 
 export default async function Home() {
-  const settings = await getSettings([SETTING_KEYS.SITE_PARALLAX_IMAGE_URL]);
+  const [settings, slides, about] = await Promise.all([
+    getSettings([SETTING_KEYS.SITE_PARALLAX_IMAGE_URL]),
+    getContent("home.slides"),
+    getContent("home.about"),
+  ]);
   const parallaxImageUrl =
     settings[SETTING_KEYS.SITE_PARALLAX_IMAGE_URL]?.trim() || DEFAULT_PARALLAX_IMAGE;
 
@@ -54,8 +59,8 @@ export default async function Home() {
         style={parallaxBgStyle}
       >
         <div className="flex-1">
-          <PromoSection />
-          <AboutUsSection />
+          <PromoSection slides={slides.slides} />
+          <AboutUsSection about={about} />
         </div>
       </div>
     </>

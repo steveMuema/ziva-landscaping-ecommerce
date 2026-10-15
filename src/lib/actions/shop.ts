@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { PAGE_SIZE } from "@/lib/pagination";
 import { slugToName } from "@/lib/slug";
+import { activeProduct } from "@/lib/catalog";
 
 export async function getMoreProducts({
     categorySlug,
@@ -30,6 +31,7 @@ export async function getMoreProducts({
 
     const products = await prisma.product.findMany({
         where: {
+            ...activeProduct,
             subCategoryId: subCategory.id,
             ...(tag ? { tags: { has: tag } } : {}),
         },

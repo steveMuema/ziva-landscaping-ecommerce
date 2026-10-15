@@ -1,4 +1,4 @@
-import { getSetting } from "./settings";
+import { readSetting } from "./settings";
 import { SETTING_KEYS } from "./setting-keys";
 
 // Zoho Books API requires an OAuth2 access token, which expires in 1 hour.
@@ -9,10 +9,10 @@ let cachedAccessToken: string | null = null;
 let tokenExpiresAt: number = 0;
 
 const getZohoConfig = async () => {
-    const clientId = await getSetting(SETTING_KEYS.ZOHO_BOOKS_CLIENT_ID);
-    const clientSecret = await getSetting(SETTING_KEYS.ZOHO_BOOKS_CLIENT_SECRET);
-    const refreshToken = await getSetting(SETTING_KEYS.ZOHO_BOOKS_REFRESH_TOKEN);
-    const organizationId = await getSetting(SETTING_KEYS.ZOHO_BOOKS_ORGANIZATION_ID);
+    const clientId = await readSetting(SETTING_KEYS.ZOHO_BOOKS_CLIENT_ID);
+    const clientSecret = await readSetting(SETTING_KEYS.ZOHO_BOOKS_CLIENT_SECRET);
+    const refreshToken = await readSetting(SETTING_KEYS.ZOHO_BOOKS_REFRESH_TOKEN);
+    const organizationId = await readSetting(SETTING_KEYS.ZOHO_BOOKS_ORGANIZATION_ID);
 
     if (!clientId || !clientSecret || !refreshToken || !organizationId) {
         console.warn("Zoho Books API credentials missing in the admin settings configuration.");

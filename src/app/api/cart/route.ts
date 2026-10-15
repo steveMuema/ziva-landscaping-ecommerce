@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { activeProduct } from "@/lib/catalog";
 export async function POST(request: Request) {
   try {
     const { clientId, productId, quantity } = await request.json();
@@ -8,7 +9,7 @@ export async function POST(request: Request) {
     }
 
     const product = await prisma.product.findUnique({
-      where: { id: productId },
+      where: { id: productId, ...activeProduct },
     });
     if (!product) {
       return NextResponse.json({ error: `Product with ID ${productId} does not exist` }, { status: 404 });

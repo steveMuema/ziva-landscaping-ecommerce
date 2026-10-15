@@ -3,7 +3,9 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { cookies, headers } from "next/headers";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireEditor } from "@/lib/admin-auth";
+import { audit } from "@/lib/audit";
+import { livePost } from "@/lib/catalog";
 
 const MAX_NAME_LENGTH = 60;
 const MAX_CONTENT_LENGTH = 2000;
@@ -59,7 +61,7 @@ export async function submitComment(postId: number, authorName: string, content:
         }
 
         const postExists = await prisma.blogPost.findUnique({
-            where: { id: postId, published: true }, // Ensure comments only go on published posts
+            where: { id: postId, ...livePost() }, // Ensure comments only go on live posts
         });
 
         if (!postExists) {
@@ -157,15 +159,19 @@ export async function likeComment(commentId: number) {
 
 /** Admin: delete a comment (its replies are removed by the cascade). */
 export async function deleteComment(formData: FormData): Promise<void> {
-    await requireAdmin();
+    const user = await requireEditor();
     const id = parseInt(formData.get("id") as string, 10);
     if (isNaN(id)) return;
     const comment = await prisma.comment.findUnique({
         where: { id },
-        select: { post: { select: { slug: true } } },
+        select: { authorName: true, content: true, post: { select: { slug: true, title: true } } },
     });
     if (!comment) return;
     await prisma.comment.delete({ where: { id } });
+    await audit(user, {
+        action: "comment.delete", entity: "Comment", entityId: id,
+        summary: `Deleted comment by ${comment.authorName} on “${comment.post.title}”: ${comment.content.slice(0, 120)}`,
+    });
     revalidatePath("/admin/comments");
     revalidatePath(`/blog/${comment.post.slug}`);
 }

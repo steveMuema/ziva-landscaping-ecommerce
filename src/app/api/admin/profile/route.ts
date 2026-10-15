@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdminApi } from "@/lib/admin-auth";
+import { requireEditorApi } from "@/lib/admin-auth";
+import { audit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
 import bcryptjs from "bcryptjs";
 
 export async function GET() {
   try {
-    const auth = await requireAdminApi();
+    const auth = await requireEditorApi();
     if ("response" in auth) return auth.response;
     const userId = auth.user.id;
     const user = await prisma.user.findUnique({
@@ -30,7 +31,7 @@ export async function GET() {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const auth = await requireAdminApi();
+    const auth = await requireEditorApi();
     if ("response" in auth) return auth.response;
     const userId = auth.user.id;
     let body: { name?: string; email?: string; currentPassword?: string; newPassword?: string };
@@ -72,6 +73,12 @@ export async function PATCH(request: NextRequest) {
     await prisma.user.update({
       where: { id: userId },
       data: updates,
+    });
+    await audit(auth.user, {
+      action: "user.profile",
+      entity: "User",
+      entityId: userId,
+      summary: `Updated own profile: ${Object.keys(updates).join(", ")}`,
     });
     return NextResponse.json({ ok: true });
   } catch (err) {

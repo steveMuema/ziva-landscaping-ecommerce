@@ -108,6 +108,9 @@ export default function Footer() {
                 <Link href="/terms" className="hover:text-[var(--accent)] transition-colors">Terms of Service</Link>
               </li>
               <li>
+                <Link href="/faq" className="hover:text-[var(--accent)] transition-colors">FAQ</Link>
+              </li>
+              <li>
                 <Link href="#" className="hover:text-[var(--accent)] transition-colors">License</Link>
               </li>
             </ul>

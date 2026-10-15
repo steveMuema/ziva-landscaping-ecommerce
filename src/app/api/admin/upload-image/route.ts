@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdminApi } from "@/lib/admin-auth";
+import { requireEditorApi } from "@/lib/admin-auth";
 import { uploadImage } from "@/lib/cloudinary";
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireAdminApi();
+    const auth = await requireEditorApi();
     if ("response" in auth) return auth.response;
 
     const formData = await request.formData();

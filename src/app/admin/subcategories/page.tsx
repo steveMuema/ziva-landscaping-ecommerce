@@ -1,19 +1,21 @@
 import prisma from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
-import { uploadImage } from "@/lib/cloudinary";
-import { PlusIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
+import { PlusIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+import { createSubCategory } from "@/lib/actions/catalog-admin";
+import { FlashMessage } from "@/components/admin/FlashMessage";
 import { Pagination } from "@/components/Pagination";
 import { paginate, PAGE_SIZE } from "@/lib/pagination";
 import { Suspense } from "react";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireEditor } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function SubCategoriesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; error?: string; notice?: string }>;
 }) {
+  await requireEditor();
   const resolvedParams = await searchParams;
   const page = Math.max(1, Number(resolvedParams?.page ?? 1));
 
@@ -26,32 +28,14 @@ export default async function SubCategoriesPage({
 
   const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
 
-  async function createSubCategory(formData: FormData) {
-    "use server";
-    await requireAdmin();
-    const name = (formData.get("name") as string)?.trim();
-    const categoryId = parseInt(formData.get("categoryId") as string, 10);
-    if (!name || isNaN(categoryId)) return;
-    const imageFile = formData.get("image") as File | null;
-    let imageUrl = null;
-    if (imageFile && imageFile.size > 0) {
-      imageUrl = await uploadImage(imageFile);
-    }
-    await prisma.subCategory.create({ data: { name, categoryId, imageUrl } });
-    revalidatePath("/admin/subcategories");
-    revalidatePath("/admin");
-    revalidatePath("/shop");
-    revalidatePath("/shop", "layout");
-    revalidatePath("/");
-    revalidatePath("/agriculture");
-  }
-
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-slate-900">Subcategories</h1>
         <p className="mt-1 text-sm text-slate-500">Manage subcategories under each category.</p>
       </div>
+
+      <FlashMessage error={resolvedParams?.error} notice={resolvedParams?.notice} />
 
       <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-500">Add subcategory</h2>
@@ -112,6 +96,7 @@ export default async function SubCategoriesPage({
               <tr>
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Name</th>
                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">Category</th>
+                <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
@@ -119,6 +104,15 @@ export default async function SubCategoriesPage({
                 <tr key={sub.id} className="hover:bg-slate-50/50">
                   <td className="px-5 py-3 font-medium text-slate-900">{sub.name}</td>
                   <td className="px-5 py-3 text-sm text-slate-600">{sub.category.name}</td>
+                  <td className="px-5 py-3 text-right">
+                    <Link
+                      href={`/admin/subcategories/${sub.id}/edit`}
+                      className="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                    >
+                      <PencilSquareIcon className="h-4 w-4" />
+                      Edit
+                    </Link>
+                  </td>
                 </tr>
               ))}
             </tbody>

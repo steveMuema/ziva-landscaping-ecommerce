@@ -1,11 +1,12 @@
 import prisma from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 import { Cart, Order } from "@/types";
+import { activeProduct } from "@/lib/catalog";
 
 export async function getCategories() {
   try {
     const categories = await prisma.category.findMany({
-      include: { subCategories: { include: { products: true } } },
+      include: { subCategories: { include: { products: { where: activeProduct } } } },
       orderBy: { id: "asc" },
     });
     return categories;
@@ -20,7 +21,7 @@ export async function getAgricultureCategories() {
   try {
     const categories = await prisma.category.findMany({
       where: { isAgriculture: true },
-      include: { subCategories: { include: { products: true } } },
+      include: { subCategories: { include: { products: { where: activeProduct } } } },
       orderBy: { id: "asc" },
     });
     return categories;
@@ -35,7 +36,7 @@ export async function getCategoryBySlug(slug: string) {
   try {
     const categories = await prisma.category.findMany({
       orderBy: { id: "asc" },
-      include: { subCategories: { include: { products: true } } },
+      include: { subCategories: { include: { products: { where: activeProduct } } } },
     });
     const normalizedSlug = slug.replace(/&/g, "and").toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
     return categories.find((c) => slugify(c.name) === normalizedSlug) ?? null;
@@ -50,7 +51,7 @@ export async function getCategoryByName(name: string) {
     const category = await prisma.category.findFirst({
       where: { name: { contains: name, mode: "insensitive" } },
       orderBy: { id: "asc" },
-      include: { subCategories: { include: { products: true } } },
+      include: { subCategories: { include: { products: { where: activeProduct } } } },
     });
     return category;
   } catch (error) {
@@ -84,11 +85,11 @@ export async function getSubCategoryByNames(categoryName: string, subCategoryNam
       orderBy: { id: "asc" },
       include: {
         products: {
-          where: tag ? { tags: { has: tag } } : undefined,
+          where: tag ? { ...activeProduct, tags: { has: tag } } : activeProduct,
           include: { subCategory: { include: { category: true } } },
         },
         category: {
-          include: { subCategories: { include: { products: true } } },
+          include: { subCategories: { include: { products: { where: activeProduct } } } },
         },
       },
     });
@@ -101,7 +102,7 @@ export async function getSubCategoryByNames(categoryName: string, subCategoryNam
 export async function getProductsBySubCategory(subCategoryId: string) {
   try {
     const products = await prisma.product.findMany({
-      where: { subCategoryId: parseInt(subCategoryId) },
+      where: { ...activeProduct, subCategoryId: parseInt(subCategoryId) },
       orderBy: { id: "asc" },
     });
     return products;
@@ -114,7 +115,7 @@ export async function getProductsBySubCategory(subCategoryId: string) {
 export async function getProductsByTag(tag: string) {
   try {
     const products = await prisma.product.findMany({
-      where: { tags: { has: tag } },
+      where: { ...activeProduct, tags: { has: tag } },
       orderBy: { id: "asc" },
       include: { subCategory: { include: { category: true } } },
     });
@@ -129,7 +130,7 @@ export async function getProductsByTag(tag: string) {
 export async function getProductsForSlideshow(limit = 12) {
   try {
     const featured = await prisma.product.findMany({
-      where: { tags: { has: "featured" } },
+      where: { ...activeProduct, tags: { has: "featured" } },
       take: limit,
       orderBy: { id: "desc" },
       include: { subCategory: { include: { category: true } } },
@@ -137,7 +138,7 @@ export async function getProductsForSlideshow(limit = 12) {
     if (featured.length >= limit) return featured;
     const remaining = limit - featured.length;
     const recent = await prisma.product.findMany({
-      where: featured.length ? { id: { notIn: featured.map((p) => p.id) } } : undefined,
+      where: featured.length ? { ...activeProduct, id: { notIn: featured.map((p) => p.id) } } : activeProduct,
       take: remaining,
       orderBy: { createdAt: "desc" },
       include: { subCategory: { include: { category: true } } },
@@ -152,7 +153,7 @@ export async function getProductsForSlideshow(limit = 12) {
 export async function getProductById(id: string) {
   try {
     const product = await prisma.product.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: parseInt(id), ...activeProduct },
       include: { subCategory: { include: { category: true } } },
     });
     return product;
@@ -198,7 +199,7 @@ export async function getCart(clientId: string): Promise<Cart[]> {
 export async function addToCart(clientId: string, productId: number, quantity: number): Promise<Cart> {
   try {
     const product = await prisma.product.findUnique({
-      where: { id: productId },
+      where: { id: productId, ...activeProduct },
     });
     if (!product) {
       throw new Error(`Product with ID ${productId} does not exist`);
@@ -359,7 +360,7 @@ export async function getWishlist(clientId: string) {
 export async function addToWishlist(clientId: string, productId: number) {
   try {
     const product = await prisma.product.findUnique({
-      where: { id: productId },
+      where: { id: productId, ...activeProduct },
     });
     if (!product) {
       throw new Error(`Product with ID ${productId} does not exist`);
@@ -525,7 +526,7 @@ export async function createOrder(data: {
         throw new Error(`Invalid item data: ${JSON.stringify(item)}`);
       }
       const product = await prisma.product.findUnique({
-        where: { id: item.productId },
+        where: { id: item.productId, ...activeProduct },
       });
       if (!product) {
         throw new Error(`Product with ID ${item.productId} does not exist`);

@@ -14,6 +14,13 @@ enum OrderStatus {
   CANCELLED
 }
 
+/// Only ACTIVE products are shown or sold on the storefront.
+enum ProductStatus {
+  ACTIVE
+  DRAFT
+  ARCHIVED
+}
+
 enum PaymentMethod {
   MPESA
   CASH
@@ -44,23 +51,30 @@ model SubCategory {
 }
 
 model Product {
-  id            Int         @id @default(autoincrement())
-  name          String
-  description   String?
-  price         Float        // selling price (KSH)
-  cost          Float?       // cost price (KSH) — for profit calculation
-  imageUrl      String?
-  stock         Int
-  tags          String[]    @default([])
-  subCategoryId Int
-  subCategory   SubCategory @relation(fields: [subCategoryId], references: [id])
-  carts         Cart[]
-  wishlists     Wishlist[]
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  OrderItem     OrderItem[]
+  id              Int           @id @default(autoincrement())
+  name            String
+  description     String?
+  price           Float // selling price (KSH)
+  compareAtPrice  Float? // "was" price (KSH); shown struck through when higher than price
+  cost            Float? // cost price (KSH) — for profit calculation
+  sku             String?       @unique
+  status          ProductStatus @default(ACTIVE)
+  imageUrl        String? // main image
+  images          String[]      @default([]) // extra gallery images, shown after imageUrl
+  stock           Int
+  tags            String[]      @default([])
+  metaTitle       String?
+  metaDescription String?
+  subCategoryId   Int
+  subCategory     SubCategory   @relation(fields: [subCategoryId], references: [id])
+  carts           Cart[]
+  wishlists       Wishlist[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  OrderItem       OrderItem[]
 
   @@index([subCategoryId])
+  @@index([status])
 }
 
 model Cart {
@@ -143,48 +157,48 @@ model Authenticator {
   credentialDeviceType String
   credentialBackedUp   Boolean
   transports           String?
-  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, credentialID])
 }
 
 model Order {
-  id              Int                @id @default(autoincrement())
-  clientId        String
-  phone           String
-  location        String             // Delivery area / address — only phone and location collected at payment
-  email           String?
-  fullname        String?
-  company         String?
-  country         String?
-  state           String?
-  address         String?
-  apartment       String?
-  city            String?
-  postalCode      String?
-  subtotal        Float
-  costTotal       Float?             // Total cost of goods (for profit calculation)
-  transportFee    Float?             // Delivery/transport cost
-  status         OrderStatus        @default(PENDING)
-  currency        String             @default("KSH")
-  paymentMethod   PaymentMethod?
-  amountPaid      Float              @default(0)
-  completedAt     DateTime?          // Set when status becomes COMPLETED (for TAT)
-  waveInvoiceId   String?            // Anchors the synced Wave Accounting invoice
-  waveCustomerId  String?            // Anchors the synced Wave Accounting customer
-  zohoInvoiceId   String?            // Anchors the synced Zoho Books invoice
-  zohoCustomerId  String?            // Anchors the synced Zoho Books customer
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-  orderItems      OrderItem[]
+  id               Int               @id @default(autoincrement())
+  clientId         String
+  phone            String
+  location         String // Delivery area / address — only phone and location collected at payment
+  email            String?
+  fullname         String?
+  company          String?
+  country          String?
+  state            String?
+  address          String?
+  apartment        String?
+  city             String?
+  postalCode       String?
+  subtotal         Float
+  costTotal        Float? // Total cost of goods (for profit calculation)
+  transportFee     Float? // Delivery/transport cost
+  status           OrderStatus       @default(PENDING)
+  currency         String            @default("KSH")
+  paymentMethod    PaymentMethod?
+  amountPaid       Float             @default(0)
+  completedAt      DateTime? // Set when status becomes COMPLETED (for TAT)
+  waveInvoiceId    String? // Anchors the synced Wave Accounting invoice
+  waveCustomerId   String? // Anchors the synced Wave Accounting customer
+  zohoInvoiceId    String? // Anchors the synced Zoho Books invoice
+  zohoCustomerId   String? // Anchors the synced Zoho Books customer
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  orderItems       OrderItem[]
   orderPaymentRefs OrderPaymentRef[]
 }
 
 model OrderPaymentRef {
   id        Int      @id @default(autoincrement())
   orderId   Int
-  value     String   // M-Pesa receipt no., cash receipt no., or other ref
-  amount    Float?   // amount for this ref (KSH); sum of all ref amounts must be >= order subtotal to complete
+  value     String // M-Pesa receipt no., cash receipt no., or other ref
+  amount    Float? // amount for this ref (KSH); sum of all ref amounts must be >= order subtotal to complete
   createdAt DateTime @default(now())
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
@@ -193,39 +207,42 @@ model OrderPaymentRef {
 }
 
 model OrderItem {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   orderId   Int
   productId Int
   quantity  Int
   price     Float
   createdAt DateTime @default(now())
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product   Product @relation(fields: [productId], references: [id])
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id])
 
   @@unique([orderId, productId])
 }
 
 model MpesaStkRequest {
-  id               String   @id @default(cuid())
-  checkoutRequestId String  @unique
-  orderId          Int
-  amount           Float
-  createdAt        DateTime @default(now())
+  id                String   @id @default(cuid())
+  checkoutRequestId String   @unique
+  orderId           Int
+  amount            Float
+  createdAt         DateTime @default(now())
 }
 
 model BlogPost {
-  id          Int       @id @default(autoincrement())
-  title       String
-  slug        String    @unique
-  excerpt     String?
-  content     String
-  imageUrl    String?   // optional featured image for cards and hero
-  tags        String[]  @default([])
-  published   Boolean   @default(false)
-  publishedAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  comments    Comment[]
+  id              Int       @id @default(autoincrement())
+  title           String
+  slug            String    @unique
+  excerpt         String?
+  content         String
+  imageUrl        String? // optional featured image for cards and hero
+  tags            String[]  @default([])
+  published       Boolean   @default(false)
+  publishedAt     DateTime? // a future date schedules the post
+  metaTitle       String?
+  metaDescription String?
+  previousSlugs   String[]  @default([]) // old slugs that redirect to this post
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  comments        Comment[]
 
   @@index([slug])
   @@index([published, publishedAt])
@@ -240,7 +257,7 @@ model Setting {
 
 model PageView {
   id        Int      @id @default(autoincrement())
-  path      String   // e.g. /, /shop, /shop/lawn-care
+  path      String // e.g. /, /shop, /shop/lawn-care
   createdAt DateTime @default(now())
 
   @@index([path])
@@ -248,21 +265,63 @@ model PageView {
 }
 
 model Comment {
-  id         Int       @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   postId     Int
-  post       BlogPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post       BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
   authorName String
   content    String
-  likes      Int       @default(0)
-  
-  // Threading
-  parentId   Int?
-  parent     Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies    Comment[] @relation("CommentReplies")
+  likes      Int      @default(0)
 
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  // Threading
+  parentId Int?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([postId])
   @@index([parentId])
+}
+
+/// Editable site content (homepage slides, about section, announcement bar, FAQ, policy pages).
+/// `data` is validated by the zod schema registered for its key in src/lib/content.ts.
+model ContentBlock {
+  key         String   @id
+  data        Json
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+}
+
+/// Who changed what in the admin, and when.
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    String?
+  userEmail String?
+  action    String // e.g. "product.update", "setting.update"
+  entity    String // e.g. "Product", "Setting"
+  entityId  String?
+  summary   String
+  changes   Json? // { field: { from, to } } — secrets are never recorded
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entity, entityId])
+  @@index([userId])
+}
+
+/// Every image uploaded through the admin, so it can be browsed and reused.
+model Media {
+  id           Int      @id @default(autoincrement())
+  url          String   @unique
+  publicId     String? // Cloudinary public_id, used to delete the file
+  filename     String?
+  mimeType     String?
+  width        Int?
+  height       Int?
+  bytes        Int?
+  uploadedById String?
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
 }

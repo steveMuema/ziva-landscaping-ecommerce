@@ -3,6 +3,7 @@ import path from "path";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin-auth";
 import { setSetting, getGoogleCredentials } from "@/lib/settings";
+import { audit } from "@/lib/audit";
 import { SETTING_KEYS } from "@/lib/setting-keys";
 import { encrypt } from "@/lib/encryption";
 
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
     }
     const encrypted = encrypt(content);
     await setSetting(SETTING_KEYS.GOOGLE_CREDENTIALS, encrypted);
+    await audit(auth.user, { action: "setting.google_credentials", entity: "Setting", entityId: SETTING_KEYS.GOOGLE_CREDENTIALS, summary: "Uploaded Google credentials file" });
     const preview = getCredentialsPreview(parsed);
     return NextResponse.json({
       ok: true,
@@ -113,6 +115,7 @@ export async function DELETE() {
     const auth = await requireAdminApi();
     if ("response" in auth) return auth.response;
     await setSetting(SETTING_KEYS.GOOGLE_CREDENTIALS, "");
+    await audit(auth.user, { action: "setting.google_credentials", entity: "Setting", entityId: SETTING_KEYS.GOOGLE_CREDENTIALS, summary: "Removed Google credentials file" });
     return NextResponse.json({ ok: true, uploaded: false });
   } catch (err) {
     console.error("DELETE /api/admin/settings/google-credentials error:", err);

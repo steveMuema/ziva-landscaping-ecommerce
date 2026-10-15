@@ -105,15 +105,15 @@ export function OrdersListTable({
           <div className="flex items-center gap-2">
             <MagnifyingGlassIcon className="h-5 w-5 text-slate-400 dark:text-slate-500" />
             <label htmlFor="list-phone" className="sr-only">
-              Search by phone
+              Search orders by phone, name, email, order number or payment reference
             </label>
             <input
               id="list-phone"
               type="search"
               name="phone"
-              placeholder="Phone"
+              placeholder="Phone, name, email, #id, M-Pesa ref"
               defaultValue={filters.phone}
-              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-40 dark:border-slate-600 dark:bg-[var(--card-bg)] dark:text-slate-100 dark:placeholder:text-slate-500"
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-64 dark:border-slate-600 dark:bg-[var(--card-bg)] dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </div>
           <div>

@@ -7,55 +7,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Collection } from "@/types";
 
-const collections: Collection[] = [
-  {
-    id: 1,
-    image: "/landscape.jpeg",
-    category: "/shop/landscaping",
-    alt: "East Africa's Premier Landscaping",
-    description:
-      "Landscape design and Sustainability across East Africa. Crafting vibrant eco-friendly outdoor spaces by designing with drought resistant plants, edible landscape and organic practices.",
-  },
-  {
-    id: 2,
-    image: "/lawn-care.jpg",
-    category: "/shop/landscaping/lawn-care-and-lawn-services",
-    alt: "Lawn Care & Services",
-    description:
-      "Top dressing flowers/lawns, Termite treatment, weed treatment, fungal treatment.",
-  },
-  {
-    id: 3,
-    image: "/Rock Garden.jpg",
-    category: "/shop/landscaping/lawn-designs",
-    alt: "Landscape Designs",
-    description: "Design your lawn with unique ideas.",
-  },
-  {
-    id: 4,
-    image: "/garden.jpg",
-    category: "/shop/garden",
-    alt: "Gardening",
-    description:
-      "We sell fresh organic fruits,vegetables and herbs from the farm.We practice organic farming avoiding synthetic pesticides & fertilizers. Instead we use natural alternatives to promote soil health, human health and reduce pollution.",
-  },
-  {
-    id: 5,
-    image: "/furniture.jpg",
-    category: "/shop/furniture-and-fittings",
-    alt: "Furniture & Fittings",
-    description:
-      "Quality,unique furniture & fittings.Designing with reclaimed Logs/woods,to add unique character to your home interiors and also reduce on waste.",
-  },
-  {
-    id: 6,
-    image: "/home-decor.jpg",
-    category: "/shop/home-decor-and-furnishing",
-    alt: "Home Decor & Furnishing",
-    description:
-      "Furnishing your home with beauty creativity,and functionality. Planting and choosing unique plants/herbs that do well indoors, that promote health allowing oxygen and fresh air circulate around your home.",
-  },
-];
+type Slide = { image: string; link: string; title: string; description: string };
 
 const AUTOPLAY_INTERVAL_MS = 6500;
 const PROMO_MIN_HEIGHT_VH = 52; // ~half the viewport or more
@@ -69,7 +21,15 @@ const textStagger = {
   }),
 };
 
-export default function PromoSection() {
+export default function PromoSection({ slides }: { slides: Slide[] }) {
+  const collections: Collection[] = slides.map((s, i) => ({
+    id: i + 1,
+    image: s.image,
+    category: s.link || "/shop",
+    alt: s.title,
+    description: s.description,
+  }));
+
   return (
     <section
       className="w-full bg-white/82 dark:bg-slate-900/82 backdrop-blur-md"

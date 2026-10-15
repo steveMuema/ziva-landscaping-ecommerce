@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { requireAdminApi } from "@/lib/admin-auth";
+import { requireEditorApi } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
 import speakeasy from "speakeasy";
 import qrcode from "qrcode";
 
 export async function GET() {
     try {
-        const auth = await requireAdminApi();
+        const auth = await requireEditorApi();
         if ("response" in auth) return auth.response;
         const user = await prisma.user.findUnique({
             where: { id: auth.user.id },
@@ -21,7 +21,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
     try {
-        const auth = await requireAdminApi();
+        const auth = await requireEditorApi();
         if ("response" in auth) return auth.response;
 
         const body = await req.json();

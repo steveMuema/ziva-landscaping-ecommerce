@@ -1,9 +1,7 @@
-import { redirect } from "next/navigation";
 import Image from "next/image";
 import prisma from "@/lib/prisma";
 import { FeaturedImage } from "@/components/blog/FeaturedImage";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { requireEditor } from "@/lib/admin-auth";
 import { sanitizeBlogHtml } from "@/lib/sanitize";
 
 export const dynamic = "force-dynamic";
@@ -13,12 +11,8 @@ export default async function BlogPreviewPage({
 }: {
     params: Promise<{ id: string }>;
 }) {
-    const session = await getServerSession(authOptions);
-
-    // Must be an admin to view previews securely
-    if (!session || session.user?.role !== "admin") {
-        redirect("/auth/signin");
-    }
+    // Drafts are only visible to staff
+    await requireEditor();
 
     const { id } = await params;
 

@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { BlogSidebar } from "@/components/blog/BlogSidebar";
 import { BlogList } from "@/components/blog/BlogList";
 import { PAGE_SIZE } from "@/lib/pagination";
+import { livePost } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +21,7 @@ export const metadata = {
 
 export default async function BlogPage() {
   const posts = await prisma.blogPost.findMany({
-    where: { published: true },
+    where: livePost(),
     orderBy: { publishedAt: "desc" },
     take: PAGE_SIZE,
     select: {

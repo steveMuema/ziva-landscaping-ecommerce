@@ -119,6 +119,9 @@ const ProductGridComponent = ({ products: initialProducts, categoryName, subCate
               </h3>
               <p className="text-sm sm:text-base text-[var(--muted)] mb-2 font-[family-name:var(--font-quicksand)]">
                 Kshs. {product.price.toFixed(2)}
+                {product.compareAtPrice != null && product.compareAtPrice > product.price && (
+                  <span className="ml-2 text-xs line-through opacity-70">Kshs. {product.compareAtPrice.toFixed(2)}</span>
+                )}
               </p>
             </div>
           </Link>

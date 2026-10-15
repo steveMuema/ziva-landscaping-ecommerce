@@ -21,6 +21,9 @@ const ProductSection = ({ product, categoryName, subCategoryName, categorySlug, 
   const subSlug = subCategorySlug ?? slugify(subCategoryName);
   const { items } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const gallery = [product.imageUrl, ...(product.images ?? [])].filter((url): url is string => Boolean(url));
+  const [activeImage, setActiveImage] = useState(0);
+  const onSale = product.compareAtPrice != null && product.compareAtPrice > product.price;
 
   // Hydrate quantity from localStorage after initial render to avoid mismatch
   useEffect(() => {
@@ -94,6 +97,16 @@ const ProductSection = ({ product, categoryName, subCategoryName, categorySlug, 
               <span className="text-2xl font-bold text-[var(--foreground)]">
                 Kshs. {product.price.toFixed(2)}
               </span>
+              {onSale && (
+                <>
+                  <span className="text-lg text-[var(--muted)] line-through">
+                    Kshs. {product.compareAtPrice!.toFixed(2)}
+                  </span>
+                  <span className="rounded-full bg-rose-100 px-2.5 py-0.5 text-sm font-semibold text-rose-700">
+                    Save {Math.round((1 - product.price / product.compareAtPrice!) * 100)}%
+                  </span>
+                </>
+              )}
             </div>
             <div className="mb-6">
               {descriptionParagraphs.map((paragraph, index) => (
@@ -180,10 +193,10 @@ const ProductSection = ({ product, categoryName, subCategoryName, categorySlug, 
           </div>
         </div>
         <div className="relative w-full lg:w-1/2 order-1 lg:order-2">
-          <div className="aspect-square bg-[var(--muted-bg)] rounded-2xl overflow-hidden shadow-lg">
-            {product.imageUrl ? (
+          <div className="relative aspect-square bg-[var(--muted-bg)] rounded-2xl overflow-hidden shadow-lg">
+            {gallery.length > 0 ? (
               <Image
-                src={product.imageUrl}
+                src={gallery[Math.min(activeImage, gallery.length - 1)]}
                 alt={product.name}
                 fill
                 className="object-cover"
@@ -195,6 +208,22 @@ const ProductSection = ({ product, categoryName, subCategoryName, categorySlug, 
               </div>
             )}
           </div>
+          {gallery.length > 1 && (
+            <div className="mt-4 flex flex-wrap gap-3">
+              {gallery.map((url, i) => (
+                <button
+                  key={url}
+                  type="button"
+                  onClick={() => setActiveImage(i)}
+                  aria-label={`Show image ${i + 1} of ${gallery.length}`}
+                  aria-current={i === activeImage}
+                  className={`relative h-16 w-16 sm:h-20 sm:w-20 overflow-hidden rounded-lg border-2 transition ${i === activeImage ? "border-emerald-600" : "border-transparent opacity-70 hover:opacity-100"}`}
+                >
+                  <Image src={url} alt="" fill className="object-cover" sizes="80px" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@ import { TrashIcon } from "@heroicons/react/24/outline";
 import { Pagination } from "@/components/Pagination";
 import { PAGE_SIZE } from "@/lib/pagination";
 import { Suspense } from "react";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireEditor } from "@/lib/admin-auth";
 import { deleteComment } from "@/lib/actions/comments";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +14,7 @@ export default async function AdminCommentsPage({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
-  await requireAdmin();
+  await requireEditor();
 
   const resolvedParams = await searchParams;
   const page = Math.max(1, Number(resolvedParams?.page ?? 1));

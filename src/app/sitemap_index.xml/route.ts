@@ -47,6 +47,13 @@ export async function GET() {
   });
 
   urls.push({
+    url: `${baseUrl}/faq`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly',
+    priority: 0.6,
+  });
+
+  urls.push({
     url: `${baseUrl}/privacy`,
     lastModified: new Date(),
     changeFrequency: 'monthly',

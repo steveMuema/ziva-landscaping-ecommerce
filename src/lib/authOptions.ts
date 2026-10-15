@@ -6,6 +6,7 @@ import bcryptjs from "bcryptjs";
 import type { NextAuthOptions } from "next-auth";
 import speakeasy from "speakeasy";
 import { resolveElevatedContext } from "@/lib/session-utils";
+import { isStaffRole } from "@/lib/roles";
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -100,10 +101,10 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user }) {
-      if (user.role === "admin") {
+      if (isStaffRole(user.role)) {
         return true;
       }
-      throw new Error("Only admin users are allowed to sign in.");
+      throw new Error("Only staff accounts (admins and editors) can sign in.");
     },
     async redirect({ url, baseUrl }) {
       if (url.startsWith("/")) return `${baseUrl}${url}`;

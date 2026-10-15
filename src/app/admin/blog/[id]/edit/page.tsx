@@ -1,10 +1,8 @@
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
 import BlogPostForm from "../../new/BlogPostForm";
-import { requireAdmin } from "@/lib/admin-auth";
-import { sanitizeBlogHtml } from "@/lib/sanitize";
+import { requireEditor } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +11,7 @@ export default async function AdminBlogEditPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireAdmin();
+  await requireEditor();
 
   const { id } = await params;
   const postId = parseInt(id, 10);
@@ -21,42 +19,6 @@ export default async function AdminBlogEditPage({
 
   const post = await prisma.blogPost.findUnique({ where: { id: postId } });
   if (!post) notFound();
-
-  async function updatePost(formData: FormData) {
-    "use server";
-    await requireAdmin();
-    const title = formData.get("title") as string;
-    const newSlug = (formData.get("slug") as string)?.trim() || post.slug;
-    const excerpt = (formData.get("excerpt") as string) || null;
-    const content = formData.get("content") as string;
-    const published = formData.get("published") === "on";
-    const imageUrlRaw = (formData.get("imageUrl") as string)?.trim();
-    const imageUrl = imageUrlRaw || null;
-    const tagsInput = formData.get("tags") as string || "";
-    const tagsArray = tagsInput.split(",").map((t) => t.trim()).filter(Boolean);
-
-    await prisma.blogPost.update({
-      where: { id: postId },
-      data: {
-        title,
-        slug: newSlug,
-        tags: tagsArray,
-        excerpt,
-        content: sanitizeBlogHtml(content || "<p></p>"),
-        published,
-        publishedAt: published ? (post.publishedAt || new Date()) : null,
-        imageUrl,
-        updatedAt: new Date(),
-      },
-    });
-    revalidatePath("/admin/blog");
-    revalidatePath("/admin");
-    revalidatePath(`/admin/blog/${postId}/edit`);
-    revalidatePath("/blog");
-    revalidatePath(`/blog/${post.slug}`);
-    if (newSlug !== post.slug) revalidatePath(`/blog/${newSlug}`);
-    redirect("/admin/blog");
-  }
 
   return (
     <div className="space-y-6">
@@ -72,7 +34,6 @@ export default async function AdminBlogEditPage({
       </div>
       <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <BlogPostForm
-          action={updatePost}
           postId={postId}
           initialTitle={post.title}
           initialSlug={post.slug}
@@ -80,7 +41,10 @@ export default async function AdminBlogEditPage({
           initialExcerpt={post.excerpt ?? ""}
           initialContent={post.content}
           initialPublished={post.published}
+          initialPublishedAt={post.publishedAt?.toISOString() ?? null}
           initialImageUrl={post.imageUrl ?? ""}
+          initialMetaTitle={post.metaTitle ?? ""}
+          initialMetaDescription={post.metaDescription ?? ""}
         />
       </div>
     </div>

@@ -5,6 +5,7 @@ import { getSetting } from "@/lib/settings";
 import { SETTING_KEYS } from "@/lib/setting-keys";
 import { WaveClient } from "@/lib/wave";
 import { ZohoClient } from "@/lib/zoho";
+import { activeProduct } from "@/lib/catalog";
 
 const ORDER_STATUS = new Set(['PENDING', 'PROCESSING', 'COMPLETED', 'CANCELLED']);
 
@@ -36,11 +37,11 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: `Invalid item data: ${JSON.stringify(item)}` }, { status: 400 });
       }
       const product = await prisma.product.findUnique({
-        where: { id: item.productId },
+        where: { id: item.productId, ...activeProduct },
         select: { id: true, price: true, cost: true, stock: true },
       });
       if (!product) {
-        return NextResponse.json({ error: `Product not found: ID ${item.productId}` }, { status: 404 });
+        return NextResponse.json({ error: `Product not found or no longer available: ID ${item.productId}` }, { status: 404 });
       }
       if (item.quantity > product.stock) {
         return NextResponse.json(

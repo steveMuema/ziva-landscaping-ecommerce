@@ -63,7 +63,12 @@ export interface Product {
   name: string;
   description?: string | null;
   price: number;
+  /** "Was" price; the product is on sale when this is higher than price. */
+  compareAtPrice?: number | null;
+  sku?: string | null;
   imageUrl?: string | null;
+  /** Extra gallery images, shown after imageUrl. */
+  images?: string[];
   stock: number;
   subCategoryId: number;
   subCategory: SubCategory;

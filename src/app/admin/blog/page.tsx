@@ -5,7 +5,7 @@ import BlogActions from "@/components/admin/BlogActions";
 import { Pagination } from "@/components/Pagination";
 import { paginate, PAGE_SIZE } from "@/lib/pagination";
 import { Suspense } from "react";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireEditor } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ export default async function AdminBlogPage({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
-  await requireAdmin();
+  await requireEditor();
 
   const resolvedParams = await searchParams;
   const page = Math.max(1, Number(resolvedParams?.page ?? 1));
@@ -24,6 +24,7 @@ export default async function AdminBlogPage({
   });
 
   const posts = paginate<typeof allPosts[number]>(allPosts, page, PAGE_SIZE);
+  const now = new Date();
 
   return (
     <div className="space-y-6">
@@ -65,11 +66,15 @@ export default async function AdminBlogPage({
                   <div className="min-w-0 flex-1">
                     <span className="font-medium text-slate-900">{post.title}</span>
                     <span className="ml-2 text-sm text-slate-400">/{post.slug}</span>
-                    {!post.published && (
+                    {!post.published ? (
                       <span className="ml-2 inline-flex rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
                         Draft
                       </span>
-                    )}
+                    ) : post.publishedAt && post.publishedAt > now ? (
+                      <span className="ml-2 inline-flex rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-800">
+                        Scheduled · {post.publishedAt.toLocaleString("en-KE", { dateStyle: "medium", timeStyle: "short", timeZone: "Africa/Nairobi" })}
+                      </span>
+                    ) : null}
                   </div>
                   <BlogActions id={post.id} slug={post.slug} />
                 </div>

@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { BlogSidebar } from "@/components/blog/BlogSidebar";
 import { FeaturedImage, getFeaturedImageUrl } from "@/components/blog/FeaturedImage";
 import CommentSection from "@/components/blog/CommentSection";
 import { sanitizeBlogHtml } from "@/lib/sanitize";
+import { livePost } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -15,13 +16,13 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await prisma.blogPost.findUnique({
-    where: { slug, published: true },
-    select: { title: true, excerpt: true, imageUrl: true },
+    where: { slug, ...livePost() },
+    select: { title: true, excerpt: true, imageUrl: true, metaTitle: true, metaDescription: true },
   });
   if (!post) return { title: "Blog | Ziva Landscaping Co." };
 
-  const title = `${post.title} | Blog | Ziva Landscaping Co.`;
-  const description = post.excerpt || `Read ${post.title} at Ziva Landscaping Co.`;
+  const title = `${post.metaTitle || post.title} | Blog | Ziva Landscaping Co.`;
+  const description = post.metaDescription || post.excerpt || `Read ${post.title} at Ziva Landscaping Co.`;
   const url = process.env.NEXT_PUBLIC_SITE_URL ? `${process.env.NEXT_PUBLIC_SITE_URL}/blog/${slug}` : `https://zivalandscaping.co.ke/blog/${slug}`;
   const images = post.imageUrl ? [{ url: post.imageUrl }] : undefined;
 
@@ -56,7 +57,7 @@ export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const [post, recentPosts] = await Promise.all([
     prisma.blogPost.findUnique({
-      where: { slug, published: true },
+      where: { slug, ...livePost() },
       include: {
         comments: {
           orderBy: { createdAt: "desc" },
@@ -72,13 +73,21 @@ export default async function BlogPostPage({ params }: Props) {
       },
     }),
     prisma.blogPost.findMany({
-      where: { published: true },
+      where: livePost(),
       orderBy: { publishedAt: "desc" },
       select: { id: true, title: true, slug: true, imageUrl: true },
       take: 6,
     }),
   ]);
-  if (!post) notFound();
+  if (!post) {
+    // The post may have been renamed: send old links to its current slug.
+    const renamed = await prisma.blogPost.findFirst({
+      where: { previousSlugs: { has: slug }, ...livePost() },
+      select: { slug: true },
+    });
+    if (renamed) permanentRedirect(`/blog/${renamed.slug}`);
+    notFound();
+  }
 
   const recentForSidebar = recentPosts.map((p) => ({ id: p.id, title: p.title, slug: p.slug, imageUrl: p.imageUrl }));
   const featuredUrl = getFeaturedImageUrl(post.imageUrl);

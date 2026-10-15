@@ -15,11 +15,10 @@ module.exports = {
       }
     ],
   },
+  // Only non-secret values belong here: `env` inlines them into any bundle that references them,
+  // including browser bundles. Server code reads secrets from process.env at runtime.
   env: {
     CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
-    CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
-    CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
-    ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
   },
   experimental: {
     serverActions: {

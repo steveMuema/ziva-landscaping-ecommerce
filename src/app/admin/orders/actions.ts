@@ -3,12 +3,13 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
+import { audit } from "@/lib/audit";
 
 export async function updateOrderStatus(
   orderId: number,
   status: string
 ): Promise<{ ok: boolean; error?: string }> {
-  await requireAdmin();
+  const user = await requireAdmin();
   const allowed = new Set(["PENDING", "PROCESSING", "COMPLETED", "CANCELLED"]);
   if (!allowed.has(status)) return { ok: false, error: "Invalid status" };
 
@@ -45,7 +46,15 @@ export async function updateOrderStatus(
     status: status as "PENDING" | "PROCESSING" | "COMPLETED" | "CANCELLED",
   };
   if (status === "COMPLETED") data.completedAt = new Date();
+  const before = await prisma.order.findUnique({ where: { id: orderId }, select: { status: true } });
   await prisma.order.update({ where: { id: orderId }, data });
+  if (before && before.status !== data.status) {
+    await audit(user, {
+      action: "order.status", entity: "Order", entityId: orderId,
+      summary: `Order #${orderId}: ${before.status} → ${data.status}`,
+      changes: { status: { from: before.status, to: data.status } },
+    });
+  }
   revalidatePath("/admin/orders");
   revalidatePath("/admin/orders/list");
   revalidatePath("/admin/finance");
@@ -53,7 +62,7 @@ export async function updateOrderStatus(
 }
 
 export async function addPaymentRef(formData: FormData): Promise<void> {
-  await requireAdmin();
+  const user = await requireAdmin();
   const orderId = parseInt(formData.get("orderId") as string, 10);
   const value = (formData.get("paymentRef") as string)?.trim() || null;
   const amountRaw = formData.get("refAmount") as string;
@@ -61,6 +70,10 @@ export async function addPaymentRef(formData: FormData): Promise<void> {
   if (isNaN(orderId) || !value) return;
   if (amount == null || isNaN(amount) || amount <= 0) return;
   await prisma.orderPaymentRef.create({ data: { orderId, value, amount } });
+  await audit(user, {
+    action: "order.payment_ref", entity: "Order", entityId: orderId,
+    summary: `Order #${orderId}: added payment ref ${value} for ${amount} KSH`,
+  });
   const order = await prisma.order.findUnique({ where: { id: orderId }, select: { subtotal: true, transportFee: true } });
   if (!order) return;
   const refs = await prisma.orderPaymentRef.findMany({ where: { orderId }, select: { amount: true } });

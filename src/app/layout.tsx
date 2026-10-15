@@ -10,6 +10,7 @@ import { CartSidebarProvider } from "@/lib/cartSidebarContext";
 import { ThemeProvider } from "@/lib/themeContext";
 import { SessionProvider } from "@/components/SessionProvider";
 import RootLayoutContent from "@/components/RootLayoutContent";
+import { getContent } from "@/lib/content";
 import Script from "next/script";
 
 const geistSans = Geist({
@@ -82,11 +83,14 @@ export const viewport = {
   themeColor: "#166534",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const announcement = await getContent("announcement");
+  const showAnnouncement = announcement.enabled && announcement.text.trim() !== "";
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -114,7 +118,7 @@ export default function RootLayout({
               <ProductProvider>
                 <CartProvider>
                   <WishlistProvider>
-                    <RootLayoutContent>{children}</RootLayoutContent>
+                    <RootLayoutContent announcement={showAnnouncement ? announcement : null}>{children}</RootLayoutContent>
                   </WishlistProvider>
                 </CartProvider>
               </ProductProvider>

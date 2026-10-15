@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import AboutUsSection from "@/sections/aboutus.section";
 import { getSettings } from "@/lib/settings";
 import { SETTING_KEYS } from "@/lib/setting-keys";
+import { getContent } from "@/lib/content";
 
 export const dynamic = 'force-dynamic';
 
@@ -27,8 +28,10 @@ export const metadata: Metadata = {
 const DEFAULT_PARALLAX_IMAGE = "/landscape.jpeg";
 
 export default async function CompanyPage() {
-  const settings = await getSettings([
-    SETTING_KEYS.SITE_PARALLAX_IMAGE_URL,
+  const [settings, company, about] = await Promise.all([
+    getSettings([SETTING_KEYS.SITE_PARALLAX_IMAGE_URL]),
+    getContent("page.company"),
+    getContent("home.about"),
   ]);
   const parallaxUrl = settings[SETTING_KEYS.SITE_PARALLAX_IMAGE_URL]?.trim() || DEFAULT_PARALLAX_IMAGE;
 
@@ -52,11 +55,13 @@ export default async function CompanyPage() {
           </div>
           <div className="relative z-10 max-w-4xl mx-auto text-center">
             <h1 className="text-4xl sm:text-5xl font-bold text-white font-[family-name:var(--font-quicksand)] mb-6 drop-shadow-md">
-              Ziva Landscaping Co.
+              {company.heroTitle}
             </h1>
-            <p className="text-xl text-white/95 max-w-2xl mx-auto leading-relaxed font-[family-name:var(--font-quicksand)] drop-shadow">
-              Sustainable living through landscape design: functionality, sustainability, and environment-friendly practices across East Africa.
-            </p>
+            {company.heroSubtitle && (
+              <p className="text-xl text-white/95 max-w-2xl mx-auto leading-relaxed font-[family-name:var(--font-quicksand)] drop-shadow">
+                {company.heroSubtitle}
+              </p>
+            )}
           </div>
         </section>
 
@@ -65,15 +70,15 @@ export default async function CompanyPage() {
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)] mb-6 font-[family-name:var(--font-quicksand)] flex items-center gap-2">
               <span className="w-1 h-8 bg-[var(--ziva-gold)] rounded-full" />
-              Our vision
+              {company.visionHeading}
             </h2>
-            <p className="text-lg text-[var(--muted)] leading-relaxed font-[family-name:var(--font-quicksand)]">
-              To be the leading provider of sustainable landscaping and eco-friendly outdoor solutions in East Africa—crafting vibrant spaces that promote well-being, conserve resources, and support local ecosystems.
+            <p className="text-lg text-[var(--muted)] leading-relaxed font-[family-name:var(--font-quicksand)] whitespace-pre-line">
+              {company.visionText}
             </p>
           </div>
         </section>
 
-        <AboutUsSection />
+        <AboutUsSection about={about} />
       </div>
     </div>
   );

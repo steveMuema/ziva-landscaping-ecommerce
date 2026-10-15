@@ -28,11 +28,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!product) {
     return { title: `Product not found | ${siteName}` };
   }
-  const title = `${product.name} | ${siteName}`;
-  const description =
-    (product.description?.trim() && product.description.length > 160)
+  const title = `${product.metaTitle || product.name} | ${siteName}`;
+  const description = product.metaDescription?.trim() ||
+    ((product.description?.trim() && product.description.length > 160)
       ? product.description.slice(0, 157) + "..."
-      : (product.description?.trim() ?? `Shop ${product.name} at ${siteName}. Sustainable landscaping and eco-friendly outdoor solutions.`);
+      : (product.description?.trim() || `Shop ${product.name} at ${siteName}. Sustainable landscaping and eco-friendly outdoor solutions.`));
   const canonicalUrl = `${baseUrl}/shop/${encodeURIComponent(category)}/${encodeURIComponent(subCategory)}/${id}`;
   const images = product.imageUrl
     ? [{ url: product.imageUrl, width: 1200, height: 630, alt: product.name }]
@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title,
     description,
     openGraph: {
-      title: product.name,
+      title: product.metaTitle || product.name,
       description,
       url: canonicalUrl,
       siteName,
@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       card: "summary_large_image",
-      title: product.name,
+      title: product.metaTitle || product.name,
       description,
       images: product.imageUrl ? [product.imageUrl] : undefined,
     },
@@ -86,9 +86,9 @@ async function ProductPageContent({ id, category, subCategory }: { id: string; c
             "@context": "https://schema.org/",
             "@type": "Product",
             "name": product.name,
-            "image": product.imageUrl ? [product.imageUrl] : [],
+            "image": [product.imageUrl, ...product.images].filter(Boolean),
             "description": product.description || `Buy ${product.name} at Ziva Landscaping Co.`,
-            "sku": product.id.toString(),
+            "sku": product.sku || product.id.toString(),
             "brand": {
               "@type": "Brand",
               "name": "Ziva Landscaping Co."

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ArrowDownIcon, ArrowUpIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import RichTextEditor from "@/components/RichTextEditor";
-import { MediaPicker } from "@/components/admin/MediaPicker";
+import { ImageSourceDialog } from "@/components/admin/ImageSourceDialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { resetContent, saveContent } from "@/lib/actions/content";
 import type { Content, ContentKey } from "@/lib/content";
@@ -44,8 +44,7 @@ function TextArea({ label, path, errors, hint, value, onChange, rows = 3 }: Fiel
 }
 
 function ImageInput({ label, path, errors, value, onChange }: FieldProps & { value: string; onChange: (v: string) => void }) {
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
   return (
     <div>
       <label htmlFor={path} className={labelClass}>{label}</label>
@@ -56,38 +55,16 @@ function ImageInput({ label, path, errors, value, onChange }: FieldProps & { val
           </span>
         )}
         <input id={path} type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder="https://… or /image.jpg" className={`${inputClass} min-w-[180px] flex-1 ${errors[path] ? "border-red-400" : ""}`} />
-        <label className="inline-flex cursor-pointer items-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
-          {uploading ? "Uploading…" : "Upload"}
-          <input
-            type="file"
-            accept="image/*"
-            className="sr-only"
-            disabled={uploading}
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-              setUploading(true);
-              setUploadError(null);
-              try {
-                const fd = new FormData();
-                fd.set("file", file);
-                const res = await fetch("/api/admin/upload-image", { method: "POST", body: fd });
-                const data = await res.json().catch(() => ({}));
-                if (!res.ok) setUploadError(data.error || "Upload failed");
-                else if (data.url) onChange(data.url);
-              } catch {
-                setUploadError("Upload failed");
-              } finally {
-                setUploading(false);
-                e.target.value = "";
-              }
-            }}
-          />
-        </label>
-        <MediaPicker onSelect={onChange} />
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+        >
+          Choose image
+        </button>
       </div>
-      {uploadError && <p className="mt-1 text-xs text-red-600">{uploadError}</p>}
       <ErrorText path={path} errors={errors} />
+      <ImageSourceDialog open={open} title={label} askAlt={false} onClose={() => setOpen(false)} onSelect={({ src }) => onChange(src)} />
     </div>
   );
 }

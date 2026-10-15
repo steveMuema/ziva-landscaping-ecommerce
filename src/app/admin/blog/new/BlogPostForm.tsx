@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef, useActionState } from "react";
-import { useRouter } from "next/navigation";
 import RichTextEditor from "@/components/RichTextEditor";
 import { autoSaveDraft } from "@/lib/actions/blog-editor";
 import { saveBlogPost, type BlogFormState } from "@/lib/actions/blog-posts";
 import { blogSlug } from "@/lib/slug";
-import { MediaPicker } from "@/components/admin/MediaPicker";
+import { ImageSourceDialog } from "@/components/admin/ImageSourceDialog";
 
 interface BlogPostFormProps {
   postId?: number;
@@ -45,7 +44,6 @@ export default function BlogPostForm({
   initialMetaTitle = "",
   initialMetaDescription = "",
 }: BlogPostFormProps) {
-  const router = useRouter();
   const [state, formAction, isSaving] = useActionState<BlogFormState, FormData>(saveBlogPost, {});
 
   const [title, setTitle] = useState(initialTitle);
@@ -66,7 +64,7 @@ export default function BlogPostForm({
   const [currentPostId, setCurrentPostId] = useState<number | undefined>(postId);
   const [autoSaveOff, setAutoSaveOff] = useState(initialPublished);
 
-  const [imageUploading, setImageUploading] = useState(false);
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
 
   // Unsaved-changes tracking: compare against the last state that reached the server.
@@ -127,8 +125,9 @@ export default function BlogPostForm({
         savedSnapshot.current = JSON.stringify({ ...JSON.parse(sent), isPublished: initialPublished, publishAtLocal: toLocalInput(initialPublishedAt) });
         if (res.id && res.id !== currentPostId) {
           setCurrentPostId(res.id);
-          // Gently swap the URL from /new to /edit without reloading
-          router.replace(`/admin/blog/${res.id}/edit`, { scroll: false });
+          // Update the address bar only. router.replace would re-render the edit page and remount
+          // the editor with the just-saved content, losing anything typed since.
+          window.history.replaceState(null, "", `/admin/blog/${res.id}/edit`);
         }
         if (res.slug && !slug) {
           setSlug(res.slug);
@@ -224,54 +223,40 @@ export default function BlogPostForm({
           />
         </div>
         <div>
-          <label htmlFor="blog-imageUrl" className={labelClass}>Featured image</label>
-          <div className="flex flex-wrap items-center gap-2">
-            <input
-              id="blog-imageUrl"
-              type="url"
-              name="imageUrl"
-              value={imageUrl}
-              onChange={(e) => { setImageUrl(e.target.value); setImageError(null); }}
-              placeholder="https://… or /image.jpg — or upload below"
-              className={`${inputClass} flex-1 min-w-[200px]`}
-            />
-            <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus-within:ring-2 focus-within:ring-emerald-500 focus-within:ring-offset-1">
-              <span>{imageUploading ? "Uploading…" : "Upload"}</span>
-              <input
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                disabled={imageUploading}
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  setImageError(null);
-                  setImageUploading(true);
-                  try {
-                    const fd = new FormData();
-                    fd.set("file", file);
-                    const res = await fetch("/api/admin/upload-image", { method: "POST", body: fd });
-                    const data = await res.json().catch(() => ({}));
-                    if (!res.ok) {
-                      setImageError(data.error || "Upload failed");
-                      return;
-                    }
-                    if (data.url) {
-                      setImageUrl(data.url);
-                    }
-                  } catch {
-                    setImageError("Upload failed.");
-                  } finally {
-                    setImageUploading(false);
-                    e.target.value = "";
-                  }
-                }}
-              />
-            </label>
-            <MediaPicker onSelect={(url) => { setImageUrl(url); setImageError(null); }} />
+          <p className={labelClass}>Featured image</p>
+          <div className="flex flex-wrap items-center gap-3">
+            {imageUrl && (
+              <span className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-slate-100">
+                {/* eslint-disable-next-line @next/next/no-img-element -- may be any external URL */}
+                <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={() => setImageDialogOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+            >
+              {imageUrl ? "Change image" : "Choose image"}
+            </button>
+            {imageUrl && (
+              <button type="button" onClick={() => setImageUrl("")} className="text-sm font-medium text-red-600 hover:underline">
+                Remove
+              </button>
+            )}
+            <input type="hidden" name="imageUrl" value={imageUrl} />
           </div>
+          <ImageSourceDialog
+            open={imageDialogOpen}
+            title="Featured image"
+            askAlt={false}
+            onClose={() => setImageDialogOpen(false)}
+            onSelect={({ src }) => {
+              setImageUrl(src);
+              setImageError(null);
+            }}
+          />
           {imageError && <p className={errorClass}>{imageError}</p>}
-          <p className="mt-1 text-xs text-slate-500">Optional. Used as the post hero, social share image and subtle background on the article page. Paste a URL or upload an image (Cloudinary).</p>
+          <p className="mt-1 text-xs text-slate-500">Optional. Used as the post hero, social share image and subtle background on the article page. Pick from the media library, upload from your device, or use a URL.</p>
         </div>
         <div>
           <label className={labelClass}>Content</label>

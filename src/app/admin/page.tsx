@@ -1,7 +1,4 @@
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/prisma";
 import {
   FolderIcon,
@@ -16,6 +13,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { OrdersCountChart } from "@/components/admin/OrdersCountChart";
 import { RevenueBarChart } from "@/components/admin/RevenueBarChart";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -23,11 +21,7 @@ const fmt = (n: number) =>
   Number(n).toLocaleString("en-KE", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
 export default async function AdminDashboard() {
-  const session = await getServerSession(authOptions);
-
-  if (!session || session.user?.role !== "admin") {
-    redirect("/auth/signin");
-  }
+  await requireAdmin();
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);

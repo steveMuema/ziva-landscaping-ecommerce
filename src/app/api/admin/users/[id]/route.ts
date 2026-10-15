@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/authOptions";
+import { requireAdminApi } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "admin") {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireAdminApi();
+    if ("response" in auth) return auth.response;
 
     const { id } = await params;
     const body = await req.json();
@@ -18,7 +15,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
 
     // Prevent the acting admin from demoting themselves
-    if (id === session.user.id && role !== "admin") {
+    if (id === auth.user.id && role !== "admin") {
         return NextResponse.json({ error: "You cannot demote your own account." }, { status: 400 });
     }
 
@@ -32,14 +29,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "admin") {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireAdminApi();
+    if ("response" in auth) return auth.response;
 
     const { id } = await params;
 
-    if (id === session.user.id) {
+    if (id === auth.user.id) {
         return NextResponse.json({ error: "You cannot delete your own account." }, { status: 400 });
     }
 

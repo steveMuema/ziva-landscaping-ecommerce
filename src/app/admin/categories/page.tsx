@@ -5,6 +5,7 @@ import { PlusIcon } from "@heroicons/react/24/outline";
 import { Pagination } from "@/components/Pagination";
 import { paginate, PAGE_SIZE } from "@/lib/pagination";
 import { Suspense } from "react";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,7 @@ export default async function CategoriesPage({
 
   async function createCategory(formData: FormData) {
     "use server";
+    await requireAdmin();
     const name = (formData.get("name") as string)?.trim();
     if (!name) return;
     const imageFile = formData.get("image") as File | null;

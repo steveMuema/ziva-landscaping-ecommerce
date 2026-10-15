@@ -1,28 +1,13 @@
-import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdminApi } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
 import bcryptjs from "bcryptjs";
 
-async function requireAdmin(request: NextRequest): Promise<NextResponse | null> {
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
-  if (!token || token.role !== "admin" || typeof token.sub !== "string") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  return null;
-}
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const unauth = await requireAdmin(request);
-    if (unauth) return unauth;
-    const token = await getToken({
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET,
-    });
-    const userId = token!.sub!;
+    const auth = await requireAdminApi();
+    if ("response" in auth) return auth.response;
+    const userId = auth.user.id;
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, name: true, email: true },
@@ -45,13 +30,9 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const unauth = await requireAdmin(request);
-    if (unauth) return unauth;
-    const token = await getToken({
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET,
-    });
-    const userId = token!.sub!;
+    const auth = await requireAdminApi();
+    if ("response" in auth) return auth.response;
+    const userId = auth.user.id;
     let body: { name?: string; email?: string; currentPassword?: string; newPassword?: string };
     try {
       body = await request.json();

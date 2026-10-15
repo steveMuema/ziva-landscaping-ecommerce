@@ -1,12 +1,10 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
 import Link from "next/link";
-import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/prisma";
 import { PaymentsFilters } from "@/components/admin/PaymentsFilters";
 import { Pagination } from "@/components/Pagination";
 import { paginate, PAGE_SIZE } from "@/lib/pagination";
 import { Suspense } from "react";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -22,10 +20,7 @@ export default async function AdminPaymentsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const session = await getServerSession(authOptions);
-  if (!session || (session.user as { role?: string })?.role !== "admin") {
-    redirect("/auth/signin");
-  }
+  await requireAdmin();
 
   const params = await searchParams;
   const page = Math.max(1, Number(params.page ?? 1));

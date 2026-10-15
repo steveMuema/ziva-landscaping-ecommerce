@@ -13,6 +13,7 @@ import {
   CurrencyDollarIcon,
   BanknotesIcon,
   DocumentTextIcon,
+  ChatBubbleLeftRightIcon,
   ArrowDownTrayIcon,
   ArrowRightOnRectangleIcon,
   Bars3Icon,
@@ -35,6 +36,7 @@ const navItems = [
   { href: "/admin/payments", label: "Payments", icon: BanknotesIcon },
   { href: "/admin/downloads", label: "Downloads", icon: ArrowDownTrayIcon },
   { href: "/admin/blog", label: "Blog", icon: DocumentTextIcon },
+  { href: "/admin/comments", label: "Comments", icon: ChatBubbleLeftRightIcon },
   { href: "/admin/users", label: "Users", icon: UsersIcon },
   { href: "/admin/settings", label: "Settings", icon: Cog6ToothIcon },
 ];

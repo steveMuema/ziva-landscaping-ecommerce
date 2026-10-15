@@ -1,10 +1,10 @@
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { authOptions } from "@/lib/authOptions";
 import BlogPostForm from "./BlogPostForm";
+import { requireAdmin } from "@/lib/admin-auth";
+import { sanitizeBlogHtml } from "@/lib/sanitize";
 
 function slugFromTitle(title: string) {
   return title
@@ -17,13 +17,11 @@ function slugFromTitle(title: string) {
 export const dynamic = "force-dynamic";
 
 export default async function AdminBlogNewPage() {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user?.role !== "admin") {
-    redirect("/auth/signin");
-  }
+  await requireAdmin();
 
   async function createPost(formData: FormData) {
     "use server";
+    await requireAdmin();
     const title = formData.get("title") as string;
     const slugInput = (formData.get("slug") as string)?.trim();
     const slug = slugInput || slugFromTitle(title);
@@ -48,7 +46,7 @@ export default async function AdminBlogNewPage() {
           slug: newSlug,
           tags: tagsArray,
           excerpt,
-          content: content || "<p></p>",
+          content: sanitizeBlogHtml(content || "<p></p>"),
           published,
           publishedAt: published ? (post?.publishedAt || new Date()) : null,
           imageUrl,
@@ -64,7 +62,7 @@ export default async function AdminBlogNewPage() {
           slug: finalSlug,
           tags: tagsArray,
           excerpt,
-          content: content || "<p></p>",
+          content: sanitizeBlogHtml(content || "<p></p>"),
           published,
           publishedAt: published ? new Date() : null,
           imageUrl,

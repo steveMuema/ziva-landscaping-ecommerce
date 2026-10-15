@@ -4,6 +4,7 @@ import { uploadImage } from "@/lib/cloudinary";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { AdminProductList } from "@/components/admin/AdminProductList";
 import { PAGE_SIZE } from "@/lib/pagination";
+import { requireAdmin } from "@/lib/admin-auth";
 
 const inputClass =
   "w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
@@ -30,6 +31,7 @@ export default async function ProductsPage() {
 
   async function createProduct(formData: FormData) {
     "use server";
+    await requireAdmin();
     const name = (formData.get("name") as string)?.trim();
     if (!name) return;
     const description = (formData.get("description") as string)?.trim() || null;

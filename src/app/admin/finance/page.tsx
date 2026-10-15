@@ -1,12 +1,10 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { ProductPieChart } from "@/components/admin/ProductPieChart";
 import { SalesProfitLineChart } from "@/components/admin/SalesProfitLineChart";
 import { RevenueBarChart } from "@/components/admin/RevenueBarChart";
 import { RevenueRangeSelect } from "@/components/admin/RevenueRangeSelect";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -21,10 +19,7 @@ export default async function AdminFinancePage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const session = await getServerSession(authOptions);
-  if (!session || (session.user as { role?: string })?.role !== "admin") {
-    redirect("/auth/signin");
-  }
+  await requireAdmin();
 
   const allOrders = await prisma.order.findMany({
     select: {

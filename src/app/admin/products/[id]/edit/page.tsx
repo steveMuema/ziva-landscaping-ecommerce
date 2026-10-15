@@ -4,8 +4,7 @@ import { uploadImage } from "@/lib/cloudinary";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { requireAdmin } from "@/lib/admin-auth";
 
 const inputClass =
   "w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500";
@@ -15,6 +14,7 @@ export const dynamic = "force-dynamic";
 
 async function updateProduct(productId: number, formData: FormData) {
   "use server";
+  await requireAdmin();
   const name = (formData.get("name") as string)?.trim();
   if (!name) return;
   const description = (formData.get("description") as string)?.trim() || null;
@@ -54,10 +54,7 @@ export default async function EditProductPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const session = await getServerSession(authOptions);
-  if (!session || (session.user as { role?: string })?.role !== "admin") {
-    redirect("/auth/signin");
-  }
+  await requireAdmin();
   const { id } = await params;
   const productId = parseInt(id, 10);
   if (isNaN(productId)) notFound();

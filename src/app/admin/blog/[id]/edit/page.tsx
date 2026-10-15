@@ -1,10 +1,10 @@
-import { getServerSession } from "next-auth";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { authOptions } from "@/lib/authOptions";
 import BlogPostForm from "../../new/BlogPostForm";
+import { requireAdmin } from "@/lib/admin-auth";
+import { sanitizeBlogHtml } from "@/lib/sanitize";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +13,7 @@ export default async function AdminBlogEditPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user?.role !== "admin") {
-    redirect("/auth/signin");
-  }
+  await requireAdmin();
 
   const { id } = await params;
   const postId = parseInt(id, 10);
@@ -27,6 +24,7 @@ export default async function AdminBlogEditPage({
 
   async function updatePost(formData: FormData) {
     "use server";
+    await requireAdmin();
     const title = formData.get("title") as string;
     const newSlug = (formData.get("slug") as string)?.trim() || post.slug;
     const excerpt = (formData.get("excerpt") as string) || null;
@@ -44,7 +42,7 @@ export default async function AdminBlogEditPage({
         slug: newSlug,
         tags: tagsArray,
         excerpt,
-        content: content || "<p></p>",
+        content: sanitizeBlogHtml(content || "<p></p>"),
         published,
         publishedAt: published ? (post.publishedAt || new Date()) : null,
         imageUrl,

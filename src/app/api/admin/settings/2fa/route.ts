@@ -1,18 +1,15 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/authOptions";
+import { requireAdminApi } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
 import speakeasy from "speakeasy";
 import qrcode from "qrcode";
 
 export async function GET() {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session || session.user.role !== "admin") {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const auth = await requireAdminApi();
+        if ("response" in auth) return auth.response;
         const user = await prisma.user.findUnique({
-            where: { id: session.user.id },
+            where: { id: auth.user.id },
             select: { twoFactorEnabled: true },
         });
         return NextResponse.json({ enabled: user?.twoFactorEnabled ?? false });
@@ -24,16 +21,14 @@ export async function GET() {
 
 export async function POST(req: Request) {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session || session.user.role !== "admin") {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const auth = await requireAdminApi();
+        if ("response" in auth) return auth.response;
 
         const body = await req.json();
         const { action, token, secret } = body;
 
-        const userEmail = session.user.email || "admin@zivalandscaping.co.ke";
-        const userId = session.user.id;
+        const userEmail = auth.user.email || "admin@zivalandscaping.co.ke";
+        const userId = auth.user.id;
 
         if (action === "generate") {
             // Generate a new pristine cryptographic secret

@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { FeaturedImage } from "@/components/blog/FeaturedImage";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { sanitizeBlogHtml } from "@/lib/sanitize";
 
 export const dynamic = "force-dynamic";
 
@@ -73,7 +74,7 @@ export default async function BlogPreviewPage({
 
             <div
                 className="prose prose-slate prose-lg max-w-none prose-emerald prose-p:leading-relaxed prose-p:mb-6 prose-headings:mt-10 prose-headings:mb-4"
-                dangerouslySetInnerHTML={{ __html: post.content }}
+                dangerouslySetInnerHTML={{ __html: sanitizeBlogHtml(post.content) }}
             />
         </article>
     );

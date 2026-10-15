@@ -1,12 +1,10 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { updateOrderStatus, addPaymentRef } from "./actions";
 import { OrderKanbanBoard } from "@/components/admin/OrderKanbanBoard";
 import { OrdersBoardErrorBoundary } from "@/components/admin/OrdersBoardErrorBoundary";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -22,10 +20,7 @@ export default async function AdminOrdersPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const session = await getServerSession(authOptions);
-  if (!session || (session.user as { role?: string })?.role !== "admin") {
-    redirect("/auth/signin");
-  }
+  await requireAdmin();
 
   const params = await searchParams;
   const phoneQuery = typeof params?.phone === "string" ? params.phone.trim() : "";

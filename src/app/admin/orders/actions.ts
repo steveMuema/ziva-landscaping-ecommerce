@@ -2,11 +2,13 @@
 
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export async function updateOrderStatus(
   orderId: number,
   status: string
 ): Promise<{ ok: boolean; error?: string }> {
+  await requireAdmin();
   const allowed = new Set(["PENDING", "PROCESSING", "COMPLETED", "CANCELLED"]);
   if (!allowed.has(status)) return { ok: false, error: "Invalid status" };
 
@@ -51,6 +53,7 @@ export async function updateOrderStatus(
 }
 
 export async function addPaymentRef(formData: FormData): Promise<void> {
+  await requireAdmin();
   const orderId = parseInt(formData.get("orderId") as string, 10);
   const value = (formData.get("paymentRef") as string)?.trim() || null;
   const amountRaw = formData.get("refAmount") as string;

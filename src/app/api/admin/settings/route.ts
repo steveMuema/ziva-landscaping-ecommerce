@@ -1,5 +1,5 @@
-import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdminApi } from "@/lib/admin-auth";
 import { getSettings, setSetting, SETTING_KEYS } from "@/lib/settings";
 
 const ALL_KEYS = Object.values(SETTING_KEYS).filter(
@@ -22,21 +22,10 @@ function mask(value: string | null): string {
   return value.slice(0, 2) + "••••" + value.slice(-2);
 }
 
-async function requireAdmin(request: NextRequest): Promise<NextResponse | null> {
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
-  if (!token || token.role !== "admin") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  return null;
-}
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const unauth = await requireAdmin(request);
-    if (unauth) return unauth;
+    const auth = await requireAdminApi();
+    if ("response" in auth) return auth.response;
     const values = await getSettings(ALL_KEYS);
     const result: Record<string, string> = {};
     for (const key of ALL_KEYS) {
@@ -57,8 +46,8 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const unauth = await requireAdmin(request);
-    if (unauth) return unauth;
+    const auth = await requireAdminApi();
+    if ("response" in auth) return auth.response;
     let body: Record<string, string>;
     try {
       body = await request.json();

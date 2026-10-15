@@ -1,21 +1,10 @@
-import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdminApi } from "@/lib/admin-auth";
 import * as XLSX from "xlsx";
 import prisma from "@/lib/prisma";
 
 const MAX_DAYS = 365;
 const REPORT_TYPES = ["orders", "payments", "sales-summary", "products"] as const;
-
-async function requireAdmin(request: NextRequest): Promise<NextResponse | null> {
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
-  if (!token || token.role !== "admin") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  return null;
-}
 
 function parseDateRange(body: unknown): { from: Date; to: Date } | NextResponse {
   const b = body as { from?: string; to?: string } | null;
@@ -47,8 +36,8 @@ function parseDateRange(body: unknown): { from: Date; to: Date } | NextResponse 
 
 export async function POST(request: NextRequest) {
   try {
-    const unauth = await requireAdmin(request);
-    if (unauth) return unauth;
+    const auth = await requireAdminApi();
+    if ("response" in auth) return auth.response;
 
     const body = await request.json().catch(() => ({}));
     const type = typeof body.type === "string" ? body.type.trim().toLowerCase() : "";

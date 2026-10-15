@@ -6,6 +6,7 @@ import prisma from "@/lib/prisma";
 import { BlogSidebar } from "@/components/blog/BlogSidebar";
 import { FeaturedImage, getFeaturedImageUrl } from "@/components/blog/FeaturedImage";
 import CommentSection from "@/components/blog/CommentSection";
+import { sanitizeBlogHtml } from "@/lib/sanitize";
 
 export const dynamic = "force-dynamic";
 
@@ -193,7 +194,7 @@ export default async function BlogPostPage({ params }: Props) {
 
                 <div
                   className="prose prose-lg max-w-none prose-headings:font-[family-name:var(--font-quicksand)] prose-p:text-[var(--foreground)] prose-li:text-[var(--foreground)] prose-p:leading-relaxed prose-p:mb-6 prose-headings:mt-10 prose-headings:mb-4"
-                  dangerouslySetInnerHTML={{ __html: post.content }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeBlogHtml(post.content) }}
                 />
 
                 <div className="mt-12 border-t border-[var(--card-border)] pt-8">

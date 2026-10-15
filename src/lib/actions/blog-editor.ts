@@ -1,6 +1,8 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { sanitizeBlogHtml } from "@/lib/sanitize";
+import { requireAdmin } from "@/lib/admin-auth";
 
 function slugFromTitle(title: string) {
     return title
@@ -22,6 +24,7 @@ export type AutoSaveData = {
 };
 
 export async function autoSaveDraft(data: AutoSaveData): Promise<{ success: boolean; id?: number; slug?: string }> {
+    await requireAdmin();
     try {
         const slugInput = data.slug?.trim();
         const slug = slugInput || slugFromTitle(data.title);
@@ -39,7 +42,7 @@ export async function autoSaveDraft(data: AutoSaveData): Promise<{ success: bool
                     slug: data.slug?.trim() || post.slug,
                     tags: tagsArray,
                     excerpt: data.excerpt || null,
-                    content: data.content || "<p></p>",
+                    content: sanitizeBlogHtml(data.content || "<p></p>"),
                     imageUrl: data.imageUrl || null,
                     updatedAt: new Date(),
                 },
@@ -57,7 +60,7 @@ export async function autoSaveDraft(data: AutoSaveData): Promise<{ success: bool
                 slug: finalSlug,
                 tags: tagsArray,
                 excerpt: data.excerpt || null,
-                content: data.content || "<p></p>",
+                content: sanitizeBlogHtml(data.content || "<p></p>"),
                 published: false,
                 publishedAt: null,
                 imageUrl: data.imageUrl || null,

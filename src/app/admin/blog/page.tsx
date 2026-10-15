@@ -1,13 +1,11 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
-import { authOptions } from "@/lib/authOptions";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import BlogActions from "@/components/admin/BlogActions";
 import { Pagination } from "@/components/Pagination";
 import { paginate, PAGE_SIZE } from "@/lib/pagination";
 import { Suspense } from "react";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -16,10 +14,7 @@ export default async function AdminBlogPage({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user?.role !== "admin") {
-    redirect("/auth/signin");
-  }
+  await requireAdmin();
 
   const resolvedParams = await searchParams;
   const page = Math.max(1, Number(resolvedParams?.page ?? 1));

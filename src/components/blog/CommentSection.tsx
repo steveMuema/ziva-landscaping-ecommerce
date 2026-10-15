@@ -151,6 +151,7 @@ export default function CommentSection({
                         <form onSubmit={(e) => handleSubmit(e, comment.id)} className="space-y-4">
                             <div className="grid sm:grid-cols-2 gap-3">
                                 <input
+                                    maxLength={60}
                                     type="text"
                                     required
                                     value={name}
@@ -161,6 +162,7 @@ export default function CommentSection({
                                 />
                             </div>
                             <textarea
+                                maxLength={2000}
                                 required
                                 rows={3}
                                 value={content}
@@ -219,6 +221,7 @@ export default function CommentSection({
                                 Your Name
                             </label>
                             <input
+                                maxLength={60}
                                 id="comment-name"
                                 type="text"
                                 required
@@ -235,6 +238,7 @@ export default function CommentSection({
                             Your Message
                         </label>
                         <textarea
+                            maxLength={2000}
                             id="comment-content"
                             required
                             rows={4}

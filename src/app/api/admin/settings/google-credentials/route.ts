@@ -1,7 +1,7 @@
 import { config as loadEnv } from "dotenv";
 import path from "path";
-import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdminApi } from "@/lib/admin-auth";
 import { setSetting, getGoogleCredentials } from "@/lib/settings";
 import { SETTING_KEYS } from "@/lib/setting-keys";
 import { encrypt } from "@/lib/encryption";
@@ -9,17 +9,6 @@ import { encrypt } from "@/lib/encryption";
 // Ensure .env is loaded in this route (Turbopack/Next can omit env in some contexts)
 if (typeof process !== "undefined" && !process.env.ENCRYPTION_KEY) {
   loadEnv({ path: path.resolve(process.cwd(), ".env") });
-}
-
-async function requireAdmin(request: NextRequest): Promise<NextResponse | null> {
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
-  if (!token || token.role !== "admin") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  return null;
 }
 
 /** Safe preview of credentials for UI (no secrets). Handles service account and OAuth (web/installed). */
@@ -43,10 +32,10 @@ function getCredentialsPreview(creds: Record<string, unknown>): string | null {
 }
 
 /** GET: returns whether credentials are uploaded and a safe preview (e.g. client_email) so you can confirm they're readable. */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const unauth = await requireAdmin(request);
-    if (unauth) return unauth;
+    const auth = await requireAdminApi();
+    if ("response" in auth) return auth.response;
     const creds = await getGoogleCredentials();
     const uploaded = !!creds;
     const preview = creds ? getCredentialsPreview(creds) : null;
@@ -67,8 +56,8 @@ export async function GET(request: NextRequest) {
 /** POST: upload credentials JSON (body: { content: string }). Stored encrypted. */
 export async function POST(request: NextRequest) {
   try {
-    const unauth = await requireAdmin(request);
-    if (unauth) return unauth;
+    const auth = await requireAdminApi();
+    if ("response" in auth) return auth.response;
     let body: { content?: string };
     try {
       body = await request.json();
@@ -119,10 +108,10 @@ export async function POST(request: NextRequest) {
 }
 
 /** DELETE: remove stored credentials. */
-export async function DELETE(request: NextRequest) {
+export async function DELETE() {
   try {
-    const unauth = await requireAdmin(request);
-    if (unauth) return unauth;
+    const auth = await requireAdminApi();
+    if ("response" in auth) return auth.response;
     await setSetting(SETTING_KEYS.GOOGLE_CREDENTIALS, "");
     return NextResponse.json({ ok: true, uploaded: false });
   } catch (err) {

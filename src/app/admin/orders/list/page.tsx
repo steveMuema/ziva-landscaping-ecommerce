@@ -1,11 +1,9 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { OrdersListTable } from "@/components/admin/OrdersListTable";
 import { updateOrderStatus } from "../actions";
 import { Squares2X2Icon } from "@heroicons/react/24/outline";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -17,10 +15,7 @@ export default async function AdminOrdersListPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const session = await getServerSession(authOptions);
-  if (!session || (session.user as { role?: string })?.role !== "admin") {
-    redirect("/auth/signin");
-  }
+  await requireAdmin();
 
   const params = await searchParams;
   const page = Math.max(1, parseInt(typeof params?.page === "string" ? params.page : "1", 10) || 1);

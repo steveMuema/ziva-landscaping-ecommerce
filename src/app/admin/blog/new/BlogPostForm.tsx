@@ -159,10 +159,10 @@ export default function BlogPostForm({
     <form
       action={formAction}
       onSubmit={() => { submitting.current = true; }}
-      className="max-w-4xl space-y-8 flex flex-col lg:flex-row gap-8"
+      className="mx-auto flex w-full max-w-screen-2xl flex-col gap-8 lg:flex-row lg:items-start"
     >
       {/* Main Column */}
-      <div className="flex-1 space-y-5">
+      <div className="min-w-0 flex-1 space-y-5">
         {state.error && (
           <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
         )}
@@ -311,7 +311,7 @@ export default function BlogPostForm({
       </div>
 
       {/* Sidebar Column */}
-      <div className="w-full lg:w-72 space-y-6">
+      <div className="w-full shrink-0 space-y-6 lg:sticky lg:top-20 lg:w-80">
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
           <h3 className="font-semibold text-slate-900 mb-3 text-sm uppercase tracking-wider">Publishing</h3>
 

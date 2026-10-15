@@ -7,7 +7,7 @@
  *
  * Usage:
  *   npm run staff:set-password -- you@example.com                        set/reset password (admin)
- *   npm run staff:set-password -- writer@example.com --role editor
+ *   npm run staff:set-password -- writer@example.com --role editor        (roles: superadmin, admin, editor)
  *   npm run staff:set-password -- you@example.com --authenticator-only   sign in with an authenticator
  *                                                                        app only (no password); shows a
  *                                                                        QR code to scan
@@ -24,7 +24,7 @@ import QRCode from "qrcode";
 import { PrismaClient } from "@prisma/client";
 
 const MIN_LENGTH = 12;
-const STAFF_ROLES = ["admin", "editor"] as const;
+const STAFF_ROLES = ["superadmin", "admin", "editor"] as const;
 type StaffRole = (typeof STAFF_ROLES)[number];
 
 function ask(question: string, { hidden = false } = {}): Promise<string> {
@@ -124,6 +124,15 @@ async function main() {
     });
     const role: StaffRole =
       requestedRole ?? (existing && STAFF_ROLES.includes(existing.role as StaffRole) ? (existing.role as StaffRole) : "admin");
+    if (role === "superadmin" && existing?.role !== "superadmin") {
+      const holder = await prisma.user.findFirst({ where: { role: "superadmin" }, select: { email: true } });
+      if (holder) {
+        console.error(`${holder.email} is already the super admin, and there can only be one.`);
+        console.error(`To hand it over: npm run staff:set-role -- ${email} superadmin`);
+        process.exitCode = 1;
+        return;
+      }
+    }
 
     console.log("");
     console.log(`Database: ${databaseLabel(process.env.DATABASE_URL)}`);

@@ -18,7 +18,8 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "optimize:images": "node scripts/optimize-product-images.js",
-    "staff:set-password": "tsx scripts/set-staff-password.ts"
+    "staff:set-password": "tsx scripts/set-staff-password.ts",
+    "staff:set-role": "tsx scripts/set-staff-role.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

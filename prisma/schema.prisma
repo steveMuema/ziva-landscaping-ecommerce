@@ -99,22 +99,25 @@ model Wishlist {
 }
 
 model User {
-  id               String          @id @default(cuid())
-  name             String?
-  email            String?         @unique
-  emailVerified    DateTime?
-  password         String?
-  role             String          @default("user")
-  twoFactorSecret  String?
-  twoFactorEnabled Boolean         @default(false)
-  failedLoginCount Int             @default(0) // consecutive failed sign-ins; reset on success
-  lockedUntil      DateTime? // sign-in blocked until this time after too many failures
-  lastTotpStep     Int? // 30-second step of the last accepted authenticator code (blocks reuse)
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  Account          Account[]
-  Session          Session[]
-  Authenticator    Authenticator[]
+  id                 String          @id @default(cuid())
+  name               String?
+  email              String?         @unique
+  emailVerified      DateTime?
+  password           String?
+  /// "superadmin" | "admin" | "editor" | "user". At most one superadmin: enforced by the partial unique
+  /// index User_single_superadmin (migration 20261017000001), which Prisma's schema can't express.
+  role               String          @default("user")
+  twoFactorSecret    String?
+  twoFactorEnabled   Boolean         @default(false)
+  failedLoginCount   Int             @default(0) // consecutive failed sign-ins; reset on success
+  lockedUntil        DateTime? // sign-in blocked until this time after too many failures
+  lastTotpStep       Int? // 30-second step of the last accepted authenticator code (blocks reuse)
+  sessionsValidAfter DateTime? // sign-ins issued before this are rejected (set on password/2FA/role changes)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  Account            Account[]
+  Session            Session[]
+  Authenticator      Authenticator[]
 }
 
 model Account {

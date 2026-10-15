@@ -16,6 +16,7 @@ import { useCartSidebar } from "@/lib/cartSidebarContext";
 import { useTheme } from "@/lib/themeContext";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import dynamic from "next/dynamic";
+import { isStaffRole } from "@/lib/roles";
 
 const MobileSidebar = dynamic(() => import("./MobileSidebar"), { ssr: false });
 const ShoppingCart = dynamic(() => import("@/components/ShoppingCart"), { ssr: false });
@@ -45,7 +46,7 @@ export default function NavigationBar() {
   const { cartOpen, setCartOpen } = useCartSidebar();
   const { } = useTheme();
   const isSignedIn = status === "authenticated" && !!session?.user;
-  const isAdmin = isSignedIn && session?.user?.role === "admin";
+  const isAdmin = isSignedIn && isStaffRole(session?.user?.role);
 
   const [siteLogoUrl, setSiteLogoUrl] = useState<string | null>(null);
 

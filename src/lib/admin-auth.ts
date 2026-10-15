@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/authOptions";
 import prisma from "@/lib/prisma";
-import { EDITOR_HOME, isStaffRole, type StaffRole } from "@/lib/roles";
+import { EDITOR_HOME, isAdminRole, isStaffRole, type StaffRole } from "@/lib/roles";
 
 export type AdminUser = { id: string; name: string | null; email: string | null; role: StaffRole };
 
@@ -21,16 +21,19 @@ async function staffFromSession(session: Session | null): Promise<AdminUser | nu
   if (!id || !isStaffRole(session.user.role)) return null;
   const user = await prisma.user.findUnique({
     where: { id },
-    select: { id: true, name: true, email: true, role: true },
+    select: { id: true, name: true, email: true, role: true, sessionsValidAfter: true },
   });
   if (!user || !isStaffRole(user.role)) return null;
+  // Sign-ins from before a password/2FA/role reset are no longer valid. Sessions created before
+  // signedInAt existed count as old, so they end the first time an account is reset.
+  if (user.sessionsValidAfter && (session?.signedInAt ?? 0) < user.sessionsValidAfter.getTime()) return null;
   return { id: user.id, name: user.name, email: user.email, role: user.role };
 }
 
 /** The signed-in admin, or null (editors don't count). */
 export async function getAdminUser(): Promise<AdminUser | null> {
   const user = await getStaffUser();
-  return user?.role === "admin" ? user : null;
+  return user && isAdminRole(user.role) ? user : null;
 }
 
 /**
@@ -48,7 +51,7 @@ async function staffOrSignIn(): Promise<AdminUser> {
 /** Admin-only pages and server actions: redirects everyone else. */
 export async function requireAdmin(): Promise<AdminUser> {
   const user = await staffOrSignIn();
-  if (user.role !== "admin") redirect(EDITOR_HOME);
+  if (!isAdminRole(user.role)) redirect(EDITOR_HOME);
   return user;
 }
 
@@ -63,7 +66,7 @@ type ApiAuth = { user: AdminUser } | { response: NextResponse };
 export async function requireAdminApi(): Promise<ApiAuth> {
   const user = await getStaffUser();
   if (!user) return { response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
-  if (user.role !== "admin") return { response: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
+  if (!isAdminRole(user.role)) return { response: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
   return { user };
 }
 

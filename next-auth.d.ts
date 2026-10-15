@@ -9,6 +9,8 @@ declare module "next-auth" {
       email?: string | null;
       role?: string;
     } & DefaultSession["user"];
+    /** When this sign-in happened (ms). Used to end sessions after a password/role change. */
+    signedInAt?: number;
   }
 
   interface User extends DefaultUser {
@@ -20,5 +22,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     role?: string;
+    /** Set once at sign-in; unlike iat it doesn't change when the session is refreshed. */
+    signedInAt?: number;
   }
 }

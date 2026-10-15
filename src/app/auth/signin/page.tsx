@@ -2,27 +2,19 @@
 import { Suspense, useEffect, useState } from "react";
 import { getProviders, signIn, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import QRCode from "qrcode";
 
 function SignInForm() {
   const [step, setStep] = useState<1 | 2>(1);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [totpCode, setTotpCode] = useState("");
-  const [show2FA, setShow2FA] = useState(false);
   const [error, setError] = useState("");
   const [hasGoogle, setHasGoogle] = useState(false);
-  const [setupSecret, setSetupSecret] = useState("");
-  const [qrCodeUrl, setQrCodeUrl] = useState("");
+  // "authenticator" = this account signs in with an authenticator code only (no password).
+  const [method, setMethod] = useState<"password" | "authenticator">("password");
+  const [checking, setChecking] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  let isSupremeLeader = false;
-  try {
-    const obf = typeof window !== "undefined" ? btoa(email.trim().toLowerCase()) : "";
-    isSupremeLeader = ["bXdhbmdpaGFydW5Ab3V0bG9vay5jb20=", "bXdhbmdpaWhhcnVuQG91dGxvb2suY29t", "bXdhbmdpaWhhcnVuQG90bG9vay5jb20=", "aGFyb255bXdhbmdpMTJAZ21haWwuY29t"].includes(obf);
-  } catch {
-  }
 
   useEffect(() => {
     // The admin rejected this session (account deleted or no longer staff): clear the
@@ -61,31 +53,52 @@ function SignInForm() {
         return;
       }
       setError("");
+      setChecking(true);
+      try {
+        const res = await fetch("/api/signin-method", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.trim() }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 429) {
+          setError(data.error || "Too many requests. Please wait a minute.");
+          return;
+        }
+        setMethod(data.method === "authenticator" ? "authenticator" : "password");
+      } catch {
+        setMethod("password");
+      } finally {
+        setChecking(false);
+      }
+      setPassword("");
+      setTotpCode("");
       setStep(2);
       return;
     }
 
+    if (method === "authenticator") {
+      if (!/^\d{6}$/.test(totpCode.replace(/\s+/g, ""))) {
+        setError("Enter the 6-digit code from your authenticator app.");
+        return;
+      }
+    } else if (!password) {
+      setError("Enter your password.");
+      return;
+    }
     setError("");
     const result = await signIn("credentials", {
       email: email.trim(),
-      password,
+      password: method === "authenticator" ? "" : password,
       totpCode: totpCode.trim(),
-      enrollSecret: setupSecret || "",
       redirect: false,
     });
 
     if (result?.error) {
-      if (result.error.startsWith("SETUP_REQUIRED:")) {
-        const secret = result.error.split(":")[1];
-        setSetupSecret(secret);
-        const otpAuth = `otpauth://totp/Ziva%20Landscaping%20(Admin)?secret=${secret}&issuer=Ziva%20Landscaping`;
-        QRCode.toDataURL(otpAuth).then(setQrCodeUrl).catch(console.error);
-        setError("Setup your Authenticator device using the QR Code to continue.");
+      if (result.error === "CredentialsSignin") {
+        setError(method === "authenticator" ? "That code didn't work. Wait for a new code and try again." : "Invalid email or password.");
       } else {
         setError(result.error);
-        if (result.error.includes("2FA code required")) {
-          setShow2FA(true);
-        }
       }
     } else if (result?.ok) {
       router.push("/admin");
@@ -118,9 +131,10 @@ function SignInForm() {
               </div>
               <button
                 type="submit"
-                className="w-full bg-[var(--accent)] text-white p-2.5 rounded-md font-medium hover:opacity-90 transition-opacity"
+                disabled={checking}
+                className="w-full bg-[var(--accent)] text-white p-2.5 rounded-md font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
               >
-                Continue
+                {checking ? "Checking…" : "Continue"}
               </button>
               {hasGoogle && (
                 <>
@@ -145,80 +159,59 @@ function SignInForm() {
                 </button>
               </div>
 
-              {!isSupremeLeader && (
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-[var(--foreground)]">Password</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="mt-1 block w-full p-2 border border-[var(--card-border)] rounded-md text-[var(--foreground)] bg-[var(--background)] focus:ring-2 focus:ring-[var(--accent)]"
-                    required
-                    autoComplete="current-password"
-                    autoFocus
-                  />
-                </div>
-              )}
-
-              {isSupremeLeader ? (
-                <div className="mb-5 animate-in fade-in slide-in-from-top-2 duration-300">
-                  {setupSecret && qrCodeUrl && (
-                    <div className="mb-5 bg-[var(--card-bg)] p-4 rounded-lg border border-[var(--accent)] text-center">
-                      <p className="text-sm font-semibold text-[var(--accent)] mb-2">Authenticator Setup Required</p>
-                      <p className="text-xs text-[var(--muted)] mb-4">Scan this QR code with your Authenticator app (e.g., Google Authenticator, Authy, etc.)</p>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={qrCodeUrl} alt="2FA QR Code" className="mx-auto w-48 h-48 border border-white rounded-md mb-4" />
-                      <p className="text-xs font-mono bg-white/10 p-2 rounded break-all">{setupSecret}</p>
-                    </div>
-                  )}
-                  <label className="flex flex-col gap-1 text-sm font-semibold text-[var(--accent)]">
-                    <div className="flex items-center gap-2">
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                      Authenticator Code
-                    </div>
-                    {!setupSecret && (
-                      <span className="text-xs font-normal text-[var(--muted)]">
-                        Leave blank and click &apos;Secure Sign In&apos; to set up a new device
-                      </span>
-                    )}
+              {method === "authenticator" ? (
+                <div className="mb-5">
+                  <label htmlFor="signin-totp" className="block text-sm font-medium text-[var(--foreground)]">
+                    Authenticator code
                   </label>
                   <input
+                    id="signin-totp"
                     type="text"
+                    inputMode="numeric"
+                    pattern="[0-9 ]*"
                     value={totpCode}
                     onChange={(e) => setTotpCode(e.target.value)}
-                    className="mt-2 block w-full p-2.5 border border-[var(--accent)] rounded-lg text-[var(--foreground)] bg-[var(--background)] tracking-[0.5em] font-mono text-center text-lg focus:ring-2 focus:ring-[var(--accent)]"
-                    placeholder="------"
-                    maxLength={6}
+                    className="mt-1 block w-full p-2.5 border border-[var(--card-border)] rounded-md text-center text-lg text-[var(--foreground)] bg-[var(--background)] tracking-[0.4em] font-mono focus:ring-2 focus:ring-[var(--accent)]"
+                    placeholder="123456"
+                    maxLength={7}
                     autoComplete="one-time-code"
+                    autoFocus
                   />
+                  <p className="mt-1 text-xs text-[var(--muted)]">Open your authenticator app and enter the 6-digit code for Ziva Landscaping.</p>
                 </div>
               ) : (
-                <div className="mb-5">
-                  {!show2FA ? (
-                    <button
-                      type="button"
-                      onClick={() => setShow2FA(true)}
-                      className="text-sm font-medium text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
-                    >
-                      Have an Authenticator Code?
-                    </button>
-                  ) : (
-                    <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                      <label className="block text-sm font-medium text-[var(--foreground)]">Authenticator 2FA Code (If Enabled)</label>
-                      <input
-                        type="text"
-                        value={totpCode}
-                        onChange={(e) => setTotpCode(e.target.value)}
-                        className="mt-1 block w-full p-2 border border-[var(--card-border)] rounded-md text-[var(--foreground)] bg-[var(--background)] tracking-widest font-mono focus:ring-2 focus:ring-[var(--accent)]"
-                        placeholder="123456"
-                        maxLength={6}
-                        autoComplete="one-time-code"
-                      />
-                    </div>
-                  )}
-                </div>
+                <>
+                  <div className="mb-4">
+                    <label htmlFor="signin-password" className="block text-sm font-medium text-[var(--foreground)]">Password</label>
+                    <input
+                      id="signin-password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="mt-1 block w-full p-2 border border-[var(--card-border)] rounded-md text-[var(--foreground)] bg-[var(--background)] focus:ring-2 focus:ring-[var(--accent)]"
+                      autoComplete="current-password"
+                      autoFocus
+                    />
+                  </div>
+
+                  <div className="mb-5">
+                    <label htmlFor="signin-totp" className="block text-sm font-medium text-[var(--foreground)]">
+                      Authenticator code <span className="font-normal text-[var(--muted)]">(if 2FA is on)</span>
+                    </label>
+                    <input
+                      id="signin-totp"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9 ]*"
+                      value={totpCode}
+                      onChange={(e) => setTotpCode(e.target.value)}
+                      className="mt-1 block w-full p-2 border border-[var(--card-border)] rounded-md text-[var(--foreground)] bg-[var(--background)] tracking-widest font-mono focus:ring-2 focus:ring-[var(--accent)]"
+                      placeholder="123456"
+                      maxLength={7}
+                      autoComplete="one-time-code"
+                    />
+                  </div>
+                </>
               )}
 
               <button

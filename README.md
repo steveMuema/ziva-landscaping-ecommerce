@@ -51,6 +51,21 @@ npx prisma migrate deploy
 npx prisma db seed
 ```
 
+Create your admin account (or reset how a staff member signs in) — it's interactive and needs database access:
+
+```bash
+npm run staff:set-password -- you@example.com                       # admin with a password
+npm run staff:set-password -- writer@example.com --role editor
+npm run staff:set-password -- you@example.com --authenticator-only  # no password: scan a QR code instead
+npm run staff:set-password -- you@example.com --disable-2fa         # lost your authenticator
+# against production:
+DATABASE_URL="postgres://…" npm run staff:set-password -- you@example.com
+```
+
+Staff sign in at `/auth/signin` with their email and password, plus their authenticator code once 2FA is on
+(Admin → My account → Two-factor authentication). Authenticator-only accounts leave the password blank and
+enter just the code. Five wrong attempts lock the account for 15 minutes; running the command above unlocks it.
+
 **Docker details**
 - Image: `postgres:16-alpine`
 - Container: `ziva-postgres-dev`

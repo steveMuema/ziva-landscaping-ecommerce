@@ -17,7 +17,8 @@
     "prisma:seed": "tsx prisma/seed.ts",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
-    "optimize:images": "node scripts/optimize-product-images.js"
+    "optimize:images": "node scripts/optimize-product-images.js",
+    "staff:set-password": "tsx scripts/set-staff-password.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

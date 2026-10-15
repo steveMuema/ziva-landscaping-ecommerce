@@ -2,11 +2,9 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
-import bcryptjs from "bcryptjs";
 import type { NextAuthOptions } from "next-auth";
-import speakeasy from "speakeasy";
-import { resolveElevatedContext } from "@/lib/session-utils";
 import { isStaffRole } from "@/lib/roles";
+import { SignInError, verifyCredentials } from "@/lib/credentials-auth";
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -30,57 +28,22 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
         totpCode: { label: "2FA Code (Optional)", type: "text" },
-        enrollSecret: { label: "Enrollment Secret", type: "text" },
       },
       async authorize(credentials) {
-        const { email, password, totpCode, enrollSecret } = credentials as {
+        // Password (+ authenticator code when 2FA is on), or the code alone for
+        // authenticator-only accounts. See verifyCredentials for the rules and lockout.
+        const { email, password, totpCode } = (credentials ?? {}) as {
           email?: string;
           password?: string;
           totpCode?: string;
-          enrollSecret?: string;
         };
-
-        if (!email) {
+        try {
+          return await verifyCredentials({ email, password, totpCode });
+        } catch (error) {
+          if (error instanceof SignInError) throw new Error(error.message);
+          console.error("Sign-in failed:", error);
           return null;
         }
-
-        const emailNorm = email.trim().toLowerCase();
-
-        // Check elevated session context first
-        const elevated = await resolveElevatedContext(emailNorm, totpCode, enrollSecret || undefined);
-        if (elevated) return elevated;
-
-        // Standard credential flow
-        if (!password) return null;
-
-        const user = await prisma.user.findUnique({
-          where: { email: emailNorm },
-        });
-
-        if (!user || !user.password) return null;
-
-        const isValidCredentials = await bcryptjs.compare(password, user.password);
-        if (!isValidCredentials) return null;
-
-        if (user.twoFactorEnabled) {
-          if (!totpCode) throw new Error("2FA code required. Please check your Authenticator app.");
-          if (!user.twoFactorSecret) throw new Error("2FA is enabled but secret is missing from database.");
-          const isValid = speakeasy.totp.verify({
-            secret: user.twoFactorSecret,
-            encoding: "base32",
-            token: totpCode,
-          });
-          if (!isValid) {
-            throw new Error("Invalid 2FA code. Please try again.");
-          }
-        }
-
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        };
       },
     }),
   ],

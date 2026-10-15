@@ -1,0 +1,3 @@
+-- Sign-in lockout after repeated failures. Idempotent like the other migrations.
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "failedLoginCount" INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "lockedUntil" TIMESTAMP(3);

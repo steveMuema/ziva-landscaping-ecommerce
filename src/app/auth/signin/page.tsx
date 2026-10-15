@@ -1,6 +1,6 @@
 "use client";
 import { Suspense, useEffect, useState } from "react";
-import { getProviders, signIn } from "next-auth/react";
+import { getProviders, signIn, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import QRCode from "qrcode";
 
@@ -25,12 +25,18 @@ function SignInForm() {
   }
 
   useEffect(() => {
+    // The admin rejected this session (account deleted or no longer staff): clear the
+    // stale cookie rather than redirecting back to /admin, which would loop forever.
+    if (searchParams.get("error") === "SessionExpired") {
+      signOut({ redirect: false });
+      return;
+    }
     const checkSession = async () => {
       const session = await fetch("/api/auth/session").then((res) => res.json());
       if (session?.user) router.push("/admin");
     };
     checkSession();
-  }, [router]);
+  }, [router, searchParams]);
 
   useEffect(() => {
     getProviders().then((p) => setHasGoogle(Boolean(p?.google)));
@@ -42,6 +48,8 @@ function SignInForm() {
       setError("Invalid email or password.");
     } else if (err === "Callback" || err === "AccessDenied") {
       setError("Only admin users are allowed to sign in.");
+    } else if (err === "SessionExpired") {
+      setError("Your session is no longer valid. Please sign in again.");
     }
   }, [searchParams]);
 

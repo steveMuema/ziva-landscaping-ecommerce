@@ -1,4 +1,4 @@
-import { getServerSession } from "next-auth";
+import { getServerSession, type Session } from "next-auth";
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/authOptions";
@@ -13,7 +13,10 @@ export type AdminUser = { id: string; name: string | null; email: string | null;
  * would otherwise keep access until their token expires.
  */
 export async function getStaffUser(): Promise<AdminUser | null> {
-  const session = await getServerSession(authOptions);
+  return staffFromSession(await getServerSession(authOptions));
+}
+
+async function staffFromSession(session: Session | null): Promise<AdminUser | null> {
   const id = session?.user?.id;
   if (!id || !isStaffRole(session.user.role)) return null;
   const user = await prisma.user.findUnique({
@@ -30,19 +33,28 @@ export async function getAdminUser(): Promise<AdminUser | null> {
   return user?.role === "admin" ? user : null;
 }
 
+/**
+ * Staff user for a page or server action, or a redirect to sign-in. When a login cookie
+ * exists but the account was deleted or demoted, the sign-in page is told so it clears the
+ * stale session instead of sending the browser straight back here (a redirect loop).
+ */
+async function staffOrSignIn(): Promise<AdminUser> {
+  const session = await getServerSession(authOptions);
+  const user = await staffFromSession(session);
+  if (!user) redirect(session?.user ? "/auth/signin?error=SessionExpired" : "/auth/signin");
+  return user;
+}
+
 /** Admin-only pages and server actions: redirects everyone else. */
 export async function requireAdmin(): Promise<AdminUser> {
-  const user = await getStaffUser();
-  if (!user) redirect("/auth/signin");
+  const user = await staffOrSignIn();
   if (user.role !== "admin") redirect(EDITOR_HOME);
   return user;
 }
 
 /** Catalog, blog and content pages and actions: admins and editors. */
 export async function requireEditor(): Promise<AdminUser> {
-  const user = await getStaffUser();
-  if (!user) redirect("/auth/signin");
-  return user;
+  return staffOrSignIn();
 }
 
 type ApiAuth = { user: AdminUser } | { response: NextResponse };

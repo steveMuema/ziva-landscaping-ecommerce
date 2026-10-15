@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { getProviders, signIn, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -13,6 +13,9 @@ function SignInForm() {
   // "authenticator" = this account signs in with an authenticator code only (no password).
   const [method, setMethod] = useState<"password" | "authenticator">("password");
   const [checking, setChecking] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  // The last code sent automatically, so the same code is never submitted twice.
+  const lastAutoCode = useRef("");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -77,8 +80,13 @@ function SignInForm() {
       return;
     }
 
+    await submitCredentials(totpCode);
+  };
+
+  const submitCredentials = async (code: string) => {
+    if (submitting) return;
     if (method === "authenticator") {
-      if (!/^\d{6}$/.test(totpCode.replace(/\s+/g, ""))) {
+      if (!/^\d{6}$/.test(code)) {
         setError("Enter the 6-digit code from your authenticator app.");
         return;
       }
@@ -87,21 +95,39 @@ function SignInForm() {
       return;
     }
     setError("");
-    const result = await signIn("credentials", {
-      email: email.trim(),
-      password: method === "authenticator" ? "" : password,
-      totpCode: totpCode.trim(),
-      redirect: false,
-    });
-
-    if (result?.error) {
-      if (result.error === "CredentialsSignin") {
-        setError(method === "authenticator" ? "That code didn't work. Wait for a new code and try again." : "Invalid email or password.");
-      } else {
-        setError(result.error);
+    setSubmitting(true);
+    try {
+      const result = await signIn("credentials", {
+        email: email.trim(),
+        password: method === "authenticator" ? "" : password,
+        totpCode: code,
+        redirect: false,
+      });
+      if (result?.error) {
+        if (result.error === "CredentialsSignin") {
+          setError(method === "authenticator" ? "That code didn't work. Wait for a new code and try again." : "Invalid email or password.");
+        } else {
+          setError(result.error);
+        }
+        // Clear a rejected code so the next one can be typed (and sent) straight away.
+        if (code) setTotpCode("");
+      } else if (result?.ok) {
+        router.push("/admin");
+        return; // keep the form disabled while navigating
       }
-    } else if (result?.ok) {
-      router.push("/admin");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  /** Keep digits only; send automatically once all 6 are in (typed or pasted). */
+  const onCodeChange = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 6);
+    setTotpCode(digits);
+    const ready = method === "authenticator" || password.length > 0;
+    if (digits.length === 6 && ready && !submitting && digits !== lastAutoCode.current) {
+      lastAutoCode.current = digits;
+      submitCredentials(digits);
     }
   };
 
@@ -170,14 +196,15 @@ function SignInForm() {
                     inputMode="numeric"
                     pattern="[0-9 ]*"
                     value={totpCode}
-                    onChange={(e) => setTotpCode(e.target.value)}
+                    onChange={(e) => onCodeChange(e.target.value)}
+                    readOnly={submitting}
                     className="mt-1 block w-full p-2.5 border border-[var(--card-border)] rounded-md text-center text-lg text-[var(--foreground)] bg-[var(--background)] tracking-[0.4em] font-mono focus:ring-2 focus:ring-[var(--accent)]"
                     placeholder="123456"
                     maxLength={7}
                     autoComplete="one-time-code"
                     autoFocus
                   />
-                  <p className="mt-1 text-xs text-[var(--muted)]">Open your authenticator app and enter the 6-digit code for Ziva Landscaping.</p>
+                  <p className="mt-1 text-xs text-[var(--muted)]">Open your authenticator app and enter the 6-digit code for Ziva Landscaping. You&apos;ll be signed in as soon as all 6 digits are in.</p>
                 </div>
               ) : (
                 <>
@@ -204,7 +231,8 @@ function SignInForm() {
                       inputMode="numeric"
                       pattern="[0-9 ]*"
                       value={totpCode}
-                      onChange={(e) => setTotpCode(e.target.value)}
+                      onChange={(e) => onCodeChange(e.target.value)}
+                    readOnly={submitting}
                       className="mt-1 block w-full p-2 border border-[var(--card-border)] rounded-md text-[var(--foreground)] bg-[var(--background)] tracking-widest font-mono focus:ring-2 focus:ring-[var(--accent)]"
                       placeholder="123456"
                       maxLength={7}
@@ -216,9 +244,10 @@ function SignInForm() {
 
               <button
                 type="submit"
-                className="w-full bg-[var(--accent)] text-white p-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity"
+                disabled={submitting}
+                className="w-full bg-[var(--accent)] text-white p-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
               >
-                Secure Sign In
+                {submitting ? "Signing in…" : "Secure Sign In"}
               </button>
             </div>
           )}

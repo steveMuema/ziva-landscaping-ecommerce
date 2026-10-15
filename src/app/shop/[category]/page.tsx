@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { SubCategoryGrid } from "@/components/SubCategoryGrid";
 import { SubCategory } from "@/types";
+import { socialMetadata } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 export const viewport = {
@@ -32,9 +33,8 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
 
   if (!category) return { title: "Category Not Found" };
 
-  // The root layout's title template adds the site name; social cards need it spelled out.
+  // The root layout's title template adds the site name.
   const title = `${category.name} | Shop`;
-  const socialTitle = `${title} | Ziva Landscaping Co.`;
   const description = category.description || `Shop ${category.name} at Ziva Landscaping Co. Eco-friendly outdoor solutions.`;
   const url = process.env.NEXT_PUBLIC_SITE_URL ? `${process.env.NEXT_PUBLIC_SITE_URL}/shop/${normalizedSlug}` : `https://zivalandscaping.co.ke/shop/${normalizedSlug}`;
 
@@ -42,12 +42,7 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
     title,
     description,
     alternates: { canonical: url },
-    openGraph: {
-      title: socialTitle,
-      description,
-      url,
-      images: category.imageUrl ? [{ url: category.imageUrl, width: 800, height: 600, alt: category.name }] : undefined,
-    }
+    ...socialMetadata({ title, description, path: `/shop/${normalizedSlug}`, image: category.imageUrl, imageAlt: category.name }),
   };
 }
 

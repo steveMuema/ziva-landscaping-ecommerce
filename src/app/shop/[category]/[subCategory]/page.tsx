@@ -8,6 +8,7 @@ import { ProductGridWithProviders } from "@/components/ProductGrid";
 import { Product } from "@/types";
 import { ProductProvider } from "@/lib/productContext";
 import { slugToName, normalizeSlug } from "@/lib/slug";
+import { socialMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -27,9 +28,8 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
   const subCategory = await getSubCategoryByNames(categoryName, subCategoryName);
   if (!subCategory) return { title: "Not Found" };
 
-  // The root layout's title template adds the site name; social cards need it spelled out.
+  // The root layout's title template adds the site name.
   const title = `${subCategory.name} | ${categoryName}`;
-  const socialTitle = `${title} | Ziva Landscaping Co.`;
   const description = subCategory.description || `Shop ${subCategory.name} products in ${categoryName} at Ziva Landscaping Co.`;
   const url = process.env.NEXT_PUBLIC_SITE_URL ? `${process.env.NEXT_PUBLIC_SITE_URL}/shop/${normalizedCategorySlug}/${normalizedSubCategorySlug}` : `https://zivalandscaping.co.ke/shop/${normalizedCategorySlug}/${normalizedSubCategorySlug}`;
 
@@ -37,12 +37,13 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
     title,
     description,
     alternates: { canonical: url },
-    openGraph: {
-      title: socialTitle,
+    ...socialMetadata({
+      title,
       description,
-      url,
-      images: subCategory.imageUrl ? [{ url: subCategory.imageUrl, width: 800, height: 600, alt: subCategory.name }] : undefined,
-    }
+      path: `/shop/${normalizedCategorySlug}/${normalizedSubCategorySlug}`,
+      image: subCategory.imageUrl,
+      imageAlt: subCategory.name,
+    }),
   };
 }
 

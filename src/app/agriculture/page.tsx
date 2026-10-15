@@ -6,6 +6,7 @@ import { CategoryGrid } from "@/components/CategoryGrid";
 import { Category } from "@/types";
 import { getSettings } from "@/lib/settings";
 import { SETTING_KEYS } from "@/lib/setting-keys";
+import { socialMetadata } from "@/lib/seo";
 
 const DEFAULT_BG_IMAGE = "/landscape.jpeg";
 
@@ -23,6 +24,12 @@ export const metadata = {
     "sustainable agriculture",
     "Ziva Landscaping",
   ],
+  ...socialMetadata({
+    title: "Agriculture | East Africa",
+    description:
+      "Agriculture products and solutions. Sustainable farming, landscaping, and eco-friendly supplies in Kenya and East Africa.",
+    path: "/agriculture",
+  }),
 };
 
 export default async function AgriculturePage() {

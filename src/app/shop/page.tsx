@@ -7,6 +7,7 @@ import { CategoryGrid } from "@/components/CategoryGrid";
 import { Category } from "@/types";
 import { getSettings } from "@/lib/settings";
 import { SETTING_KEYS } from "@/lib/setting-keys";
+import { socialMetadata } from "@/lib/seo";
 
 const DEFAULT_BG_IMAGE = "/landscape.jpeg";
 
@@ -19,11 +20,11 @@ export const metadata: Metadata = {
   description: "Shop landscaping and sustainable living products. Kenya, East Africa. Eco-friendly outdoor solutions.",
   keywords: ["shop", "landscaping", "East Africa", "Kenya", "Ziva Landscaping"],
   alternates: { canonical: url },
-  openGraph: {
-    title: "Shop | Ziva Landscaping Co.",
+  ...socialMetadata({
+    title: "Shop",
     description: "Shop landscaping and sustainable living products. Kenya, East Africa. Eco-friendly outdoor solutions.",
-    url,
-  },
+    path: "/shop",
+  }),
 };
 
 export default async function ShopPage() {

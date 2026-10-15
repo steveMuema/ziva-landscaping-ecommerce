@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getContent } from "@/lib/content";
+import { socialMetadata } from "@/lib/seo";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://zivalandscaping.co.ke";
 
 export async function generateMetadata(): Promise<Metadata> {
   const faq = await getContent("faq");
+  const description = faq.intro || "Answers to common questions about Ziva Landscaping Co. products, delivery and services.";
   return {
     title: faq.title,
-    description: faq.intro || "Answers to common questions about Ziva Landscaping Co. products, delivery and services.",
+    description,
     alternates: { canonical: `${siteUrl}/faq` },
+    ...socialMetadata({ title: faq.title, description, path: "/faq" }),
   };
 }
 

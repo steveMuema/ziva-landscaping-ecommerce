@@ -70,7 +70,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ziva Landscaping Co.",
+    title: "Ziva Landscaping Co. — Sustainable Living | East Africa",
     description: "Eco-friendly landscaping and sustainable outdoor spaces across East Africa.",
     images: ["/ziva_logo.jpg"],
   },

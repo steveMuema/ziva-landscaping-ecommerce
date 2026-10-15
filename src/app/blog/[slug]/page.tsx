@@ -8,6 +8,7 @@ import { FeaturedImage, getFeaturedImageUrl } from "@/components/blog/FeaturedIm
 import CommentSection from "@/components/blog/CommentSection";
 import { sanitizeBlogHtml } from "@/lib/sanitize";
 import { livePost } from "@/lib/catalog";
+import { socialMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -21,30 +22,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
   if (!post) return { title: "Blog" };
 
-  // The root layout's title template adds the site name; social cards need it spelled out.
+  // The root layout's title template adds the site name.
   const title = `${post.metaTitle || post.title} | Blog`;
-  const socialTitle = `${title} | Ziva Landscaping Co.`;
   const description = post.metaDescription || post.excerpt || `Read ${post.title} at Ziva Landscaping Co.`;
   const url = process.env.NEXT_PUBLIC_SITE_URL ? `${process.env.NEXT_PUBLIC_SITE_URL}/blog/${slug}` : `https://zivalandscaping.co.ke/blog/${slug}`;
-  const images = post.imageUrl ? [{ url: post.imageUrl }] : undefined;
 
   return {
     title,
     description,
     alternates: { canonical: url },
-    openGraph: {
-      title: socialTitle,
-      description,
-      url,
-      images,
-      type: "article",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: socialTitle,
-      description,
-      images: post.imageUrl ? [post.imageUrl] : undefined,
-    }
+    ...socialMetadata({ title, description, path: `/blog/${slug}`, image: post.imageUrl, type: "article" }),
   };
 }
 

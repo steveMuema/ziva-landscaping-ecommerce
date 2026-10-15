@@ -3,6 +3,7 @@ import AboutUsSection from "@/sections/aboutus.section";
 import { getSettings } from "@/lib/settings";
 import { SETTING_KEYS } from "@/lib/setting-keys";
 import { getContent } from "@/lib/content";
+import { socialMetadata } from "@/lib/seo";
 
 export const dynamic = 'force-dynamic';
 
@@ -19,10 +20,11 @@ export const metadata: Metadata = {
     "Kenya",
     "eco-friendly",
   ],
-  openGraph: {
-    title: "Company — Mission & Vision | Ziva Landscaping Co.",
+  ...socialMetadata({
+    title: "Company — Mission & Vision",
     description: "Our mission and vision for sustainable, eco-friendly outdoor spaces.",
-  },
+    path: "/company",
+  }),
 };
 
 const DEFAULT_PARALLAX_IMAGE = "/landscape.jpeg";

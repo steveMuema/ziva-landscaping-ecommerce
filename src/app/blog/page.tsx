@@ -3,6 +3,7 @@ import { BlogSidebar } from "@/components/blog/BlogSidebar";
 import { BlogList } from "@/components/blog/BlogList";
 import { PAGE_SIZE } from "@/lib/pagination";
 import { livePost } from "@/lib/catalog";
+import { socialMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -12,11 +13,11 @@ export const metadata = {
   title: "Blog",
   description: "Articles and updates on sustainable landscaping, East Africa, and eco-friendly outdoor spaces.",
   alternates: { canonical: url },
-  openGraph: {
-    title: "Blog | Ziva Landscaping Co.",
+  ...socialMetadata({
+    title: "Blog",
     description: "Articles and updates on sustainable landscaping, East Africa, and eco-friendly outdoor spaces.",
-    url,
-  }
+    path: "/blog",
+  }),
 };
 
 export default async function BlogPage() {
